@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Pong RPG - Case Drop Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #050508;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #050508;
+        }
+        .hidden { display: none !important; }
+
+        .neon-title {
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .neon-input {
+            background: rgba(0,255,255,0.05);
+            border: 2px solid #0ff;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+            transition: box-shadow 0.3s;
+        }
+        .neon-input:focus {
+            box-shadow: 0 0 25px rgba(0,255,255,0.6);
+            border-color: #fff;
+        }
+
+        .neon-button {
+            background: transparent;
+            border: 2px solid #f0f;
+            color: #f0f;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-shadow: 0 0 5px #f0f;
+            box-shadow: 0 0 10px rgba(255,0,255,0.3), inset 0 0 10px rgba(255,0,255,0.1);
+            user-select: none;
+        }
+        .neon-button:hover {
+            background: #f0f;
+            color: #000;
+            box-shadow: 0 0 30px #f0f;
+            text-shadow: none;
+        }
+        .neon-button:active { transform: scale(0.96); }
+
+        .neon-button.cyan {
+            border-color: #0ff; color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3), inset 0 0 10px rgba(0,255,255,0.1);
+        }
+        .neon-button.cyan:hover {
+            background: #0ff; color: #000;
+            box-shadow: 0 0 30px #0ff; text-shadow: none;
+        }
+
+        .neon-button.gold {
+            border-color: #ff0; color: #ff0;
+            text-shadow: 0 0 5px #ff0;
+            box-shadow: 0 0 10px rgba(255,255,0,0.3), inset 0 0 10px rgba(255,255,0,0.1);
+        }
+        .neon-button.gold:hover {
+            background: #ff0; color: #000;
+            box-shadow: 0 0 30px #ff0; text-shadow: none;
+        }
+
+        .neon-button.green {
+            border-color: #0f0; color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            box-shadow: 0 0 10px rgba(0,255,0,0.3), inset 0 0 10px rgba(0,255,0,0.1);
+        }
+        .neon-button.green:hover {
+            background: #0f0; color: #000;
+            box-shadow: 0 0 30px #0f0; text-shadow: none;
+        }
+
+        #profileBar {
+            position: absolute;
+            top: 20px; left: 20px;
+            background: rgba(0,0,0,0.85);
+            border: 2px solid #0ff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
+            min-width: 270px;
+            z-index: 5;
+        }
+        .prof-name { font-size: 1.2rem; color: #fff; margin-bottom: 5px; }
+        .prof-level { font-size: 1rem; color: #0ff; margin-bottom: 5px; }
+        .prof-credits { font-size: 0.9rem; color: #ff0; margin-bottom: 10px; text-shadow: 0 0 5px rgba(255,255,0,0.5); }
+        .xp-bar-container {
+            width: 100%; height: 12px;
+            background: #222; border-radius: 6px;
+            overflow: hidden; border: 1px solid #333;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0ff);
+            width: 0%; box-shadow: 0 0 10px #0f0;
+            transition: width 0.5s ease-out;
+        }
+        .xp-text { font-size: 0.8rem; color: #aaa; margin-top: 5px; text-align: right; }
+
+        #gameContainer { position: relative; }
+        canvas {
+            background-color: #0a0a12;
+            border: 2px solid #0ff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            display: none;
+            cursor: none;
+        }
+
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 20px currentColor; transform: scale(1.05); }
+            100% { opacity: 0.8; }
+        }
+
+        .overlay-box {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: rgba(5, 5, 8, 0.85);
+            border-radius: 8px; z-index: 10;
+        }
+
+        #message {
+            font-size: 1.5rem; color: #f0f;
+            text-shadow: 0 0 10px #f0f;
+            animation: pulse 1.5s infinite;
+        }
+        .neon-text { font-size: 60px; font-weight: 900; text-transform: uppercase; }
+        .win-text { color: #0f0; text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0; }
+        .lose-text { color: #f00; text-shadow: 0 0 10px #f00, 0 0 20px #f00, 0 0 40px #f00; }
+        .xp-reward-text { font-size: 2rem; color: #0f0; text-shadow: 0 0 10px #0f0; margin-top: 15px; }
+        .credit-reward-text { font-size: 1.5rem; color: #ff0; text-shadow: 0 0 10px #ff0; margin-top: 10px; }
+
+        /* ENVANTER */
+        #inventoryScreen {
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+        .tab-bar { display: flex; gap: 0; margin-bottom: 25px; }
+        .tab-btn {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #333; color: #888;
+            padding: 12px 30px; font-size: 0.9rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .tab-btn:first-child { border-radius: 8px 0 0 8px; }
+        .tab-btn:last-child { border-radius: 0 8px 8px 0; }
+        .tab-btn.active {
+            background: rgba(0,255,255,0.1);
+            border-color: #0ff; color: #0ff;
+            text-shadow: 0 0 5px #0ff;
+        }
+        .tab-btn:hover:not(.active) { border-color: #555; color: #ccc; }
+        .tab-content { display: none; width: 850px; }
+        .tab-content.active { display: block; }
+
+        .shop-card {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #ff0; border-radius: 12px;
+            padding: 30px; text-align: center;
+            box-shadow: 0 0 20px rgba(255,255,0,0.15);
+            transition: all 0.3s;
+        }
+        .shop-card:hover { box-shadow: 0 0 40px rgba(255,255,0,0.3); transform: translateY(-3px); }
+
+        #rouletteContainer {
+            width: 800px; height: 150px;
+            border: 2px solid #fff; position: relative;
+            overflow: hidden; margin: 20px auto;
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            border-radius: 8px;
+        }
+        .center-line {
+            position: absolute; top: 0; bottom: 0; left: 50%;
+            width: 4px; background: #ff0000; z-index: 10;
+            box-shadow: 0 0 15px #ff0000; transform: translateX(-50%);
+        }
+        .center-arrow-top {
+            position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 12px solid transparent; border-right: 12px solid transparent;
+            border-top: 16px solid #ff0000; z-index: 11;
+            filter: drop-shadow(0 0 8px #ff0000);
+        }
+        .center-arrow-bottom {
+            position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 12px solid transparent; border-right: 12px solid transparent;
+            border-bottom: 16px solid #ff0000; z-index: 11;
+            filter: drop-shadow(0 0 8px #ff0000);
+        }
+        #rouletteTrack { display: flex; height: 100%; position: absolute; left: 0; }
+        .roulette-item {
+            width: 150px; height: 100%;
+            border-right: 1px solid rgba(255,255,255,0.15);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            flex-shrink: 0; font-size: 14px; font-weight: bold;
+            text-align: center; padding: 10px; position: relative;
+        }
+        .roulette-item .skin-preview {
+            width: 14px; height: 55px; border-radius: 3px; margin-bottom: 8px;
+        }
+
+        .skin-card {
+            width: 150px; height: 160px;
+            border: 2px solid #555; border-radius: 10px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer; background: rgba(0,0,0,0.5);
+            transition: all 0.2s; user-select: none;
+        }
+        .skin-card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .skin-card.equipped { border-color: #0f0; box-shadow: 0 0 15px rgba(0,255,0,0.5); }
+        .skin-card .skin-paddle { width: 15px; height: 60px; border-radius: 3px; }
+        .skin-card .skin-name { margin-top: 12px; font-size: 13px; text-align: center; }
+        .skin-card .skin-equipped { color: #0f0; font-size: 11px; margin-top: 5px; }
+        .skin-card .skin-rarity-badge {
+            font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 4px;
+        }
+
+        /* LEADERBOARD */
+        .lb-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+        }
+        .lb-table th {
+            color: #0ff;
+            font-size: 0.75rem;
+            text-align: left;
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(0,255,255,0.2);
+        }
+        .lb-table td {
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            background: rgba(0,255,255,0.03);
+        }
+        .lb-table tr td:first-child { border-radius: 6px 0 0 6px; }
+        .lb-table tr td:last-child { border-radius: 0 6px 6px 0; }
+        .lb-rank-1 td { background: rgba(255,215,0,0.12); color: #ffd700; }
+        .lb-rank-2 td { background: rgba(192,192,192,0.1); color: #c0c0c0; }
+        .lb-rank-3 td { background: rgba(205,127,50,0.1); color: #cd7f32; }
+
+        /* ODA OLUŞTURMA */
+        .room-code-display {
+            font-size: 4rem;
+            color: #0f0;
+            text-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
+            letter-spacing: 15px;
+            margin: 20px 0;
+            font-weight: 900;
+        }
+        .room-code-input {
+            background: rgba(0,255,0,0.05);
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 15px 25px;
+            font-size: 2rem;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            width: 250px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+        }
+        .room-code-input:focus {
+            box-shadow: 0 0 30px rgba(0,255,0,0.6);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            max-width: 700px;
+        }
+        .menu-grid .neon-button {
+            font-size: 1.1rem;
+            padding: 18px 20px;
+        }
+
+        .back-btn {
+            margin-top: 30px;
+            font-size: 1rem !important;
+            padding: 10px 25px !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GİRİŞ -->
+    <div id="loginScreen" class="screen hidden">
+        <h1 class="neon-title">SİBER ARENA'YA GİRİŞ</h1>
+        <h3 style="color: #888; margin-bottom: 30px;">Lütfen Bir Savaşçı Adı Belirleyin</h3>
+        <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
+        <button id="btnLogin" class="neon-button">SİSTEME BAĞLAN</button>
+    </div>
+
+    <!-- ANA MENÜ -->
+    <div id="mainMenu" class="screen hidden">
+        <div id="profileBar">
+            <div id="profName" class="prof-name"></div>
+            <div id="profLevel" class="prof-level"></div>
+            <div id="profCredits" class="prof-credits"></div>
+            <div class="xp-bar-container"><div id="xpBarFill" class="xp-bar-fill"></div></div>
+            <div id="xpText" class="xp-text"></div>
+        </div>
+
+        <h1 class="neon-title" style="font-size: 5rem; margin-bottom: 15px;">NEON PONG</h1>
+        <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;">Küresel Siber Arena v2.0</p>
+
+        <div class="menu-grid">
+            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;">⚔️ EŞLEŞME BUL</button>
+            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;">🔑 ODA OLUŞTUR</button>
+            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;">🚪 ODAYA KATIL</button>
+            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem;">🎒 ENVANTER</button>
+        </div>
+
+        <button id="btnLeaderboard" class="neon-button" style="margin-top: 20px; font-size: 1rem; padding: 12px 35px; border-color: #ffd700; color: #ffd700; text-shadow: 0 0 5px #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3);">🏆 GLOBAL LİDERLİK TABLOSU</button>
+    </div>
+
+    <!-- ODA OLUŞTUR EKRANI -->
+    <div id="createRoomScreen" class="screen hidden">
+        <h1 class="neon-title">🔑 ÖZEL ODA OLUŞTURULDU</h1>
+        <p style="color: #aaa; margin-bottom: 10px;">Bu kodu arkadaşına gönder:</p>
+        <div id="roomCodeDisplay" class="room-code-display">----</div>
+        <p style="color: #666; font-size: 0.75rem; margin-bottom: 20px;">Rakibin katılmasını bekliyorsun...</p>
+        <div id="createRoomWaiting" style="color: #f0f; animation: pulse 1.5s infinite;">⏳ Bekleniyor...</div>
+        <button id="btnCancelCreate" class="neon-button back-btn">İPTAL ET</button>
+    </div>
+
+    <!-- ODAYA KATIL EKRANI -->
+    <div id="joinRoomScreen" class="screen hidden">
+        <h1 class="neon-title">🚪 ODAYA KATIL</h1>
+        <p style="color: #aaa; margin-bottom: 20px;">Arkadaşının verdiği 4 haneli kodu gir:</p>
+        <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4">
+        <div id="joinRoomError" style="color: #f55; font-size: 0.85rem; margin-bottom: 15px; min-height: 20px;"></div>
+        <button id="btnJoinRoomGo" class="neon-button green">ODAYA GİR</button>
+        <button id="btnCancelJoin" class="neon-button back-btn">GERİ DÖN</button>
+    </div>
+
+    <!-- LEADERBOARD EKRANI -->
+    <div id="leaderboardScreen" class="screen hidden" style="justify-content: flex-start; padding-top: 50px;">
+        <h1 class="neon-title" style="color: #ffd700; text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;">🏆 GLOBAL LİDERLİK TABLOSU</h1>
+        <p style="color: #666; font-size: 0.7rem; margin-bottom: 20px;">En İyi 10 Savaşçı</p>
+        <div style="width: 700px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.1);">
+            <table class="lb-table" id="leaderboardTable">
+                <thead><tr><th>#</th><th>SAVAŞÇI</th><th>SEVİYE</th><th>TOPLAM XP</th></tr></thead>
+                <tbody id="leaderboardBody"><tr><td colspan="4" style="text-align:center; color:#555;">Yükleniyor...</td></tr></tbody>
+            </table>
+        </div>
+        <button id="btnLbRefresh" class="neon-button" style="margin-top: 20px; font-size: 0.85rem; padding: 10px 25px; border-color: #ffd700; color: #ffd700;">🔄 YENİLE</button>
+        <button id="btnLbBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+    </div>
+
+    <!-- ENVANTER & MAĞAZA -->
+    <div id="inventoryScreen" class="screen hidden">
+        <h1 class="neon-title" style="margin-bottom: 15px;">ENVANTER & MAĞAZA</h1>
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
+            <button class="tab-btn" data-tab="tabShop">MAĞAZA</button>
+        </div>
+
+        <div id="tabInventory" class="tab-content active">
+            <div id="caseSection" style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #0ff; margin-bottom: 15px;">Sahip Olduğun Siber Kasalar: <span id="caseCount" style="color: #fff; font-size: 2rem;">0</span></h2>
+                <button id="btnOpenCase" class="neon-button gold">KASAYI AÇ</button>
+            </div>
+            <div id="rouletteContainer" class="hidden">
+                <div class="center-arrow-top"></div>
+                <div class="center-line"></div>
+                <div class="center-arrow-bottom"></div>
+                <div id="rouletteTrack"></div>
+            </div>
+            <div id="wonSkinBanner" class="hidden" style="text-align:center; margin: 15px 0; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.6);"></div>
+            <h2 style="color: #f0f; margin-top: 25px; margin-bottom: 10px; text-align: center;">SAHİP OLDUĞUN SKİNLER</h2>
+            <div id="skinsSection" style="width: 820px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 8px;"></div>
+        </div>
+
+        <div id="tabShop" class="tab-content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #ff0; margin-bottom: 5px;">Mevcut Jetonların: <span id="shopCredits" style="color: #fff;">0</span> <span style="font-size: 0.8rem;">SİBER JETON</span></h2>
+            </div>
+            <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
+                <div class="shop-card" style="width: 280px;">
+                    <h3 style="color: #ff0; margin-bottom: 10px;">🔒 SİBER KASA</h3>
+                    <div style="font-size: 3rem; margin: 15px 0;">📦</div>
+                    <p style="color: #aaa; font-size: 0.7rem; margin-bottom: 15px;">İçinden Neon Safir, Hiper Pembe, Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!</p>
+                    <button id="btnBuyCase" class="neon-button gold" style="padding: 10px 30px; font-size: 1rem;">500 JETON İLE SATIN AL</button>
+                </div>
+            </div>
+            <div style="margin-top: 30px; text-align: center; color: #555; font-size: 0.7rem;">
+                <p>Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton</p>
+                <p style="margin-top: 5px;">Maç kazanarak ve oynayarak jeton biriktir!</p>
+            </div>
+        </div>
+
+        <button id="btnBackToMenu" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+    </div>
+
+    <!-- OYUN EKRANI -->
+    <div id="gameScreen" class="screen hidden">
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="ui" class="overlay-box hidden"><h2 id="message">Sisteme Bağlanılıyor...</h2></div>
+            <div id="endGameOverlay" class="overlay-box hidden">
+                <div id="endGameText" class="neon-text"></div>
+                <div id="endGameXpText" class="xp-reward-text"></div>
+                <div id="endGameCreditText" class="credit-reward-text"></div>
+                <div id="endGameCaseText" class="neon-title hidden" style="color: #ff0; text-shadow: 0 0 20px #ff0; margin-top: 20px; animation: pulse 1s infinite; font-size: 1.8rem;">🎁 SİBER KASA DÜŞTÜ!</div>
+                <button id="btnReturnMenu" class="neon-button" style="margin-top: 35px; font-size: 1.2rem;">Ana Menüye Dön</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUPLAR -->
+    <div id="dailyRewardOverlay" class="screen hidden" style="background: rgba(0,0,0,0.92); z-index: 100;">
+        <h2 class="neon-title" style="color: #ff0;">GÜNLÜK ÖDÜLÜN HAZIR</h2>
+        <h3 id="streakText" style="color: #0ff; font-size: 1.5rem;">1. Gün Ardışık Giriş</h3>
+        <h1 id="dailyXpText" class="win-text" style="font-size: 80px; margin: 20px 0;">+100 XP</h1>
+        <button id="btnClaimDaily" class="neon-button gold">ÖDÜLÜ AL</button>
+    </div>
+
+    <div id="levelUpOverlay" class="screen hidden" style="background: rgba(255,255,255,0.05); z-index: 200; pointer-events: none;">
+        <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;">SEVİYE ATLADIN!</h1>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io({ transports: ['websocket'], upgrade: false });
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ui = document.getElementById('ui');
+        const messageEl = document.getElementById('message');
+
+        const SKINS = {
+            'default': { name: 'Klasik', rarity: 'Temel', color: '#fff', glow: '#fff', rarityColor: '#888' },
+            'blue':    { name: 'Neon Safir', rarity: 'Mavi', color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
+            'purple':  { name: 'Hiper Pembe', rarity: 'Mor', color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
+            'orange':  { name: 'Asit Yıldırımı', rarity: 'Turuncu', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
+            'red':     { name: 'MATRIX RGB', rarity: 'Kırmızı', color: 'rgb', glow: 'rgb', rarityColor: '#ff3333' }
+        };
+        const CASE_PRICE = 500;
+
+        // SES
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() {
+            if (!audioInit && audioCtx.state === 'suspended') { audioCtx.resume(); audioInit = true; }
+        }
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+        function playSoundEffect(type) {
+            if (type === 'paddleHit') playTone(600, 'square', 0.1, 0.05);
+            else if (type === 'wallHit') playTone(300, 'triangle', 0.1, 0.05);
+            else if (type === 'score') {
+                playTone(400, 'sawtooth', 0.1, 0.1);
+                setTimeout(() => playTone(600, 'sawtooth', 0.1, 0.1), 100);
+                setTimeout(() => playTone(800, 'sawtooth', 0.2, 0.1), 200);
+            }
+            else if (type === 'win') {
+                playTone(440, 'square', 0.2, 0.1);
+                setTimeout(() => playTone(554, 'square', 0.2, 0.1), 200);
+                setTimeout(() => playTone(659, 'square', 0.2, 0.1), 400);
+                setTimeout(() => playTone(880, 'square', 0.6, 0.1), 600);
+            }
+            else if (type === 'lose') {
+                playTone(400, 'sawtooth', 0.3, 0.1);
+                setTimeout(() => playTone(350, 'sawtooth', 0.3, 0.1), 300);
+                setTimeout(() => playTone(300, 'sawtooth', 0.6, 0.1), 600);
+            }
+            else if (type === 'levelUp') {
+                playTone(440, 'triangle', 0.1, 0.1);
+                setTimeout(() => playTone(554, 'triangle', 0.1, 0.1), 100);
+                setTimeout(() => playTone(659, 'triangle', 0.1, 0.1), 200);
+                setTimeout(() => playTone(880, 'triangle', 0.1, 0.1), 300);
+                setTimeout(() => playTone(1108, 'triangle', 0.4, 0.1), 400);
+            }
+            else if (type === 'tick') playTone(800 + Math.random() * 400, 'square', 0.04, 0.04);
+            else if (type === 'caseOpen') {
+                playTone(523, 'sine', 0.15, 0.12);
+                setTimeout(() => playTone(659, 'sine', 0.15, 0.12), 100);
+                setTimeout(() => playTone(784, 'sine', 0.15, 0.12), 200);
+            }
+            else if (type === 'purchase') {
+                playTone(700, 'triangle', 0.1, 0.08);
+                setTimeout(() => playTone(900, 'triangle', 0.15, 0.1), 80);
+            }
+        }
+
+        // KULLANICI
+        let user = JSON.parse(localStorage.getItem('pongUser'));
+        if (user) {
+            user.cases = user.cases || 0;
+            user.skins = user.skins || [];
+            user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+            user.credits = user.credits || 0;
+            if (!user.equippedSkin) user.equippedSkin = 'default';
+        }
+
+        const XP_PER_LEVEL = 500;
+        function saveUser() { localStorage.setItem('pongUser', JSON.stringify(user)); }
+        function getTitle(level) {
+            if (level <= 3) return "Çaylak";
+            if (level <= 7) return "Savaşçı";
+            if (level <= 12) return "Usta";
+            if (level <= 20) return "Efsane";
+            return "Siber Tanrı";
+        }
+        function getLevel(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
+
+        function updateProfileUI() {
+            document.getElementById('profName').innerText = `${user.name} [${getTitle(user.level)}]`;
+            document.getElementById('profLevel').innerText = `Seviye ${user.level}`;
+            document.getElementById('profCredits').innerText = `💰 ${user.credits || 0} Siber Jeton`;
+            const xpForCurrentLvl = (user.level - 1) * XP_PER_LEVEL;
+            const xpInLevel = user.xp - xpForCurrentLvl;
+            const pct = Math.min((xpInLevel / XP_PER_LEVEL) * 100, 100);
+            document.getElementById('xpBarFill').style.width = pct + '%';
+            document.getElementById('xpText').innerText = `${user.xp} / ${user.level * XP_PER_LEVEL} XP`;
+        }
+        function addXP(amount) {
+            const oldLevel = user.level;
+            user.xp += amount; user.level = getLevel(user.xp);
+            saveUser(); updateProfileUI();
+            if (user.level > oldLevel) {
+                playSoundEffect('levelUp');
+                const overlay = document.getElementById('levelUpOverlay');
+                document.getElementById('lvlUpText').innerText = `SEVİYE ${user.level} OLDUN!`;
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('hidden'), 3000);
+            }
+        }
+        function addCredits(amount) {
+            user.credits = (user.credits || 0) + amount;
+            saveUser(); updateProfileUI();
+        }
+
+        function reportStats() {
+            if (user) socket.emit('reportStats', { name: user.name, xp: user.xp, level: user.level });
+        }
+
+        function getProfile() {
+            return {
+                name: user.name, level: user.level,
+                title: getTitle(user.level),
+                equippedSkin: user.equippedSkin || 'default'
+            };
+        }
+
+        // EKRAN YÖNETİMİ
+        function hideAllScreens() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        }
+        function showScreen(id) {
+            hideAllScreens();
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // BAŞLANGIÇ
+        if (!user) { showScreen('loginScreen'); }
+        else { showMainMenu(); }
+
+        document.getElementById('btnLogin').addEventListener('click', () => {
+            initAudio();
+            const name = document.getElementById('usernameInput').value.trim();
+            if (!name) return alert("Lütfen bir kullanıcı adı girin.");
+            user = {
+                name, xp: 0, level: 1, lastDaily: 0, streak: 0,
+                cases: 0, skins: [], equippedSkin: 'default',
+                consecutiveNoDrop: 0, credits: 0
+            };
+            saveUser(); showMainMenu();
+        });
+
+        document.getElementById('usernameInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('btnLogin').click();
+        });
+
+        function showMainMenu() {
+            showScreen('mainMenu');
+            updateProfileUI();
+            checkDailyReward();
+            reportStats();
+        }
+
+        // GÜNLÜK ÖDÜL
+        function checkDailyReward() {
+            const now = new Date();
+            const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            if (!user.lastDaily) promptDailyReward(todayMidnight, 1);
+            else {
+                const diffDays = Math.floor((todayMidnight - user.lastDaily) / 86400000);
+                if (diffDays === 1) promptDailyReward(todayMidnight, user.streak + 1);
+                else if (diffDays > 1) promptDailyReward(todayMidnight, 1);
+            }
+        }
+        function promptDailyReward(todayTs, streak) {
+            const xpReward = streak * 100;
+            document.getElementById('streakText').innerText = `${streak}. GÜN ARDIŞIK GİRİŞ`;
+            document.getElementById('dailyXpText').innerText = `+${xpReward} XP`;
+            document.getElementById('dailyRewardOverlay').classList.remove('hidden');
+            document.getElementById('btnClaimDaily').onclick = () => {
+                initAudio(); playSoundEffect('score');
+                user.streak = streak; user.lastDaily = todayTs; saveUser();
+                document.getElementById('dailyRewardOverlay').classList.add('hidden');
+                addXP(xpReward);
+            };
+        }
+
+        // EŞLEŞME BUL
+        document.getElementById('btnFindMatch').addEventListener('click', () => {
+            initAudio();
+            showScreen('gameScreen');
+            ui.classList.remove('hidden');
+            messageEl.innerText = "Siber Arena İçin Rakip Aranıyor...";
+            socket.emit('joinMatchmaking', getProfile());
+        });
+
+        // ODA OLUŞTUR
+        document.getElementById('btnCreateRoom').addEventListener('click', () => {
+            initAudio();
+            showScreen('createRoomScreen');
+            document.getElementById('roomCodeDisplay').innerText = '----';
+            document.getElementById('createRoomWaiting').innerText = '⏳ Oda oluşturuluyor...';
+            socket.emit('createPrivateRoom', getProfile());
+        });
+
+        socket.on('privateRoomCreated', (data) => {
+            document.getElementById('roomCodeDisplay').innerText = data.code;
+            document.getElementById('createRoomWaiting').innerText = '⏳ Rakibin katılmasını bekliyorsun...';
+        });
+
+        document.getElementById('btnCancelCreate').addEventListener('click', () => {
+            initAudio();
+            socket.emit('cancelPrivateRoom');
+            showMainMenu();
+        });
+
+        // ODAYA KATIL
+        document.getElementById('btnJoinRoom').addEventListener('click', () => {
+            initAudio();
+            showScreen('joinRoomScreen');
+            document.getElementById('roomCodeInput').value = '';
+            document.getElementById('joinRoomError').innerText = '';
+            document.getElementById('roomCodeInput').focus();
+        });
+
+        document.getElementById('btnJoinRoomGo').addEventListener('click', () => {
+            initAudio();
+            const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            if (code.length !== 4) {
+                document.getElementById('joinRoomError').innerText = 'Lütfen 4 haneli bir kod gir!';
+                return;
+            }
+            document.getElementById('joinRoomError').innerText = '';
+            socket.emit('joinPrivateRoom', { code, profile: getProfile() });
+        });
+
+        document.getElementById('roomCodeInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('btnJoinRoomGo').click();
+        });
+
+        socket.on('privateRoomError', (msg) => {
+            document.getElementById('joinRoomError').innerText = msg;
+        });
+
+        document.getElementById('btnCancelJoin').addEventListener('click', () => {
+            initAudio(); showMainMenu();
+        });
+
+        // LEADERBOARD
+        document.getElementById('btnLeaderboard').addEventListener('click', () => {
+            initAudio();
+            showScreen('leaderboardScreen');
+            socket.emit('getLeaderboard');
+        });
+
+        document.getElementById('btnLbRefresh').addEventListener('click', () => {
+            initAudio(); playSoundEffect('paddleHit');
+            socket.emit('getLeaderboard');
+        });
+
+        document.getElementById('btnLbBack').addEventListener('click', () => {
+            initAudio(); showMainMenu();
+        });
+
+        socket.on('leaderboardData', (data) => {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#555;">Henüz veri yok. Maç oynayarak liderlik tablosuna gir!</td></tr>';
+                return;
+            }
+            const rankIcons = ['👑', '🥈', '🥉'];
+            data.forEach((entry, i) => {
+                const tr = document.createElement('tr');
+                if (i < 3) tr.className = `lb-rank-${i + 1}`;
+                const isMe = user && entry.name === user.name;
+                tr.innerHTML = `
+                    <td style="width:50px; text-align:center; font-size:1.1rem;">${i < 3 ? rankIcons[i] : (i + 1)}</td>
+                    <td style="${isMe ? 'color:#0ff; text-shadow:0 0 5px #0ff;' : ''}">${entry.name}${isMe ? ' (Sen)' : ''}</td>
+                    <td>Lv.${entry.level || 1}</td>
+                    <td style="text-align:right;">${entry.xp.toLocaleString()} XP</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+
+        // TAB SİSTEMİ
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                initAudio(); playSoundEffect('paddleHit');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ENVANTER
+        document.getElementById('btnInventory').addEventListener('click', () => {
+            initAudio();
+            showScreen('inventoryScreen');
+            updateInventoryUI();
+        });
+        document.getElementById('btnBackToMenu').addEventListener('click', () => {
+            initAudio(); showMainMenu();
+        });
+
+        function updateInventoryUI() {
+            document.getElementById('caseCount').innerText = user.cases || 0;
+            document.getElementById('shopCredits').innerText = user.credits || 0;
+            const skinsSection = document.getElementById('skinsSection');
+            skinsSection.innerHTML = '';
+            const allSkins = ['default', ...(user.skins || [])];
+            const uniqueSkins = [...new Set(allSkins)];
+            uniqueSkins.forEach(skinId => {
+                const skin = SKINS[skinId];
+                if (!skin) return;
+                const card = document.createElement('div');
+                card.className = 'skin-card' + (user.equippedSkin === skinId ? ' equipped' : '');
+                const paddle = document.createElement('div');
+                paddle.className = 'skin-paddle';
+                if (skin.color === 'rgb') {
+                    paddle.style.background = 'linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)';
+                } else {
+                    paddle.style.background = skin.color;
+                    paddle.style.boxShadow = `0 0 15px ${skin.glow}`;
+                }
+                const title = document.createElement('span');
+                title.className = 'skin-name';
+                title.innerText = skin.name;
+                title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
+                const rarityBadge = document.createElement('span');
+                rarityBadge.className = 'skin-rarity-badge';
+                rarityBadge.innerText = skin.rarity;
+                rarityBadge.style.color = skin.rarityColor;
+                rarityBadge.style.border = `1px solid ${skin.rarityColor}`;
+                card.appendChild(paddle); card.appendChild(title); card.appendChild(rarityBadge);
+                if (user.equippedSkin === skinId) {
+                    const eq = document.createElement('span');
+                    eq.className = 'skin-equipped'; eq.innerText = '✓ KUŞANILDI';
+                    card.appendChild(eq);
+                }
+                const count = allSkins.filter(s => s === skinId).length;
+                if (count > 1) {
+                    const cb = document.createElement('span');
+                    cb.style.cssText = 'font-size:10px; color:#aaa; margin-top:3px;';
+                    cb.innerText = `x${count}`;
+                    card.appendChild(cb);
+                }
+                card.onclick = () => {
+                    initAudio(); playSoundEffect('paddleHit');
+                    user.equippedSkin = skinId; saveUser(); updateInventoryUI();
+                };
+                skinsSection.appendChild(card);
+            });
+        }
+
+        // MAĞAZA
+        document.getElementById('btnBuyCase').addEventListener('click', () => {
+            initAudio();
+            if ((user.credits || 0) < CASE_PRICE) return alert(`Yetersiz jeton! ${CASE_PRICE} gerekiyor.\nMevcut: ${user.credits || 0}`);
+            user.credits -= CASE_PRICE;
+            user.cases = (user.cases || 0) + 1;
+            saveUser(); updateInventoryUI(); playSoundEffect('purchase');
+        });
+
+        // RULET
+        let isSpinning = false;
+        function getSkinIdByRoll() {
+            const r = Math.random();
+            if (r < 0.02) return 'red';
+            if (r < 0.10) return 'orange';
+            if (r < 0.30) return 'purple';
+            return 'blue';
+        }
+
+        document.getElementById('btnOpenCase').addEventListener('click', () => {
+            if (isSpinning) return;
+            if ((user.cases || 0) <= 0) return alert("Açacak kasan yok!\nMaç oynayarak düşürebilir veya mağazadan satın alabilirsin.");
+            initAudio();
+            user.cases--; saveUser(); updateInventoryUI();
+            playSoundEffect('caseOpen');
+
+            const container = document.getElementById('rouletteContainer');
+            const track = document.getElementById('rouletteTrack');
+            const banner = document.getElementById('wonSkinBanner');
+            banner.classList.add('hidden');
+            container.classList.remove('hidden');
+            track.innerHTML = '';
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0px)';
+
+            const itemWidth = 150;
+            const totalItems = 60;
+            const winIndex = 45;
+            const wonSkinId = getSkinIdByRoll();
+
+            for (let i = 0; i < totalItems; i++) {
+                const skinId = i === winIndex ? wonSkinId : getSkinIdByRoll();
+                const skin = SKINS[skinId];
+                const el = document.createElement('div');
+                el.className = 'roulette-item';
+                const bgColors = { 'blue': 'rgba(0,255,255,0.08)', 'purple': 'rgba(255,0,255,0.1)', 'orange': 'rgba(255,255,0,0.1)', 'red': 'rgba(255,0,0,0.2)' };
+                el.style.background = bgColors[skinId] || 'transparent';
+                const preview = document.createElement('div');
+                preview.className = 'skin-preview';
+                if (skin.color === 'rgb') preview.style.background = 'linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)';
+                else { preview.style.background = skin.color; preview.style.boxShadow = `0 0 12px ${skin.glow}`; }
+                const title = document.createElement('span');
+                title.innerText = skin.name;
+                title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
+                title.style.fontSize = '12px';
+                const subtitle = document.createElement('span');
+                subtitle.innerText = skin.rarity;
+                subtitle.style.fontSize = '10px';
+                subtitle.style.color = skin.rarityColor;
+                subtitle.style.marginTop = '3px';
+                el.appendChild(preview); el.appendChild(title); el.appendChild(subtitle);
+                track.appendChild(el);
+            }
+
+            isSpinning = true;
+            const randomOffset = (Math.random() - 0.5) * (itemWidth * 0.6);
+            const containerCenter = container.offsetWidth / 2;
+            const targetX = containerCenter - ((winIndex * itemWidth) + (itemWidth / 2)) + randomOffset;
+            void track.offsetWidth;
+            track.style.transition = 'transform 6s cubic-bezier(0.12, 0.88, 0.18, 1)';
+            track.style.transform = `translateX(${targetX}px)`;
+
+            let tickInterval = 40, tickCount = 0;
+            function playRouletteTicks() {
+                if (!isSpinning || tickCount >= 55) return;
+                playSoundEffect('tick'); tickCount++;
+                tickInterval += tickCount < 20 ? 5 : tickCount < 35 ? 15 : 30;
+                setTimeout(playRouletteTicks, tickInterval);
+            }
+            playRouletteTicks();
+
+            setTimeout(() => {
+                isSpinning = false;
+                user.skins.push(wonSkinId); saveUser(); updateInventoryUI();
+                playSoundEffect('levelUp');
+                const skin = SKINS[wonSkinId];
+                banner.innerHTML = '';
+                banner.style.border = `2px solid ${skin.rarityColor}`;
+                banner.style.boxShadow = `0 0 30px ${skin.rarityColor}40`;
+                const bt = document.createElement('h2');
+                bt.style.cssText = `color:${skin.color === 'rgb' ? '#fff' : skin.color}; text-shadow:0 0 15px ${skin.color === 'rgb' ? '#f0f' : skin.glow}; font-size:1.3rem;`;
+                bt.innerText = `🎊 [${skin.rarity}] ${skin.name} Kazandınız!`;
+                banner.appendChild(bt); banner.classList.remove('hidden');
+                setTimeout(() => container.classList.add('hidden'), 3000);
+            }, 6500);
+        });
+
+        // OYUN
+        let mySide = null;
+        let opponentProfile = null;
+        let isGameRunning = false;
+
+        let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: 2 };
+        let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
+        let renderBall = { x: 400, y: 300 };
+        let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
+        let lastServerTime = 0;
+        let lastFrameTime = 0;
+        const LERP_SPEED = 0.25;
+        const BASE_SPEED_CLIENT = 5;
+
+        document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            let y = event.clientY - rect.top - 50;
+            if (y < 0) y = 0;
+            if (y > canvas.height - 100) y = canvas.height - 100;
+            socket.emit('move', { y: y });
+        });
+
+        socket.on('waiting', (msg) => { messageEl.innerText = msg; });
+        socket.on('init', (data) => {
+            mySide = data.side;
+            opponentProfile = data.opponent;
+            showScreen('gameScreen');
+            ui.classList.add('hidden');
+        });
+        socket.on('startGame', () => {
+            isGameRunning = true;
+            ui.classList.add('hidden');
+            canvas.style.display = 'block';
+            lastFrameTime = performance.now();
+            requestAnimationFrame(renderLoop);
+        });
+
+        socket.on('opponentLeft', () => {
+            isGameRunning = false; canvas.style.display = 'none';
+            const overlay = document.getElementById('endGameOverlay');
+            document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
+            document.getElementById('endGameText').className = "neon-text win-text";
+            document.getElementById('endGameXpText').innerText = "+0 XP";
+            document.getElementById('endGameCreditText').innerText = "";
+            document.getElementById('endGameCaseText').classList.add('hidden');
+            overlay.classList.remove('hidden');
+        });
+
+        socket.on('playSound', (data) => {
+            playSoundEffect(data.type);
+            if (data.shake) {
+                canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+            }
+        });
+
+        socket.on('gs', (s) => {
+            if (!isGameRunning) return;
+            const lastHitMap = [' left', 'right', null];
+            serverBall.x = s.b[0];
+            serverBall.y = s.b[1];
+            serverBall.dx = s.b[2];
+            serverBall.dy = s.b[3];
+            serverBall.speed = s.b[4];
+            serverBall.lastHit = lastHitMap[s.b[5]] || null;
+
+            serverPlayers.left.y = s.p[0];
+            serverPlayers.left.score = s.p[1];
+            serverPlayers.right.y = s.p[2];
+            serverPlayers.right.score = s.p[3];
+
+            lastServerTime = s.t;
+        });
+
+        socket.on('gameOver', (data) => {
+            isGameRunning = false;
+            const isWin = (data.winner === mySide);
+            playSoundEffect(isWin ? 'win' : 'lose');
+            const xpGained = isWin ? 150 : 50;
+            addXP(xpGained);
+            const creditsGained = data.credits || (isWin ? 100 : 30);
+            addCredits(creditsGained);
+            reportStats();
+
+            let dropChance = isWin ? 0.70 : 0.40;
+            let droppedCase = false;
+            user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+            if (user.consecutiveNoDrop >= 2) dropChance = 1.0;
+            if (Math.random() < dropChance) {
+                user.cases = (user.cases || 0) + 1;
+                droppedCase = true; user.consecutiveNoDrop = 0;
+            } else { user.consecutiveNoDrop++; }
+            saveUser();
+
+            const overlay = document.getElementById('endGameOverlay');
+            const endText = document.getElementById('endGameText');
+            overlay.classList.remove('hidden');
+            if (isWin) { endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text"; }
+            else { endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text"; }
+            document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
+            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
+        });
+
+        // CLIENT-SIDE INTERPOLATION & RENDER
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        let particles = [];
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                    life: 1.0, color, size: Math.random() * 3 + 1
+                });
+            }
+            if (particles.length > 150) particles.splice(0, particles.length - 150);
+        }
+        function updateAndDrawParticles(dt) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx * dt; p.y += p.vy * dt;
+                p.life -= 0.04 * dt;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+            }
+            ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
+        }
+
+        function getSkinStyle(skinId) {
+            if (!skinId || !SKINS[skinId]) return SKINS['default'];
+            return SKINS[skinId];
+        }
+
+        let prevBallX = 400;
+        let gridImageCache = null;
+
+        function drawGrid() {
+            if (!gridImageCache) {
+                const offscreen = document.createElement('canvas');
+                offscreen.width = 800; offscreen.height = 600;
+                const octx = offscreen.getContext('2d');
+                octx.strokeStyle = 'rgba(0, 255, 255, 0.04)';
+                octx.lineWidth = 1; octx.beginPath();
+                for (let x = 0; x <= 800; x += 40) { octx.moveTo(x, 0); octx.lineTo(x, 600); }
+                for (let y = 0; y <= 600; y += 40) { octx.moveTo(0, y); octx.lineTo(800, y); }
+                octx.stroke();
+                octx.setLineDash([15, 15]); octx.beginPath();
+                octx.moveTo(400, 0); octx.lineTo(400, 600);
+                octx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+                octx.lineWidth = 2; octx.stroke();
+                gridImageCache = offscreen;
+            }
+            ctx.drawImage(gridImageCache, 0, 0);
+        }
+
+        function renderLoop(timestamp) {
+            if (!isGameRunning) return;
+
+            const dtMs = timestamp - lastFrameTime;
+            lastFrameTime = timestamp;
+            const dtFactor = Math.min(dtMs / 16.67, 3);
+
+            const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
+            const predX = serverBall.x + serverBall.dx * speedMul * dtFactor;
+            const predY = serverBall.y + serverBall.dy * speedMul * dtFactor;
+
+            renderBall.x = lerp(renderBall.x, predX, LERP_SPEED * dtFactor);
+            renderBall.y = lerp(renderBall.y, predY, LERP_SPEED * dtFactor);
+            renderPlayers.left.y = lerp(renderPlayers.left.y, serverPlayers.left.y, LERP_SPEED * dtFactor);
+            renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
+
+            ctx.clearRect(0, 0, 800, 600);
+            drawGrid();
+
+            const mySkin = user.equippedSkin || 'default';
+            const oppSkin = (opponentProfile && opponentProfile.equippedSkin) ? opponentProfile.equippedSkin : 'default';
+            const leftSkinStyle = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
+            const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
+
+            let ballSkinStyle = SKINS['default'];
+            const lh = serverBall.lastHit;
+            if (lh === ' left') ballSkinStyle = leftSkinStyle;
+            else if (lh === 'right') ballSkinStyle = rightSkinStyle;
+
+            const dynamicRGB = `hsl(${(Date.now() / 5) % 360}, 100%, 50%)`;
+            const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
+            const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
+
+            if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
+            prevBallX = renderBall.x;
+            spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
+            updateAndDrawParticles(dtFactor);
+
+            ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
+            ctx.fillStyle = rc(ballSkinStyle);
+            ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI * 2); ctx.fill();
+
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = rg(leftSkinStyle); ctx.fillStyle = rc(leftSkinStyle);
+            ctx.beginPath(); ctx.roundRect(20, renderPlayers.left.y, 10, 100, 3); ctx.fill();
+
+            ctx.shadowColor = rg(rightSkinStyle); ctx.fillStyle = rc(rightSkinStyle);
+            ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 10, 100, 3); ctx.fill();
+
+            ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = rc(leftSkinStyle); ctx.shadowColor = ctx.fillStyle;
+            ctx.fillText(serverPlayers.left.score, 200, 80);
+            ctx.fillStyle = rc(rightSkinStyle); ctx.shadowColor = ctx.fillStyle;
+            ctx.fillText(serverPlayers.right.score, 600, 80);
+
+            ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            const lt = mySide === 'left' ? `${user.name} [${getTitle(user.level)}]` : `${opponentProfile.name} [${opponentProfile.title}]`;
+            const rt = mySide === 'right' ? `${user.name} [${getTitle(user.level)}]` : `${opponentProfile.name} [${opponentProfile.title}]`;
+            ctx.fillText(lt, 200, 30); ctx.fillText(rt, 600, 30);
+
+            requestAnimationFrame(renderLoop);
+        }
+    </script>
+</body>
+</html>
