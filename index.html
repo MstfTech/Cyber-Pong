@@ -483,7 +483,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io({ transports: ['websocket'], upgrade: false });
+        const socket = io("https://cyber-pong.onrender.com", { transports: ['websocket'], upgrade: false });
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const ui = document.getElementById('ui');
