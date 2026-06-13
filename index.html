@@ -726,7 +726,7 @@
     </div>
 
     <!-- ANA MENÜ -->
-    <div id="mainMenu" class="screen hidden">
+    <div id="mainMenu" class="screen">
         <div id="profileBar">
             <div id="profName" class="prof-name"></div>
             <div id="profLevel" class="prof-level"></div>
@@ -768,7 +768,7 @@
     </div>
 
     <!-- TEK OYUNCULU SEÇİM EKRANI -->
-    <div id="singleplayerScreen" class="screen hidden">
+    <div id="singleplayerScreen" class="screen">
         <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
         <p style="color: #aaa; margin-bottom: 30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller
             artar.</p>
@@ -784,7 +784,7 @@
     </div>
 
     <!-- ODA OLUŞTUR EKRANI -->
-    <div id="createRoomScreen" class="screen hidden">
+    <div id="createRoomScreen" class="screen">
         <h1 class="neon-title">🔑 ÖZEL ODA OLUŞTURULDU</h1>
         <p style="color: #aaa; margin-bottom: 10px;">Bu kodu arkadaşına gönder:</p>
         <div id="roomCodeDisplay" class="room-code-display">----</div>
@@ -794,7 +794,7 @@
     </div>
 
     <!-- ODAYA KATIL EKRANI -->
-    <div id="joinRoomScreen" class="screen hidden">
+    <div id="joinRoomScreen" class="screen">
         <h1 class="neon-title">🚪 ODAYA KATIL</h1>
         <p style="color: #aaa; margin-bottom: 20px;">Arkadaşının verdiği 4 haneli kodu gir:</p>
         <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4">
@@ -804,7 +804,7 @@
     </div>
 
     <!-- LEADERBOARD EKRANI -->
-    <div id="leaderboardScreen" class="screen hidden" style="justify-content: flex-start; padding-top: 50px;">
+    <div id="leaderboardScreen" class="screen" style="justify-content: flex-start; padding-top: 50px;">
         <h1 class="neon-title" style="color: #ffd700; text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;">🏆 GLOBAL
             LİDERLİK TABLOSU</h1>
         <p style="color: #666; font-size: 0.7rem; margin-bottom: 20px;">En İyi 10 Savaşçı</p>
@@ -833,7 +833,7 @@
     </div>
 
     <!-- ENVANTER & MAĞAZA -->
-    <div id="inventoryScreen" class="screen hidden">
+    <div id="inventoryScreen" class="screen">
         <h1 class="neon-title" style="margin-bottom: 15px;">ENVANTER & MAĞAZA</h1>
         <div class="tab-bar">
             <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
@@ -887,7 +887,7 @@
     </div>
 
     <!-- OYUN EKRANI -->
-    <div id="gameScreen" class="screen hidden">
+    <div id="gameScreen" class="screen">
         <div id="gameContainer">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
             <div id="ui" class="overlay-box hidden">
@@ -907,14 +907,14 @@
     </div>
 
     <!-- POPUPLAR -->
-    <div id="dailyRewardOverlay" class="screen hidden" style="background: rgba(0,0,0,0.92); z-index: 100;">
+    <div id="dailyRewardOverlay" class="screen" style="background: rgba(0,0,0,0.92); z-index: 100;">
         <h2 class="neon-title" style="color: #ff0;">GÜNLÜK ÖDÜLÜN HAZIR</h2>
         <h3 id="streakText" style="color: #0ff; font-size: 1.5rem;">1. Gün Ardışık Giriş</h3>
         <h1 id="dailyXpText" class="win-text" style="font-size: 80px; margin: 20px 0;">+100 XP</h1>
         <button id="btnClaimDaily" class="neon-button gold">ÖDÜLÜ AL</button>
     </div>
 
-    <div id="levelUpOverlay" class="screen hidden"
+    <div id="levelUpOverlay" class="screen"
         style="background: rgba(255,255,255,0.05); z-index: 200; pointer-events: none;">
         <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;">
             SEVİYE ATLADIN!</h1>
@@ -923,38 +923,18 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         window.onerror = function(msg, url, line, col, error) {
-            console.error("Global Hata Yakalandı:", msg, error);
-            try {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden'));
-                const ls = document.getElementById('loginScreen');
-                if (ls) ls.classList.remove('hidden');
-                const mm = document.getElementById('mainMenu');
-                if (mm) mm.classList.remove('hidden');
-            } catch(e) {}
-            return false;
+            console.error("Critical Error [System]: " + msg);
+            try { document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden')); } catch(e){}
+            return true;
         };
-
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error("Promise Hatası:", event.reason);
-            try { document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden')); } catch(e) {}
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                let socket;
-                try {
-                    const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? "http://localhost:3000"
-                        : "https://cyber-pong.onrender.com";
-                    socket = io(serverUrl, { transports: ['websocket'], upgrade: false });
-                } catch (err) {
-                    console.warn("Socket.io yüklenemedi. Offline mod çalıştırılıyor.");
-                    socket = { on: () => {}, emit: () => {} };
-                }
-                const canvas = document.getElementById('gameCanvas');
-                const ctx = canvas.getContext('2d');
-                const ui = document.getElementById('ui');
-                const messageEl = document.getElementById('message');
+
+        const socket = io("https://cyber-pong.onrender.com", { transports: ['websocket'], upgrade: false });
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ui = document.getElementById('ui');
+        const messageEl = document.getElementById('message');
 
         // GLOBAL OYUN DEĞİŞKENLERİ
         let isGameRunning = false;
@@ -1251,6 +1231,11 @@
         else { showMainMenu(); }
 
         document.getElementById('btnLogin').addEventListener('click', () => {
+            if (!socket || (socket && socket.connected === false)) {
+                messageEl.innerText = 'Bağlanıyor...';
+                return;
+            }
+
             initAudio();
             const name = document.getElementById('usernameInput').value.trim();
             if (!name) return alert("Lütfen bir kullanıcı adı girin.");
@@ -1288,11 +1273,13 @@
         }
 
         socket.on('chatHistory', (history) => {
+                try {
             chatMessages.innerHTML = '';
             history.forEach(msg => appendChatMessage(msg));
         });
 
         socket.on('receiveGlobalMessage', (data) => {
+                try {
             appendChatMessage(data);
         });
 
@@ -1334,6 +1321,11 @@
 
         // EŞLEŞME BUL
         document.getElementById('btnFindMatch').addEventListener('click', () => {
+            if (!socket || (socket && socket.connected === false)) {
+                messageEl.innerText = 'Bağlanıyor...';
+                return;
+            }
+
             initAudio();
             showScreen('gameScreen');
             ui.classList.remove('hidden');
@@ -1343,6 +1335,11 @@
 
         // TEK OYUNCULU SEÇİM EKRANI AÇ
         document.getElementById('btnSingleplayer').addEventListener('click', () => {
+            if (!socket || (socket && socket.connected === false)) {
+                messageEl.innerText = 'Bağlanıyor...';
+                return;
+            }
+
             initAudio();
             showScreen('singleplayerScreen');
         });
@@ -1374,6 +1371,7 @@
         });
 
         socket.on('privateRoomCreated', (data) => {
+                try {
             document.getElementById('roomCodeDisplay').innerText = data.code;
             document.getElementById('createRoomWaiting').innerText = '⏳ Rakibin katılmasını bekliyorsun...';
         });
@@ -1409,6 +1407,7 @@
         });
 
         socket.on('privateRoomError', (msg) => {
+                try {
             document.getElementById('joinRoomError').innerText = msg;
         });
 
@@ -1433,6 +1432,7 @@
         });
 
         socket.on('leaderboardData', (data) => {
+                try {
             const tbody = document.getElementById('leaderboardBody');
             tbody.innerHTML = '';
             if (!data || data.length === 0) {
@@ -1734,6 +1734,7 @@
             }
 
             socket.on('singleplayerReward', (data) => {
+                try {
                 if (data.error) {
                     alert("Ödül Hatası: " + data.error);
                     showMainMenu();
@@ -1781,14 +1782,17 @@
                 }
             });
 
-            socket.on('waiting', (msg) => { messageEl.innerText = msg; });
+            socket.on('waiting', (msg) => {
+                try { messageEl.innerText = msg; });
             socket.on('init', (data) => {
+                try {
                 mySide = data.side;
                 opponentProfile = data.opponent;
                 showScreen('gameScreen');
                 ui.classList.add('hidden');
             });
             socket.on('startGame', () => {
+                try {
                 isSingleplayer = false;
                 isGameRunning = true;
                 ui.classList.add('hidden');
@@ -1798,6 +1802,7 @@
             });
 
             socket.on('opponentLeft', () => {
+                try {
                 isGameRunning = false; canvas.style.display = 'none';
                 const overlay = document.getElementById('endGameOverlay');
                 document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
@@ -1809,6 +1814,7 @@
             });
 
             socket.on('playSound', (data) => {
+                try {
                 playSoundEffect(data.type);
                 if (data.shake) {
                     canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
@@ -1816,6 +1822,7 @@
             });
 
             socket.on('gs', (s) => {
+                try {
                 if (!isGameRunning) return;
                 const lastHitMap = [' left', 'right', null];
 
@@ -1848,6 +1855,7 @@
             });
 
             socket.on('gameOver', (data) => {
+                try {
                 isGameRunning = false;
                 const isWin = (data.winner === mySide);
                 playSoundEffect(isWin ? 'win' : 'lose');
@@ -2026,12 +2034,13 @@
 
                 requestAnimationFrame(renderLoop);
             }
-            } catch (mainError) {
-                console.error("Uygulama çalıştırılırken hata oluştu:", mainError);
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden'));
+    
+            } catch (e) {
+                console.error("Initialization Error: " + e.message);
+                try { document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden')); } catch(err){}
             }
         });
-    </script>
+        </script>
 </body>
 
 </html>
