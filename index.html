@@ -924,13 +924,14 @@
     <script>
 
         let socket;
-            const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-                ? 'http://localhost:3000'
-                : 'https://cyber-pong.onrender.com';
+        const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+            ? 'http://localhost:3000'
+            : 'https://cyber-pong.onrender.com';
+        try {
             socket = io(_serverUrl, { transports: ['websocket'], upgrade: false });
         } catch (e) {
             console.warn('Socket.io init failed, running offline:', e);
-            socket = { on: function(){}, emit: function(){}, connected: false };
+            socket = { on: function () { }, emit: function () { }, connected: false };
         }
         const canvas = document.getElementById('gameCanvas');
         let ctx = null;
@@ -1921,7 +1922,7 @@
             }
 
             function renderLoop(timestamp) {
-                  if (!isGameRunning || !ctx) return;
+                if (!isGameRunning || !ctx) return;
 
                 const now = performance.now();
                 if (!lastFrameTime) lastFrameTime = now;
@@ -2013,12 +2014,13 @@
                 ctx.fillText(lt, 200, 30); ctx.fillText(rt, 600, 30);
 
                 requestAnimationFrame(renderLoop);
-    } // renderLoop'un kapanışı
+            } // renderLoop'un kapanışı
 
-} catch (err) {
-    console.error("Sistem hatası yakalandı ama menü açık kalacak:", err);
-}
+        } catch (err) {
+            console.error("Sistem hatası yakalandı ama menü açık kalacak:", err);
+        }
 
-</script>
+    </script>
 </body>
+
 </html>
