@@ -947,6 +947,9 @@
         let isGameRunning = false;
         let mySide = 'left';
         let opponentProfile = null;
+        let isSingleplayer = false;
+        let singleplayerBot = null;
+        let singleplayerDifficulty = 'medium';
         let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
         let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
         let renderBall = { x: 400, y: 300 };
@@ -957,6 +960,10 @@
         const LERP_SPEED = 0.3;
         let lastFrameTime = 0;
         let lastServerTime = 0;
+        let particles = [];
+        let isSpinning = false;
+        let prevBallX = 400;
+        let gridImageCache = null;
 
         const LocalizationManager = {
             currentLang: localStorage.getItem('language') || 'tr',
@@ -1044,7 +1051,17 @@
             t(key) { return this.translations[this.currentLang]?.[key] || key; }
         };
 
-        document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            LocalizationManager.init();
+        });
+        
+        // Initialize immediately if already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
+        } else {
+            LocalizationManager.init();
+        }
 
         class SingleplayerBot {
             constructor(canvasHeight, xPosition, ballReference) {
@@ -1522,9 +1539,8 @@
             user.cases = (user.cases || 0) + 1;
             saveUser(); updateInventoryUI(); playSoundEffect('purchase');
         });
-
-        // RULET
-        let isSpinning = false;
+        
+        // GAME LOGIC FUNCTIONS
         function getSkinIdByRoll() {
             const r = Math.random();
             if (r < 0.02) return 'red';
@@ -1532,6 +1548,59 @@
             if (r < 0.30) return 'purple';
             return 'blue';
         }
+        
+        function getSkinStyle(skinId) {
+            if (!skinId || !SKINS[skinId]) return SKINS['default'];
+            return SKINS[skinId];
+        }
+        
+        function spawnParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+                    life: 1.0, color, size: Math.random() * 3 + 1
+                });
+            }
+            if (particles.length > 150) particles.splice(0, particles.length - 150);
+        }
+        
+        function updateAndDrawParticles(dt) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx * dt; p.y += p.vy * dt;
+                p.life -= 0.04 * dt;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+            }
+            ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
+        }
+        
+        function drawGrid() {
+            if (!gridImageCache) {
+                const offscreen = document.createElement('canvas');
+                offscreen.width = 800; offscreen.height = 600;
+                const octx = offscreen.getContext('2d');
+                octx.strokeStyle = 'rgba(0, 255, 255, 0.04)';
+                octx.lineWidth = 1; octx.beginPath();
+                for (let x = 0; x <= 800; x += 40) { octx.moveTo(x, 0); octx.lineTo(x, 600); }
+                for (let y = 0; y <= 600; y += 40) { octx.moveTo(0, y); octx.lineTo(800, y); }
+                octx.stroke();
+                octx.setLineDash([15, 15]); octx.beginPath();
+                octx.moveTo(400, 0); octx.lineTo(400, 600);
+                octx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+                octx.lineWidth = 2; octx.stroke();
+                gridImageCache = offscreen;
+            }
+            ctx.drawImage(gridImageCache, 0, 0);
+        }
+        
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        // RULET
 
         document.getElementById('btnOpenCase').addEventListener('click', () => {
             if (isSpinning) return;
@@ -1616,409 +1685,353 @@
                     setTimeout(() => container.classList.add('hidden'), 3000);
                 }, 6500);
             });
-
-            let isSingleplayer = false;
-            let singleplayerBot = null;
-            let singleplayerDifficulty = 'medium';
-
-            function startSingleplayerMatch(difficulty) {
-                isSingleplayer = true;
-                singleplayerDifficulty = difficulty;
-                mySide = 'left';
-                opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
-                serverPlayers.left.score = 0; serverPlayers.right.score = 0;
-                serverPlayers.left.y = 250; serverPlayers.right.y = 250;
-                serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
-
-                singleplayerBot = new SingleplayerBot(600, 770, serverBall);
-                singleplayerBot.setDifficulty(difficulty);
-
-                socket.emit('startSingleplayer', difficulty);
-
-                showScreen('gameScreen');
-                ui.classList.add('hidden');
-                canvas.style.display = 'block';
-                lastFrameTime = performance.now();
-                isGameRunning = true;
-
-                requestAnimationFrame(renderLoop);
-            }
-
-            function updateLocalPhysics(dt) {
-                if (!isSingleplayer || !isGameRunning || !singleplayerBot) return;
-
-                // Update Bot
-                singleplayerBot.update(dt);
-                serverPlayers.right.y = singleplayerBot.y;
-
-                // Sub-step physics to avoid passing through paddles at high speed
-                const steps = 3;
-                const subDt = dt / steps;
-
-                for (let i = 0; i < steps; i++) {
-                    // Ball physics (scaled by step)
-                    serverBall.x += serverBall.dx * 60 * subDt; // dx is units per frame at 60hz roughly, so scale by dt
-                    serverBall.y += serverBall.dy * 60 * subDt;
-
-                    if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
-                        serverBall.dy *= -1;
-                        serverBall.y = serverBall.y - 8 <= 0 ? 8 : 592;
-                        playSoundEffect('wallHit');
-                    }
-
-                    // Left Paddle
-                    if (serverBall.x - 8 <= 30 && serverBall.x >= 20 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
-                        if (serverBall.dx < 0) {
-                            const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
-                            const angle = (hitPos - 0.5) * (Math.PI / 3);
-                            serverBall.dx = Math.abs(Math.cos(angle) * serverBall.speed);
-                            serverBall.dy = Math.sin(angle) * serverBall.speed;
-                            serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
-                            serverBall.lastHit = 'left';
-                            playSoundEffect('paddleHit');
-                            canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-                        }
-                    }
-
-                    // Right Paddle (Bot)
-                    if (serverBall.x + 8 >= 770 && serverBall.x <= 780 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
-                        if (serverBall.dx > 0) {
-                            const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
-                            const angle = (hitPos - 0.5) * (Math.PI / 3);
-                            serverBall.dx = -Math.abs(Math.cos(angle) * serverBall.speed);
-                            serverBall.dy = Math.sin(angle) * serverBall.speed;
-                            serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
-                            serverBall.lastHit = 'right';
-                            playSoundEffect('paddleHit');
-                            canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-                        }
-                    }
-
-                    // Scoring
-                    let scored = false;
-                    if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
-                    else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
-
-                    if (scored) {
-                        playSoundEffect('score');
-                        if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
-                            isGameRunning = false;
-
-                            const isWin = serverPlayers.left.score >= 5;
-                            playSoundEffect(isWin ? 'win' : 'lose');
-
-                            socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
-                            break;
-                        } else {
-                            serverBall.x = 400; serverBall.y = 300;
-                            serverBall.speed = 5;
-                            const angle = Math.random() * (Math.PI / 3 - Math.PI / 6) + Math.PI / 6;
-                            serverBall.dx = Math.cos(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
-                            serverBall.dy = Math.sin(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
-                            serverBall.lastHit = null;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            socket.on('singleplayerReward', (data) => {
-                if (data.error) {
-                    alert("Ödül Hatası: " + data.error);
-                    showMainMenu();
-                    return;
-                }
-
-                addXP(data.xp_granted);
-                addCredits(data.coins_granted);
-                reportStats();
-
-                let droppedCase = data.case_dropped;
-                if (droppedCase) {
-                    user.cases = (user.cases || 0) + 1;
-                    saveUser();
-                }
-
-                const overlay = document.getElementById('endGameOverlay');
-                const endText = document.getElementById('endGameText');
-                overlay.classList.remove('hidden');
-
-                if (serverPlayers.left.score >= 5) {
-                    endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text";
-                } else {
-                    endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text";
-                }
-
-                document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP KAZANDIN`;
-                document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
-                document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-            });
-
-            document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
-
-            canvas.addEventListener('mousemove', (event) => {
-                if (!isGameRunning) return;
-                const rect = canvas.getBoundingClientRect();
-                let y = event.clientY - rect.top - 50;
-                if (y < 0) y = 0;
-                if (y > canvas.height - 100) y = canvas.height - 100;
-
-                if (isSingleplayer) {
-                    serverPlayers.left.y = y;
-                } else {
-                    socket.emit('move', { y: y });
-                }
-            });
-
-            socket.on('waiting', (msg) => { messageEl.innerText = msg; });
-            socket.on('init', (data) => {
-                mySide = data.side;
-                opponentProfile = data.opponent;
-                showScreen('gameScreen');
-                ui.classList.add('hidden');
-            });
-            socket.on('startGame', () => {
-                isSingleplayer = false;
-                isGameRunning = true;
-                ui.classList.add('hidden');
-                canvas.style.display = 'block';
-                lastFrameTime = performance.now();
-                requestAnimationFrame(renderLoop);
-            });
-
-            socket.on('opponentLeft', () => {
-                isGameRunning = false; canvas.style.display = 'none';
-                const overlay = document.getElementById('endGameOverlay');
-                document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
-                document.getElementById('endGameText').className = "neon-text win-text";
-                document.getElementById('endGameXpText').innerText = "+0 XP";
-                document.getElementById('endGameCreditText').innerText = "";
-                document.getElementById('endGameCaseText').classList.add('hidden');
-                overlay.classList.remove('hidden');
-            });
-
-            socket.on('playSound', (data) => {
-                playSoundEffect(data.type);
-                if (data.shake) {
-                    canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-                }
-            });
-
-            socket.on('gs', (s) => {
-                if (!isGameRunning) return;
-                const lastHitMap = [' left', 'right', null];
-
-                const newX = s.b[0];
-                const newY = s.b[1];
-
-                if (!isSingleplayer) {
-                    renderOffset.x += (predictedBall.x - newX);
-                    renderOffset.y += (predictedBall.y - newY);
-
-                    predictedBall.x = newX;
-                    predictedBall.y = newY;
-                    predictedBall.dx = s.b[2];
-                    predictedBall.dy = s.b[3];
-                }
-
-                serverBall.x = newX;
-                serverBall.y = newY;
-                serverBall.dx = s.b[2];
-                serverBall.dy = s.b[3];
-                serverBall.speed = s.b[4];
-                serverBall.lastHit = lastHitMap[s.b[5]] || null;
-
-                serverPlayers.left.y = s.p[0];
-                serverPlayers.left.score = s.p[1];
-                serverPlayers.right.y = s.p[2];
-                serverPlayers.right.score = s.p[3];
-
-                lastServerTime = s.t;
-            });
-
-            socket.on('gameOver', (data) => {
-                isGameRunning = false;
-                const isWin = (data.winner === mySide);
-                playSoundEffect(isWin ? 'win' : 'lose');
-                const xpGained = isWin ? 150 : 50;
-                addXP(xpGained);
-                const creditsGained = data.credits || (isWin ? 100 : 30);
-                addCredits(creditsGained);
-                reportStats();
-
-                let dropChance = isWin ? 0.70 : 0.40;
-                let droppedCase = false;
-                user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
-                if (user.consecutiveNoDrop >= 2) dropChance = 1.0;
-                if (Math.random() < dropChance) {
-                    user.cases = (user.cases || 0) + 1;
-                    droppedCase = true; user.consecutiveNoDrop = 0;
-                } else { user.consecutiveNoDrop++; }
-                saveUser();
-
-                const overlay = document.getElementById('endGameOverlay');
-                const endText = document.getElementById('endGameText');
-                overlay.classList.remove('hidden');
-                if (isWin) { endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text"; }
-                else { endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text"; }
-                document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
-                document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
-                document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-            });
-
-            // CLIENT-SIDE INTERPOLATION & RENDER
-            function lerp(a, b, t) { return a + (b - a) * t; }
-
-            let particles = [];
-            function spawnParticles(x, y, color, count) {
-                for (let i = 0; i < count; i++) {
-                    particles.push({
-                        x, y,
-                        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
-                        life: 1.0, color, size: Math.random() * 3 + 1
-                    });
-                }
-                if (particles.length > 150) particles.splice(0, particles.length - 150);
-            }
-            function updateAndDrawParticles(dt) {
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    const p = particles[i];
-                    p.x += p.vx * dt; p.y += p.vy * dt;
-                    p.life -= 0.04 * dt;
-                    if (p.life <= 0) { particles.splice(i, 1); continue; }
-                    ctx.globalAlpha = p.life;
-                    ctx.fillStyle = p.color;
-                    ctx.shadowBlur = 6; ctx.shadowColor = p.color;
-                    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
-                }
-                ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
-            }
-
-            function getSkinStyle(skinId) {
-                if (!skinId || !SKINS[skinId]) return SKINS['default'];
-                return SKINS[skinId];
-            }
-
-            let prevBallX = 400;
-            let gridImageCache = null;
-
-            function drawGrid() {
-                if (!gridImageCache) {
-                    const offscreen = document.createElement('canvas');
-                    offscreen.width = 800; offscreen.height = 600;
-                    const octx = offscreen.getContext('2d');
-                    octx.strokeStyle = 'rgba(0, 255, 255, 0.04)';
-                    octx.lineWidth = 1; octx.beginPath();
-                    for (let x = 0; x <= 800; x += 40) { octx.moveTo(x, 0); octx.lineTo(x, 600); }
-                    for (let y = 0; y <= 600; y += 40) { octx.moveTo(0, y); octx.lineTo(800, y); }
-                    octx.stroke();
-                    octx.setLineDash([15, 15]); octx.beginPath();
-                    octx.moveTo(400, 0); octx.lineTo(400, 600);
-                    octx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
-                    octx.lineWidth = 2; octx.stroke();
-                    gridImageCache = offscreen;
-                }
-                ctx.drawImage(gridImageCache, 0, 0);
-            }
-
-            function renderLoop(timestamp) {
-                if (!isGameRunning || !ctx) return;
-
-                const now = performance.now();
-                if (!lastFrameTime) lastFrameTime = now;
-
-                const dtMs = now - lastFrameTime;
-                lastFrameTime = now;
-                const dtFactor = Math.min(dtMs / 16.67, 3);
-                const dtSec = dtMs / 1000;
-
-                if (isSingleplayer) {
-                    updateLocalPhysics(dtSec);
-                }
-
-                const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
-
-                if (isSingleplayer) {
-                    renderBall.x = lerp(renderBall.x, serverBall.x, LERP_SPEED * dtFactor);
-                    renderBall.y = lerp(renderBall.y, serverBall.y, LERP_SPEED * dtFactor);
-                } else {
-                    predictedBall.x += predictedBall.dx * speedMul * dtFactor;
-                    predictedBall.y += predictedBall.dy * speedMul * dtFactor;
-
-                    if (predictedBall.y <= 0) {
-                        predictedBall.y = 0;
-                        predictedBall.dy = Math.abs(predictedBall.dy);
-                    } else if (predictedBall.y >= 600) {
-                        predictedBall.y = 600;
-                        predictedBall.dy = -Math.abs(predictedBall.dy);
-                    }
-
-                    renderOffset.x = lerp(renderOffset.x, 0, LERP_SPEED * dtFactor);
-                    renderOffset.y = lerp(renderOffset.y, 0, LERP_SPEED * dtFactor);
-
-                    renderBall.x = predictedBall.x + renderOffset.x;
-                    renderBall.y = predictedBall.y + renderOffset.y;
-                }
-
-                renderPlayers.left.y = lerp(renderPlayers.left.y, serverPlayers.left.y, LERP_SPEED * dtFactor);
-                renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
-
-                ctx.clearRect(0, 0, 800, 600);
-                drawGrid();
-
-                const mySkin = user.equippedSkin || 'default';
-                const oppSkin = (opponentProfile && opponentProfile.equippedSkin) ? opponentProfile.equippedSkin : 'default';
-                const leftSkinStyle = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
-                const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
-
-                let ballSkinStyle = SKINS['default'];
-                const lh = serverBall.lastHit;
-                if (lh === 'left' || lh === ' left') ballSkinStyle = leftSkinStyle;
-                else if (lh === 'right') ballSkinStyle = rightSkinStyle;
-
-                const dynamicRGB = `hsl(${(Date.now() / 5) % 360}, 100%, 50%)`;
-                const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
-                const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
-
-                if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
-                prevBallX = renderBall.x;
-                spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
-                updateAndDrawParticles(dtFactor);
-
-                ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
-                ctx.fillStyle = rc(ballSkinStyle);
-                ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI * 2); ctx.fill();
-
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = rg(leftSkinStyle); ctx.fillStyle = rc(leftSkinStyle);
-                ctx.beginPath(); ctx.roundRect(20, renderPlayers.left.y, 10, 100, 3); ctx.fill();
-
-                ctx.shadowColor = rg(rightSkinStyle); ctx.fillStyle = rc(rightSkinStyle);
-                ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 10, 100, 3); ctx.fill();
-
-                ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillStyle = rc(leftSkinStyle); ctx.shadowColor = ctx.fillStyle;
-                ctx.fillText(serverPlayers.left.score, 200, 80);
-                ctx.fillStyle = rc(rightSkinStyle); ctx.shadowColor = ctx.fillStyle;
-                ctx.fillText(serverPlayers.right.score, 600, 80);
-
-                ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
-                ctx.fillStyle = 'rgba(255,255,255,0.6)';
-
-                const safeOppName = opponentProfile ? opponentProfile.name : 'Rakip';
-                const safeOppTitle = opponentProfile ? opponentProfile.title : '';
-
-                const lt = mySide === 'left' ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
-                const rt = mySide === 'right' ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
-                ctx.fillText(lt, 200, 30); ctx.fillText(rt, 600, 30);
-
-                requestAnimationFrame(renderLoop);
-            } // renderLoop'un kapanışı
-
-        } catch (err) {
-            console.error("Sistem hatası yakalandı ama menü açık kalacak:", err);
         }
+
+        function startSingleplayerMatch(difficulty) {
+            isSingleplayer = true;
+            singleplayerDifficulty = difficulty;
+            mySide = 'left';
+            opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
+            serverPlayers.left.score = 0; serverPlayers.right.score = 0;
+            serverPlayers.left.y = 250; serverPlayers.right.y = 250;
+            serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
+
+            singleplayerBot = new SingleplayerBot(600, 770, serverBall);
+            singleplayerBot.setDifficulty(difficulty);
+
+            socket.emit('startSingleplayer', difficulty);
+
+            showScreen('gameScreen');
+            ui.classList.add('hidden');
+            canvas.style.display = 'block';
+            lastFrameTime = performance.now();
+            isGameRunning = true;
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        function updateLocalPhysics(dt) {
+            if (!isSingleplayer || !isGameRunning || !singleplayerBot) return;
+
+            // Update Bot
+            singleplayerBot.update(dt);
+            serverPlayers.right.y = singleplayerBot.y;
+
+            // Sub-step physics to avoid passing through paddles at high speed
+            const steps = 3;
+            const subDt = dt / steps;
+
+            for (let i = 0; i < steps; i++) {
+                // Ball physics (scaled by step)
+                serverBall.x += serverBall.dx * 60 * subDt; // dx is units per frame at 60hz roughly, so scale by dt
+                serverBall.y += serverBall.dy * 60 * subDt;
+
+                if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
+                    serverBall.dy *= -1;
+                    serverBall.y = serverBall.y - 8 <= 0 ? 8 : 592;
+                    playSoundEffect('wallHit');
+                }
+
+                // Left Paddle
+                if (serverBall.x - 8 <= 30 && serverBall.x >= 20 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
+                    if (serverBall.dx < 0) {
+                        const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
+                        const angle = (hitPos - 0.5) * (Math.PI / 3);
+                        serverBall.dx = Math.abs(Math.cos(angle) * serverBall.speed);
+                        serverBall.dy = Math.sin(angle) * serverBall.speed;
+                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                        serverBall.lastHit = 'left';
+                        playSoundEffect('paddleHit');
+                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+                    }
+                }
+
+                // Right Paddle (Bot)
+                if (serverBall.x + 8 >= 770 && serverBall.x <= 780 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
+                    if (serverBall.dx > 0) {
+                        const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
+                        const angle = (hitPos - 0.5) * (Math.PI / 3);
+                        serverBall.dx = -Math.abs(Math.cos(angle) * serverBall.speed);
+                        serverBall.dy = Math.sin(angle) * serverBall.speed;
+                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                        serverBall.lastHit = 'right';
+                        playSoundEffect('paddleHit');
+                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+                    }
+                }
+
+                // Scoring
+                let scored = false;
+                if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
+                else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
+
+                if (scored) {
+                    playSoundEffect('score');
+                    if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
+                        isGameRunning = false;
+
+                        const isWin = serverPlayers.left.score >= 5;
+                        playSoundEffect(isWin ? 'win' : 'lose');
+
+                        socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
+                        break;
+                    } else {
+                        serverBall.x = 400; serverBall.y = 300;
+                        serverBall.speed = 5;
+                        const angle = Math.random() * (Math.PI / 3 - Math.PI / 6) + Math.PI / 6;
+                        serverBall.dx = Math.cos(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
+                        serverBall.dy = Math.sin(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
+                        serverBall.lastHit = null;
+                        break;
+                    }
+                }
+            }
+        }
+
+        socket.on('singleplayerReward', (data) => {
+            if (data.error) {
+                alert("Ödül Hatası: " + data.error);
+                showMainMenu();
+                return;
+            }
+
+            addXP(data.xp_granted);
+            addCredits(data.coins_granted);
+            reportStats();
+
+            let droppedCase = data.case_dropped;
+            if (droppedCase) {
+                user.cases = (user.cases || 0) + 1;
+                saveUser();
+            }
+
+            const overlay = document.getElementById('endGameOverlay');
+            const endText = document.getElementById('endGameText');
+            overlay.classList.remove('hidden');
+
+            if (serverPlayers.left.score >= 5) {
+                endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text";
+            } else {
+                endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text";
+            }
+
+            document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
+            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
+        });
+
+        document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            let y = event.clientY - rect.top - 50;
+            if (y < 0) y = 0;
+            if (y > canvas.height - 100) y = canvas.height - 100;
+
+            if (isSingleplayer) {
+                serverPlayers.left.y = y;
+            } else {
+                socket.emit('move', { y: y });
+            }
+        });
+
+        socket.on('waiting', (msg) => { messageEl.innerText = msg; });
+        socket.on('init', (data) => {
+            mySide = data.side;
+            opponentProfile = data.opponent;
+            showScreen('gameScreen');
+            ui.classList.add('hidden');
+        });
+        socket.on('startGame', () => {
+            isSingleplayer = false;
+            isGameRunning = true;
+            ui.classList.add('hidden');
+            canvas.style.display = 'block';
+            lastFrameTime = performance.now();
+            requestAnimationFrame(renderLoop);
+        });
+
+        socket.on('opponentLeft', () => {
+            isGameRunning = false; canvas.style.display = 'none';
+            const overlay = document.getElementById('endGameOverlay');
+            document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
+            document.getElementById('endGameText').className = "neon-text win-text";
+            document.getElementById('endGameXpText').innerText = "+0 XP";
+            document.getElementById('endGameCreditText').innerText = "";
+            document.getElementById('endGameCaseText').classList.add('hidden');
+            overlay.classList.remove('hidden');
+        });
+
+        socket.on('playSound', (data) => {
+            playSoundEffect(data.type);
+            if (data.shake) {
+                canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+            }
+        });
+
+        socket.on('gs', (s) => {
+            if (!isGameRunning) return;
+            const lastHitMap = [' left', 'right', null];
+
+            const newX = s.b[0];
+            const newY = s.b[1];
+
+            if (!isSingleplayer) {
+                renderOffset.x += (predictedBall.x - newX);
+                renderOffset.y += (predictedBall.y - newY);
+
+                predictedBall.x = newX;
+                predictedBall.y = newY;
+                predictedBall.dx = s.b[2];
+                predictedBall.dy = s.b[3];
+            }
+
+            serverBall.x = newX;
+            serverBall.y = newY;
+            serverBall.dx = s.b[2];
+            serverBall.dy = s.b[3];
+            serverBall.speed = s.b[4];
+            serverBall.lastHit = lastHitMap[s.b[5]] || null;
+
+            serverPlayers.left.y = s.p[0];
+            serverPlayers.left.score = s.p[1];
+            serverPlayers.right.y = s.p[2];
+            serverPlayers.right.score = s.p[3];
+
+            lastServerTime = s.t;
+        });
+
+        socket.on('gameOver', (data) => {
+            isGameRunning = false;
+            const isWin = (data.winner === mySide);
+            playSoundEffect(isWin ? 'win' : 'lose');
+            const xpGained = isWin ? 150 : 50;
+            addXP(xpGained);
+            const creditsGained = data.credits || (isWin ? 100 : 30);
+            addCredits(creditsGained);
+            reportStats();
+
+            let dropChance = isWin ? 0.70 : 0.40;
+            let droppedCase = false;
+            user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+            if (user.consecutiveNoDrop >= 2) dropChance = 1.0;
+            if (Math.random() < dropChance) {
+                user.cases = (user.cases || 0) + 1;
+                droppedCase = true; user.consecutiveNoDrop = 0;
+            } else { user.consecutiveNoDrop++; }
+            saveUser();
+
+            const overlay = document.getElementById('endGameOverlay');
+            const endText = document.getElementById('endGameText');
+            overlay.classList.remove('hidden');
+            if (isWin) { endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text"; }
+            else { endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text"; }
+            document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
+            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
+        });
+
+    function renderLoop(timestamp) {
+            if (!isGameRunning || !ctx) return;
+
+            const now = performance.now();
+            if (!lastFrameTime) lastFrameTime = now;
+
+            const dtMs = now - lastFrameTime;
+            lastFrameTime = now;
+            const dtFactor = Math.min(dtMs / 16.67, 3);
+            const dtSec = dtMs / 1000;
+
+            if (isSingleplayer) {
+                updateLocalPhysics(dtSec);
+            }
+
+            const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
+
+            if (isSingleplayer) {
+                renderBall.x = lerp(renderBall.x, serverBall.x, LERP_SPEED * dtFactor);
+                renderBall.y = lerp(renderBall.y, serverBall.y, LERP_SPEED * dtFactor);
+            } else {
+                predictedBall.x += predictedBall.dx * speedMul * dtFactor;
+                predictedBall.y += predictedBall.dy * speedMul * dtFactor;
+
+                if (predictedBall.y <= 0) {
+                    predictedBall.y = 0;
+                    predictedBall.dy = Math.abs(predictedBall.dy);
+                } else if (predictedBall.y >= 600) {
+                    predictedBall.y = 600;
+                    predictedBall.dy = -Math.abs(predictedBall.dy);
+                }
+
+                renderOffset.x = lerp(renderOffset.x, 0, LERP_SPEED * dtFactor);
+                renderOffset.y = lerp(renderOffset.y, 0, LERP_SPEED * dtFactor);
+
+                renderBall.x = predictedBall.x + renderOffset.x;
+                renderBall.y = predictedBall.y + renderOffset.y;
+            }
+
+            renderPlayers.left.y = lerp(renderPlayers.left.y, serverPlayers.left.y, LERP_SPEED * dtFactor);
+            renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
+
+            ctx.clearRect(0, 0, 800, 600);
+            drawGrid();
+
+            const mySkin = user.equippedSkin || 'default';
+            const oppSkin = (opponentProfile && opponentProfile.equippedSkin) ? opponentProfile.equippedSkin : 'default';
+            const leftSkinStyle = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
+            const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
+
+            let ballSkinStyle = SKINS['default'];
+            const lh = serverBall.lastHit;
+            if (lh === 'left') ballSkinStyle = leftSkinStyle;
+            else if (lh === 'right') ballSkinStyle = rightSkinStyle;
+
+            const dynamicRGB = `hsl(${(Date.now() / 5) % 360}, 100%, 50%)`;
+            const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
+            const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
+
+            if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
+            prevBallX = renderBall.x;
+            spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
+            updateAndDrawParticles(dtFactor);
+
+            ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
+            ctx.fillStyle = rc(ballSkinStyle);
+            ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI * 2); ctx.fill();
+
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = rg(leftSkinStyle); ctx.fillStyle = rc(leftSkinStyle);
+            ctx.beginPath(); ctx.roundRect(20, renderPlayers.left.y, 10, 100, 3); ctx.fill();
+
+            ctx.shadowColor = rg(rightSkinStyle); ctx.fillStyle = rc(rightSkinStyle);
+            ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 10, 100, 3); ctx.fill();
+
+            ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = rc(leftSkinStyle); ctx.shadowColor = ctx.fillStyle;
+            ctx.fillText(serverPlayers.left.score, 200, 80);
+            ctx.fillStyle = rc(rightSkinStyle); ctx.shadowColor = ctx.fillStyle;
+            ctx.fillText(serverPlayers.right.score, 600, 80);
+
+            ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+
+            const safeOppName = opponentProfile ? opponentProfile.name : 'Rakip';
+            const safeOppTitle = opponentProfile ? opponentProfile.title : '';
+
+            const lt = (mySide === 'left')
+               ? user.name + ' [' + getTitle(user.level) + ']'
+                : safeOppName + ' [' + safeOppTitle + ']';
+             const rt = (mySide === 'right')
+                ? user.name + ' [' + getTitle(user.level) + ']'
+                : safeOppName + ' [' + safeOppTitle + ']';
+            ctx.fillText(lt, 200, 30);
+            ctx.fillText(rt, 600, 30);
+
+            requestAnimationFrame(renderLoop);
+        }
+    }
 
     </script>
 </body>
