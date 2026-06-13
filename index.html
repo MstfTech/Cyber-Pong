@@ -508,6 +508,19 @@
         const ui = document.getElementById('ui');
         const messageEl = document.getElementById('message');
 
+        // GLOBAL OYUN DEĞİŞKENLERİ
+        let isGameRunning = false;
+        let mySide = 'left';
+        let opponentProfile = null;
+        let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
+        let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
+        let renderBall = { x: 400, y: 300 };
+        let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
+        const BASE_SPEED_CLIENT = 5;
+        const LERP_SPEED = 0.3;
+        let lastFrameTime = 0;
+        let lastServerTime = 0;
+
         const LocalizationManager = {
             currentLang: localStorage.getItem('language') || 'tr',
             translations: {
@@ -528,7 +541,10 @@
                     MATCH_HARD: "Hard Bot",
                     BTN_BACK: "BACK TO MENU",
                     SHOP_DESC1: "Win: +100 Coins | Loss: +30 Coins",
-                    SHOP_DESC2: "Play and win matches to earn coins!"
+                    SHOP_DESC2: "Play and win matches to earn coins!",
+                    RANK_ROOKIE: "[Rookie]",
+                    RANK_MASTER: "[Master]",
+                    RANK_LEGEND: "[Legend]"
                 },
                 tr: {
                     LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ",
@@ -549,11 +565,8 @@
                     SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
                     SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!",
                     RANK_ROOKIE: "[Çaylak]",
-                    RANK_BRONZE: "[Bronz]",
-                    RANK_SILVER: "[Gümüş]",
-                    RANK_GOLD: "[Altın]",
-                    RANK_DIAMOND: "[Elmas]",
-                    RANK_MASTER: "[Usta]"
+                    RANK_MASTER: "[Usta]",
+                    RANK_LEGEND: "[Efsane]"
                 }
             },
             init() {
@@ -719,7 +732,9 @@
         const XP_PER_LEVEL = 500;
         function saveUser() { localStorage.setItem('pongUser', JSON.stringify(user)); }
         function getTitle(level) {
-            return "Siber Tanrı";
+            if (level >= 10) return LocalizationManager.t('RANK_LEGEND');
+            if (level >= 5) return LocalizationManager.t('RANK_MASTER');
+            return LocalizationManager.t('RANK_ROOKIE');
         }
         function getLevel(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
 
