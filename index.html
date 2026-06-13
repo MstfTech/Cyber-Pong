@@ -344,12 +344,18 @@
 </head>
 <body>
 
+    <!-- DİL SEÇİCİ -->
+    <div id="languageSelector" style="position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px;">
+        <button class="lang-selector neon-button" style="padding: 5px 15px; font-size: 0.9rem;" data-lang="tr">TR</button>
+        <button class="lang-selector neon-button" style="padding: 5px 15px; font-size: 0.9rem;" data-lang="en">EN</button>
+    </div>
+
     <!-- GİRİŞ -->
     <div id="loginScreen" class="screen hidden">
-        <h1 class="neon-title">SİBER ARENA'YA GİRİŞ</h1>
-        <h3 style="color: #888; margin-bottom: 30px;">Lütfen Bir Savaşçı Adı Belirleyin</h3>
+        <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
+        <h3 style="color: #888; margin-bottom: 30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
         <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
-        <button id="btnLogin" class="neon-button">SİSTEME BAĞLAN</button>
+        <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">SİSTEME BAĞLAN</button>
     </div>
 
     <!-- ANA MENÜ -->
@@ -366,13 +372,26 @@
         <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;">Küresel Siber Arena v2.0</p>
 
         <div class="menu-grid">
-            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;">⚔️ EŞLEŞME BUL</button>
-            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;">🔑 ODA OLUŞTUR</button>
-            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;">🚪 ODAYA KATIL</button>
-            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem;">🎒 ENVANTER</button>
+            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;" data-i18n="BTN_FIND_MATCH">⚔️ EŞLEŞME BUL</button>
+            <button id="btnSingleplayer" class="neon-button cyan" style="font-size: 1.5rem;" data-i18n="BTN_SINGLEPLAYER">🤖 TEK OYUNCULU</button>
+            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;" data-i18n="BTN_CREATE_ROOM">🔑 ODA OLUŞTUR</button>
+            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;" data-i18n="BTN_JOIN_ROOM">🚪 ODAYA KATIL</button>
+            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem; grid-column: span 2;" data-i18n="BTN_INVENTORY">🎒 ENVANTER</button>
         </div>
 
-        <button id="btnLeaderboard" class="neon-button" style="margin-top: 20px; font-size: 1rem; padding: 12px 35px; border-color: #ffd700; color: #ffd700; text-shadow: 0 0 5px #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3);">🏆 GLOBAL LİDERLİK TABLOSU</button>
+        <button id="btnLeaderboard" class="neon-button" style="margin-top: 20px; font-size: 1rem; padding: 12px 35px; border-color: #ffd700; color: #ffd700; text-shadow: 0 0 5px #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3);" data-i18n="BTN_LEADERBOARD">🏆 GLOBAL LİDERLİK TABLOSU</button>
+    </div>
+
+    <!-- TEK OYUNCULU SEÇİM EKRANI -->
+    <div id="singleplayerScreen" class="screen hidden">
+        <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
+        <p style="color: #aaa; margin-bottom: 30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller artar.</p>
+        <div class="menu-grid">
+            <button class="neon-button green btn-difficulty" data-diff="easy" data-i18n="MATCH_EASY" style="grid-column: span 2; font-size: 1.5rem;">Kolay Bot</button>
+            <button class="neon-button gold btn-difficulty" data-diff="medium" data-i18n="MATCH_MEDIUM" style="grid-column: span 2; font-size: 1.5rem;">Orta Bot</button>
+            <button class="neon-button cyan btn-difficulty" data-diff="hard" data-i18n="MATCH_HARD" style="grid-column: span 2; font-size: 1.5rem;">Zor Bot</button>
+        </div>
+        <button id="btnCancelSingleplayer" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
     </div>
 
     <!-- ODA OLUŞTUR EKRANI -->
@@ -446,12 +465,12 @@
                 </div>
             </div>
             <div style="margin-top: 30px; text-align: center; color: #555; font-size: 0.7rem;">
-                <p>Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton</p>
-                <p style="margin-top: 5px;">Maç kazanarak ve oynayarak jeton biriktir!</p>
+                <p data-i18n="SHOP_DESC1">Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton</p>
+                <p style="margin-top: 5px;" data-i18n="SHOP_DESC2">Maç kazanarak ve oynayarak jeton biriktir!</p>
             </div>
         </div>
 
-        <button id="btnBackToMenu" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+        <button id="btnBackToMenu" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
     </div>
 
     <!-- OYUN EKRANI -->
@@ -488,6 +507,131 @@
         const ctx = canvas.getContext('2d');
         const ui = document.getElementById('ui');
         const messageEl = document.getElementById('message');
+
+        const LocalizationManager = {
+            currentLang: localStorage.getItem('language') || 'tr',
+            translations: {
+                en: {
+                    LOGIN_TITLE: "LOGIN TO CYBER ARENA",
+                    LOGIN_SUBTITLE: "Please Choose a Warrior Name",
+                    BTN_LOGIN: "CONNECT TO SYSTEM",
+                    BTN_FIND_MATCH: "⚔️ FIND MATCH",
+                    BTN_SINGLEPLAYER: "🤖 SINGLEPLAYER",
+                    BTN_CREATE_ROOM: "🔑 CREATE ROOM",
+                    BTN_JOIN_ROOM: "🚪 JOIN ROOM",
+                    BTN_INVENTORY: "🎒 INVENTORY",
+                    BTN_LEADERBOARD: "🏆 GLOBAL LEADERBOARD",
+                    TITLE_DIFFICULTY: "CHOOSE DIFFICULTY",
+                    DESC_DIFFICULTY: "Rewards scale based on bot difficulty.",
+                    MATCH_EASY: "Easy Bot",
+                    MATCH_MEDIUM: "Medium Bot",
+                    MATCH_HARD: "Hard Bot",
+                    BTN_BACK: "BACK TO MENU",
+                    SHOP_DESC1: "Win: +100 Coins | Loss: +30 Coins",
+                    SHOP_DESC2: "Play and win matches to earn coins!"
+                },
+                tr: {
+                    LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ",
+                    LOGIN_SUBTITLE: "Lütfen Bir Savaşçı Adı Belirleyin",
+                    BTN_LOGIN: "SİSTEME BAĞLAN",
+                    BTN_FIND_MATCH: "⚔️ EŞLEŞME BUL",
+                    BTN_SINGLEPLAYER: "🤖 TEK OYUNCULU",
+                    BTN_CREATE_ROOM: "🔑 ODA OLUŞTUR",
+                    BTN_JOIN_ROOM: "🚪 ODAYA KATIL",
+                    BTN_INVENTORY: "🎒 ENVANTER",
+                    BTN_LEADERBOARD: "🏆 GLOBAL LİDERLİK TABLOSU",
+                    TITLE_DIFFICULTY: "ZORLUK SEÇİNİZ",
+                    DESC_DIFFICULTY: "Bot zorluğuna göre kazanılan ödüller artar.",
+                    MATCH_EASY: "Kolay Bot",
+                    MATCH_MEDIUM: "Orta Bot",
+                    MATCH_HARD: "Zor Bot",
+                    BTN_BACK: "ANA MENÜYE DÖN",
+                    SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
+                    SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!"
+                }
+            },
+            init() {
+                this.setLanguage(this.currentLang);
+                document.querySelectorAll('.lang-selector').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.setLanguage(e.target.dataset.lang);
+                    });
+                });
+            },
+            setLanguage(langCode) {
+                if (!this.translations[langCode]) return;
+                this.currentLang = langCode;
+                localStorage.setItem('language', langCode);
+                this.updateUI();
+            },
+            updateUI() {
+                const dict = this.translations[this.currentLang];
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (dict[key]) el.innerText = dict[key];
+                });
+            },
+            t(key) { return this.translations[this.currentLang]?.[key] || key; }
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
+
+        class SingleplayerBot {
+            constructor(canvasHeight, xPosition, ballReference) {
+                this.canvasHeight = canvasHeight;
+                this.x = xPosition;
+                this.y = canvasHeight / 2;
+                this.ball = ballReference;
+                this.difficulty = 'medium';
+                this.targetY = this.y;
+                this.reactionTimer = 0;
+                this.trackingOffset = 0;
+                this.settings = {
+                    easy: { speed: 250, delayMin: 0.15, delayMax: 0.25, offsetRange: 60 },
+                    medium: { speed: 400, delayMin: 0.05, delayMax: 0.05, offsetRange: 15 },
+                    hard: { speed: 700, delayMin: 0, delayMax: 0, offsetRange: 0 }
+                };
+                this.resetReaction();
+            }
+            setDifficulty(level) {
+                this.difficulty = level;
+                this.resetReaction();
+            }
+            resetReaction() {
+                const conf = this.settings[this.difficulty];
+                this.reactionTimer = conf.delayMin + Math.random() * (conf.delayMax - conf.delayMin);
+                this.trackingOffset = (Math.random() * 2 - 1) * conf.offsetRange;
+            }
+            update(deltaTime) {
+                if (!this.ball) return;
+                if (this.difficulty === 'easy' || this.difficulty === 'medium') {
+                    this.reactionTimer -= deltaTime;
+                    if (this.reactionTimer <= 0) {
+                        this.targetY = this.ball.y + this.trackingOffset;
+                        this.resetReaction();
+                    }
+                } else if (this.difficulty === 'hard') {
+                    if (this.ball.dx > 0) {
+                        if (this.ball.dx === 0) this.targetY = this.ball.y;
+                        else {
+                            const timeToReach = (this.x - this.ball.x) / this.ball.dx;
+                            let predictedY = this.ball.y + (this.ball.dy * timeToReach);
+                            let effectiveY = predictedY % (this.canvasHeight * 2);
+                            if (effectiveY < 0) effectiveY = Math.abs(effectiveY);
+                            if (effectiveY > this.canvasHeight) effectiveY = (this.canvasHeight * 2) - effectiveY;
+                            this.targetY = effectiveY;
+                        }
+                    } else {
+                        this.targetY = this.canvasHeight / 2;
+                    }
+                }
+                const dist = Math.abs(this.targetY - this.y);
+                const direction = Math.sign(this.targetY - this.y);
+                const currentSpeed = this.settings[this.difficulty].speed;
+                if (dist > 5) this.y += direction * currentSpeed * deltaTime;
+                this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y)); // 100 is paddle height
+            }
+        }
 
         const SKINS = {
             'default': { name: 'Klasik', rarity: 'Temel', color: '#fff', glow: '#fff', rarityColor: '#888' },
@@ -679,6 +823,25 @@
             ui.classList.remove('hidden');
             messageEl.innerText = "Siber Arena İçin Rakip Aranıyor...";
             socket.emit('joinMatchmaking', getProfile());
+        });
+
+        // TEK OYUNCULU SEÇİM EKRANI AÇ
+        document.getElementById('btnSingleplayer').addEventListener('click', () => {
+            initAudio();
+            showScreen('singleplayerScreen');
+        });
+
+        document.getElementById('btnCancelSingleplayer').addEventListener('click', () => {
+            initAudio();
+            showMainMenu();
+        });
+
+        document.querySelectorAll('.btn-difficulty').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                initAudio();
+                const difficulty = e.target.getAttribute('data-diff');
+                startSingleplayerMatch(difficulty);
+            });
         });
 
         // ODA OLUŞTUR
@@ -939,19 +1102,134 @@
             }, 6500);
         });
 
-        // OYUN
-        let mySide = null;
-        let opponentProfile = null;
-        let isGameRunning = false;
+        let isSingleplayer = false;
+        let singleplayerBot = null;
+        let singleplayerLoop = null;
+        
+        function startSingleplayerMatch(difficulty) {
+            isSingleplayer = true;
+            mySide = 'left';
+            opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
+            serverPlayers.left.score = 0; serverPlayers.right.score = 0;
+            serverPlayers.left.y = 250; serverPlayers.right.y = 250;
+            serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
+            
+            singleplayerBot = new SingleplayerBot(600, 770, serverBall);
+            singleplayerBot.setDifficulty(difficulty);
+            
+            socket.emit('startSingleplayer', difficulty);
+            
+            showScreen('gameScreen');
+            ui.classList.add('hidden');
+            canvas.style.display = 'block';
+            lastFrameTime = performance.now();
+            isGameRunning = true;
+            
+            if (singleplayerLoop) clearInterval(singleplayerLoop);
+            
+            singleplayerLoop = setInterval(() => {
+                if (!isGameRunning) { clearInterval(singleplayerLoop); return; }
+                
+                // Bot'u güncelle
+                singleplayerBot.update(1/30);
+                serverPlayers.right.y = singleplayerBot.y;
+                
+                // Top fiziği (Sunucudaki ile aynı)
+                serverBall.x += serverBall.dx;
+                serverBall.y += serverBall.dy;
+                
+                if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
+                    serverBall.dy *= -1;
+                    playSoundEffect('wallHit');
+                }
+                
+                // Sol Raket Çarpışması
+                if (serverBall.x - 8 <= 30 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
+                    if (serverBall.dx < 0) {
+                        const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
+                        const angle = (hitPos - 0.5) * (Math.PI / 3);
+                        serverBall.dx = Math.abs(Math.cos(angle) * serverBall.speed);
+                        serverBall.dy = Math.sin(angle) * serverBall.speed;
+                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                        serverBall.lastHit = 'left';
+                        playSoundEffect('paddleHit');
+                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+                    }
+                }
+                
+                // Sağ Raket Çarpışması
+                if (serverBall.x + 8 >= 770 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
+                    if (serverBall.dx > 0) {
+                        const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
+                        const angle = (hitPos - 0.5) * (Math.PI / 3);
+                        serverBall.dx = -Math.abs(Math.cos(angle) * serverBall.speed);
+                        serverBall.dy = Math.sin(angle) * serverBall.speed;
+                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                        serverBall.lastHit = 'right';
+                        playSoundEffect('paddleHit');
+                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+                    }
+                }
+                
+                // Skor
+                let scored = false;
+                if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
+                else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
+                
+                if (scored) {
+                    playSoundEffect('score');
+                    if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
+                        isGameRunning = false;
+                        clearInterval(singleplayerLoop);
+                        
+                        const isWin = serverPlayers.left.score >= 5;
+                        playSoundEffect(isWin ? 'win' : 'lose');
+                        
+                        socket.emit('singleplayerResult', { win: isWin, difficulty: difficulty });
+                    } else {
+                        serverBall.x = 400; serverBall.y = 300;
+                        serverBall.speed = 5;
+                        const angle = Math.random() * (Math.PI/3 - Math.PI/6) + Math.PI/6;
+                        serverBall.dx = Math.cos(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
+                        serverBall.dy = Math.sin(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
+                    }
+                }
+            }, 1000/30);
+            
+            requestAnimationFrame(renderLoop);
+        }
 
-        let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: 2 };
-        let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
-        let renderBall = { x: 400, y: 300 };
-        let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
-        let lastServerTime = 0;
-        let lastFrameTime = 0;
-        const LERP_SPEED = 0.25;
-        const BASE_SPEED_CLIENT = 5;
+        socket.on('singleplayerReward', (data) => {
+            if (data.error) {
+                alert("Ödül Hatası: " + data.error);
+                showMainMenu();
+                return;
+            }
+            
+            addXP(data.xp_granted);
+            addCredits(data.coins_granted);
+            reportStats();
+            
+            let droppedCase = data.case_dropped;
+            if (droppedCase) {
+                user.cases = (user.cases || 0) + 1;
+                saveUser();
+            }
+            
+            const overlay = document.getElementById('endGameOverlay');
+            const endText = document.getElementById('endGameText');
+            overlay.classList.remove('hidden');
+            
+            if (serverPlayers.left.score >= 5) {
+                endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text";
+            } else {
+                endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text";
+            }
+            
+            document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
+            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
+        });
 
         document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
 
@@ -961,7 +1239,12 @@
             let y = event.clientY - rect.top - 50;
             if (y < 0) y = 0;
             if (y > canvas.height - 100) y = canvas.height - 100;
-            socket.emit('move', { y: y });
+            
+            if (isSingleplayer) {
+                serverPlayers.left.y = y;
+            } else {
+                socket.emit('move', { y: y });
+            }
         });
 
         socket.on('waiting', (msg) => { messageEl.innerText = msg; });
@@ -972,6 +1255,7 @@
             ui.classList.add('hidden');
         });
         socket.on('startGame', () => {
+            isSingleplayer = false;
             isGameRunning = true;
             ui.classList.add('hidden');
             canvas.style.display = 'block';

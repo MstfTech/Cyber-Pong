@@ -30,6 +30,7 @@ let waitingPlayer = null;
 let rooms = {};
 let roomCounter = 0;
 let privateRooms = {};
+let singleplayerSessions = {};
 
 const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
 let leaderboard = [];
@@ -247,12 +248,57 @@ io.on('connection', (socket) => {
         socket.emit('leaderboardData', getTop10());
     });
 
+    socket.on('startSingleplayer', (difficulty) => {
+        singleplayerSessions[socket.id] = { startTime: Date.now(), difficulty: difficulty };
+    });
+
+    socket.on('singleplayerResult', (data) => {
+        if (!data || !data.win || !data.difficulty) return;
+        
+        const session = singleplayerSessions[socket.id];
+        if (!session || session.difficulty !== data.difficulty) {
+            socket.emit('singleplayerReward', { error: 'Geçersiz oturum.' });
+            return;
+        }
+        
+        const duration = Date.now() - session.startTime;
+        // Güvenlik Duvarı: 5-0 bile bitse 30 saniyeden kısa sürmesi çok zordur (Hız hilesi koruması)
+        if (duration < 30000) {
+            socket.emit('singleplayerReward', { error: 'Oyun çok kısa sürdü, hile şüphesi (Bot Farming Engellendi)!' });
+            return;
+        }
+
+        let rewardXp = 0;
+        let rewardCoins = 0;
+        let caseChance = 0;
+
+        if (data.difficulty === 'easy') { rewardXp = 20; rewardCoins = 5; caseChance = 0.01; }
+        else if (data.difficulty === 'medium') { rewardXp = 50; rewardCoins = 15; caseChance = 0.03; }
+        else if (data.difficulty === 'hard') { rewardXp = 200; rewardCoins = 75; caseChance = 0.12; }
+        
+        let caseDropped = false;
+        if (Math.random() < caseChance) {
+            caseDropped = true;
+        }
+        
+        delete singleplayerSessions[socket.id]; // Oturumu kapat
+        
+        socket.emit('singleplayerReward', {
+            xp_granted: rewardXp,
+            coins_granted: rewardCoins,
+            case_dropped: caseDropped,
+            difficulty: data.difficulty
+        });
+    });
+
     socket.on('disconnect', () => {
         console.log('Ayrıldı:', socket.id);
 
         if (waitingPlayer && waitingPlayer.socket.id === socket.id) {
             waitingPlayer = null;
         }
+
+        delete singleplayerSessions[socket.id];
 
         for (const code in privateRooms) {
             const roomName = privateRooms[code];
