@@ -567,6 +567,8 @@
         let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
         let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
         let renderBall = { x: 400, y: 300 };
+        let predictedBall = { x: 400, y: 300, dx: 0, dy: 0 };
+        let renderOffset = { x: 0, y: 0 };
         let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
         const BASE_SPEED_CLIENT = 5;
         const LERP_SPEED = 0.3;
@@ -1420,8 +1422,22 @@
         socket.on('gs', (s) => {
             if (!isGameRunning) return;
             const lastHitMap = [' left', 'right', null];
-            serverBall.x = s.b[0];
-            serverBall.y = s.b[1];
+            
+            const newX = s.b[0];
+            const newY = s.b[1];
+            
+            if (!isSingleplayer) {
+                renderOffset.x += (predictedBall.x - newX);
+                renderOffset.y += (predictedBall.y - newY);
+                
+                predictedBall.x = newX;
+                predictedBall.y = newY;
+                predictedBall.dx = s.b[2];
+                predictedBall.dy = s.b[3];
+            }
+
+            serverBall.x = newX;
+            serverBall.y = newY;
             serverBall.dx = s.b[2];
             serverBall.dy = s.b[3];
             serverBall.speed = s.b[4];
@@ -1536,11 +1552,29 @@
             }
 
             const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
-            const predX = isSingleplayer ? serverBall.x : serverBall.x + serverBall.dx * speedMul * dtFactor;
-            const predY = isSingleplayer ? serverBall.y : serverBall.y + serverBall.dy * speedMul * dtFactor;
 
-            renderBall.x = lerp(renderBall.x, predX, LERP_SPEED * dtFactor);
-            renderBall.y = lerp(renderBall.y, predY, LERP_SPEED * dtFactor);
+            if (isSingleplayer) {
+                renderBall.x = lerp(renderBall.x, serverBall.x, LERP_SPEED * dtFactor);
+                renderBall.y = lerp(renderBall.y, serverBall.y, LERP_SPEED * dtFactor);
+            } else {
+                predictedBall.x += predictedBall.dx * speedMul * dtFactor;
+                predictedBall.y += predictedBall.dy * speedMul * dtFactor;
+
+                if (predictedBall.y <= 0) {
+                    predictedBall.y = 0;
+                    predictedBall.dy = Math.abs(predictedBall.dy);
+                } else if (predictedBall.y >= 600) {
+                    predictedBall.y = 600;
+                    predictedBall.dy = -Math.abs(predictedBall.dy);
+                }
+
+                renderOffset.x = lerp(renderOffset.x, 0, LERP_SPEED * dtFactor);
+                renderOffset.y = lerp(renderOffset.y, 0, LERP_SPEED * dtFactor);
+
+                renderBall.x = predictedBall.x + renderOffset.x;
+                renderBall.y = predictedBall.y + renderOffset.y;
+            }
+
             renderPlayers.left.y = lerp(renderPlayers.left.y, serverPlayers.left.y, LERP_SPEED * dtFactor);
             renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
 
