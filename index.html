@@ -839,7 +839,7 @@
         document.querySelectorAll('.btn-difficulty').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 initAudio();
-                const difficulty = e.target.getAttribute('data-diff');
+                const difficulty = e.currentTarget.getAttribute('data-diff');
                 startSingleplayerMatch(difficulty);
             });
         });
@@ -1410,7 +1410,7 @@
 
             let ballSkinStyle = SKINS['default'];
             const lh = serverBall.lastHit;
-            if (lh === ' left') ballSkinStyle = leftSkinStyle;
+            if (lh === 'left' || lh === ' left') ballSkinStyle = leftSkinStyle;
             else if (lh === 'right') ballSkinStyle = rightSkinStyle;
 
             const dynamicRGB = `hsl(${(Date.now() / 5) % 360}, 100%, 50%)`;
@@ -1442,8 +1442,12 @@
 
             ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            const lt = mySide === 'left' ? `${user.name} [${getTitle(user.level)}]` : `${opponentProfile.name} [${opponentProfile.title}]`;
-            const rt = mySide === 'right' ? `${user.name} [${getTitle(user.level)}]` : `${opponentProfile.name} [${opponentProfile.title}]`;
+            
+            const safeOppName = opponentProfile ? opponentProfile.name : 'Rakip';
+            const safeOppTitle = opponentProfile ? opponentProfile.title : '';
+            
+            const lt = mySide === 'left' ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
+            const rt = mySide === 'right' ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
             ctx.fillText(lt, 200, 30); ctx.fillText(rt, 600, 30);
 
             requestAnimationFrame(renderLoop);

@@ -262,8 +262,8 @@ io.on('connection', (socket) => {
         }
         
         const duration = Date.now() - session.startTime;
-        // Güvenlik Duvarı: 5-0 bile bitse 30 saniyeden kısa sürmesi çok zordur (Hız hilesi koruması)
-        if (duration < 30000) {
+        // Güvenlik Duvarı: 45 saniyeden kısa sürmesi çok zordur (Hız hilesi koruması)
+        if (duration < 45000) {
             socket.emit('singleplayerReward', { error: 'Oyun çok kısa sürdü, hile şüphesi (Bot Farming Engellendi)!' });
             return;
         }
@@ -272,12 +272,22 @@ io.on('connection', (socket) => {
         let rewardCoins = 0;
         let caseChance = 0;
 
-        if (data.difficulty === 'easy') { rewardXp = 20; rewardCoins = 5; caseChance = 0.01; }
-        else if (data.difficulty === 'medium') { rewardXp = 50; rewardCoins = 15; caseChance = 0.03; }
-        else if (data.difficulty === 'hard') { rewardXp = 200; rewardCoins = 75; caseChance = 0.12; }
+        if (data.difficulty === 'easy') { 
+            rewardXp = data.win ? 50 : 15; 
+            rewardCoins = data.win ? 30 : 10; 
+            caseChance = 0.01; 
+        } else if (data.difficulty === 'medium') { 
+            rewardXp = data.win ? 100 : 30; 
+            rewardCoins = data.win ? 60 : 20; 
+            caseChance = 0.04; 
+        } else if (data.difficulty === 'hard') { 
+            rewardXp = data.win ? 150 : 50; 
+            rewardCoins = data.win ? 100 : 30; 
+            caseChance = 0.12; 
+        }
         
         let caseDropped = false;
-        if (Math.random() < caseChance) {
+        if (data.win && Math.random() < caseChance) {
             caseDropped = true;
         }
         
