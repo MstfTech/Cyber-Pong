@@ -2013,8 +2013,12 @@
                 ctx.fillText(lt, 200, 30); ctx.fillText(rt, 600, 30);
 
                 requestAnimationFrame(renderLoop);
-            }
-        </script>
-</body>
+    } // renderLoop'un kapanışı
 
+} catch (err) {
+    console.error("Sistem hatası yakalandı ama menü açık kalacak:", err);
+}
+
+</script>
+</body>
 </html>
