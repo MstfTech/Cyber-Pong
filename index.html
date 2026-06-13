@@ -547,14 +547,20 @@
                     MATCH_HARD: "Zor Bot",
                     BTN_BACK: "ANA MENÜYE DÖN",
                     SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
-                    SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!"
+                    SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!",
+                    RANK_ROOKIE: "[Çaylak]",
+                    RANK_BRONZE: "[Bronz]",
+                    RANK_SILVER: "[Gümüş]",
+                    RANK_GOLD: "[Altın]",
+                    RANK_DIAMOND: "[Elmas]",
+                    RANK_MASTER: "[Usta]"
                 }
             },
             init() {
                 this.setLanguage(this.currentLang);
                 document.querySelectorAll('.lang-selector').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        this.setLanguage(e.target.dataset.lang);
+                        this.setLanguage(e.currentTarget.dataset.lang);
                     });
                 });
             },
@@ -570,6 +576,10 @@
                     const key = el.getAttribute('data-i18n');
                     if (dict[key]) el.innerText = dict[key];
                 });
+                if (user && user.level) {
+                    const levelLabel = document.getElementById('profLevel');
+                    if (levelLabel) levelLabel.innerText = `Seviye ${user.level} ${getTitle(user.level)}`;
+                }
             },
             t(key) { return this.translations[this.currentLang]?.[key] || key; }
         };
@@ -709,10 +719,6 @@
         const XP_PER_LEVEL = 500;
         function saveUser() { localStorage.setItem('pongUser', JSON.stringify(user)); }
         function getTitle(level) {
-            if (level <= 3) return "Çaylak";
-            if (level <= 7) return "Savaşçı";
-            if (level <= 12) return "Usta";
-            if (level <= 20) return "Efsane";
             return "Siber Tanrı";
         }
         function getLevel(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
@@ -836,12 +842,16 @@
             showMainMenu();
         });
 
-        document.querySelectorAll('.btn-difficulty').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+        // Completely refactored difficulty button listener
+        document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-difficulty');
+            if (btn) {
                 initAudio();
-                const difficulty = e.currentTarget.getAttribute('data-diff');
-                startSingleplayerMatch(difficulty);
-            });
+                const difficulty = btn.getAttribute('data-diff');
+                if (difficulty) {
+                    startSingleplayerMatch(difficulty);
+                }
+            }
         });
 
         // ODA OLUŞTUR
@@ -1104,10 +1114,11 @@
 
         let isSingleplayer = false;
         let singleplayerBot = null;
-        let singleplayerLoop = null;
+        let singleplayerDifficulty = 'medium';
         
         function startSingleplayerMatch(difficulty) {
             isSingleplayer = true;
+            singleplayerDifficulty = difficulty;
             mySide = 'left';
             opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
             serverPlayers.left.score = 0; serverPlayers.right.score = 0;
@@ -1125,26 +1136,33 @@
             lastFrameTime = performance.now();
             isGameRunning = true;
             
-            if (singleplayerLoop) clearInterval(singleplayerLoop);
+            requestAnimationFrame(renderLoop);
+        }
+
+        function updateLocalPhysics(dt) {
+            if (!isSingleplayer || !isGameRunning || !singleplayerBot) return;
+
+            // Update Bot
+            singleplayerBot.update(dt);
+            serverPlayers.right.y = singleplayerBot.y;
             
-            singleplayerLoop = setInterval(() => {
-                if (!isGameRunning) { clearInterval(singleplayerLoop); return; }
-                
-                // Bot'u güncelle
-                singleplayerBot.update(1/30);
-                serverPlayers.right.y = singleplayerBot.y;
-                
-                // Top fiziği (Sunucudaki ile aynı)
-                serverBall.x += serverBall.dx;
-                serverBall.y += serverBall.dy;
+            // Sub-step physics to avoid passing through paddles at high speed
+            const steps = 3;
+            const subDt = dt / steps;
+            
+            for (let i = 0; i < steps; i++) {
+                // Ball physics (scaled by step)
+                serverBall.x += serverBall.dx * 60 * subDt; // dx is units per frame at 60hz roughly, so scale by dt
+                serverBall.y += serverBall.dy * 60 * subDt;
                 
                 if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
                     serverBall.dy *= -1;
+                    serverBall.y = serverBall.y - 8 <= 0 ? 8 : 592;
                     playSoundEffect('wallHit');
                 }
                 
-                // Sol Raket Çarpışması
-                if (serverBall.x - 8 <= 30 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
+                // Left Paddle
+                if (serverBall.x - 8 <= 30 && serverBall.x >= 20 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
                     if (serverBall.dx < 0) {
                         const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
                         const angle = (hitPos - 0.5) * (Math.PI / 3);
@@ -1157,8 +1175,8 @@
                     }
                 }
                 
-                // Sağ Raket Çarpışması
-                if (serverBall.x + 8 >= 770 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
+                // Right Paddle (Bot)
+                if (serverBall.x + 8 >= 770 && serverBall.x <= 780 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
                     if (serverBall.dx > 0) {
                         const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
                         const angle = (hitPos - 0.5) * (Math.PI / 3);
@@ -1171,7 +1189,7 @@
                     }
                 }
                 
-                // Skor
+                // Scoring
                 let scored = false;
                 if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
                 else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
@@ -1180,23 +1198,23 @@
                     playSoundEffect('score');
                     if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
                         isGameRunning = false;
-                        clearInterval(singleplayerLoop);
                         
                         const isWin = serverPlayers.left.score >= 5;
                         playSoundEffect(isWin ? 'win' : 'lose');
                         
-                        socket.emit('singleplayerResult', { win: isWin, difficulty: difficulty });
+                        socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
+                        break;
                     } else {
                         serverBall.x = 400; serverBall.y = 300;
                         serverBall.speed = 5;
                         const angle = Math.random() * (Math.PI/3 - Math.PI/6) + Math.PI/6;
                         serverBall.dx = Math.cos(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
                         serverBall.dy = Math.sin(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
+                        serverBall.lastHit = null;
+                        break;
                     }
                 }
-            }, 1000/30);
-            
-            requestAnimationFrame(renderLoop);
+            }
         }
 
         socket.on('singleplayerReward', (data) => {
@@ -1387,13 +1405,21 @@
         function renderLoop(timestamp) {
             if (!isGameRunning) return;
 
-            const dtMs = timestamp - lastFrameTime;
-            lastFrameTime = timestamp;
+            const now = performance.now();
+            if (!lastFrameTime) lastFrameTime = now;
+            
+            const dtMs = now - lastFrameTime;
+            lastFrameTime = now;
             const dtFactor = Math.min(dtMs / 16.67, 3);
+            const dtSec = dtMs / 1000;
+
+            if (isSingleplayer) {
+                updateLocalPhysics(dtSec);
+            }
 
             const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
-            const predX = serverBall.x + serverBall.dx * speedMul * dtFactor;
-            const predY = serverBall.y + serverBall.dy * speedMul * dtFactor;
+            const predX = isSingleplayer ? serverBall.x : serverBall.x + serverBall.dx * speedMul * dtFactor;
+            const predY = isSingleplayer ? serverBall.y : serverBall.y + serverBall.dy * speedMul * dtFactor;
 
             renderBall.x = lerp(renderBall.x, predX, LERP_SPEED * dtFactor);
             renderBall.y = lerp(renderBall.y, predY, LERP_SPEED * dtFactor);
