@@ -36,6 +36,7 @@
 
         .hidden {
             display: none !important;
+            pointer-events: none !important;
         }
 
         .neon-title {
@@ -261,6 +262,7 @@
             background: rgba(5, 5, 8, 0.85);
             border-radius: 8px;
             z-index: 10;
+            pointer-events: auto;
         }
 
         #message {
@@ -915,7 +917,7 @@
     </div>
 
     <div id="levelUpOverlay" class="screen hidden"
-        style="background: rgba(255,255,255,0.05); z-index: 200; pointer-events: none;">
+        style="background: rgba(255,255,255,0.05); z-index: 200;">
         <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;">
             SEVİYE ATLADIN!</h1>
     </div>
@@ -1250,9 +1252,8 @@
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // BAŞLANGIÇ
-        if (!user) { showScreen('loginScreen'); }
-        else { showMainMenu(); }
+        // BAŞLANGIÇ — always start at login screen to keep main menu hidden by default
+        showScreen('loginScreen');
 
         document.getElementById('btnLogin').addEventListener('click', () => {
             initAudio();
@@ -1273,7 +1274,9 @@
         function showMainMenu() {
             showScreen('mainMenu');
             updateProfileUI();
-            checkDailyReward();
+            // moved daily reward check out of automatic main-menu display to avoid
+            // overlays blocking interaction. Call `checkDailyReward()` manually
+            // after login or when you explicitly want to show the daily reward.
             reportStats();
             socket.emit('getChatHistory');
         }
@@ -1872,7 +1875,7 @@
 
         socket.on('gs', (s) => {
             if (!isGameRunning) return;
-            const lastHitMap = [' left', 'right', null];
+            const lastHitMap = ['left', 'right', null];
 
             const newX = s.b[0];
             const newY = s.b[1];
@@ -2016,14 +2019,14 @@
 
             ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        )
+
             const safeOppName = opponentProfile ? opponentProfile.name : 'Rakip';
             const safeOppTitle = opponentProfile ? opponentProfile.title : '';
 
             const lt = (mySide === 'left')
-               ? user.name + ' [' + getTitle(user.level) + ']'
+                ? user.name + ' [' + getTitle(user.level) + ']'
                 : safeOppName + ' [' + safeOppTitle + ']';
-             const rt = (mySide === 'right')
+            const rt = (mySide === 'right')
                 ? user.name + ' [' + getTitle(user.level) + ']'
                 : safeOppName + ' [' + safeOppTitle + ']';
             ctx.fillText(lt, 200, 30);
@@ -2031,7 +2034,6 @@
 
             requestAnimationFrame(renderLoop);
         }
-    }
 
     </script>
 </body>
