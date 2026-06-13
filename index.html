@@ -930,7 +930,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
 
-        const socket = io("https://cyber-pong.onrender.com", { transports: ['websocket'], upgrade: false });
+        let socket;
+        try {
+            socket = io("https://cyber-pong.onrender.com", { transports: ['websocket'], upgrade: false });
+        } catch (e) {
+            console.error("Socket.io Error:", e);
+            socket = { on: () => {}, emit: () => {}, connected: false };
+        }
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const ui = document.getElementById('ui');
