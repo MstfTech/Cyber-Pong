@@ -270,6 +270,49 @@
             font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 4px;
         }
 
+        @keyframes caseSpin {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(15deg); }
+            50% { transform: scale(1.1) rotate(-15deg); }
+            75% { transform: scale(1.1) rotate(15deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .case-spin-anim { animation: caseSpin 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        /* GLOBAL CHAT */
+        #globalChat {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 350px; height: 250px;
+            background: rgba(0,0,0,0.85); border: 2px solid #0ff;
+            border-radius: 8px; box-shadow: 0 0 15px rgba(0,255,255,0.4);
+            display: flex; flex-direction: column;
+            z-index: 5; pointer-events: auto;
+        }
+        #chatMessages {
+            flex-grow: 1; padding: 10px; overflow-y: auto;
+            font-size: 0.8rem; color: #ccc;
+            font-family: 'Orbitron', sans-serif;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        #chatMessages .chat-msg {
+            background: rgba(0,255,255,0.05); padding: 5px 8px;
+            border-radius: 4px; border-left: 2px solid #0ff;
+        }
+        #chatMessages .chat-name { color: #0ff; font-weight: bold; margin-right: 5px; }
+        #chatMessages .chat-title { color: #ff0; font-size: 0.7rem; margin-right: 5px; }
+        #chatMessages .chat-text { word-wrap: break-word; }
+        #chatInputContainer { display: flex; border-top: 1px solid rgba(0,255,255,0.3); }
+        #chatInput {
+            flex-grow: 1; background: transparent; border: none;
+            color: #fff; padding: 10px; font-family: 'Orbitron', sans-serif; outline: none;
+        }
+        #btnSendChat {
+            background: rgba(0,255,255,0.1); border: none; color: #0ff;
+            padding: 0 15px; cursor: pointer; font-family: 'Orbitron', sans-serif;
+            font-weight: bold; transition: all 0.2s;
+        }
+        #btnSendChat:hover { background: #0ff; color: #000; }
+
         /* LEADERBOARD */
         .lb-table {
             width: 100%;
@@ -380,6 +423,15 @@
         </div>
 
         <button id="btnLeaderboard" class="neon-button" style="margin-top: 20px; font-size: 1rem; padding: 12px 35px; border-color: #ffd700; color: #ffd700; text-shadow: 0 0 5px #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3);" data-i18n="BTN_LEADERBOARD">🏆 GLOBAL LİDERLİK TABLOSU</button>
+
+        <!-- GLOBAL CHAT -->
+        <div id="globalChat">
+            <div id="chatMessages"></div>
+            <div id="chatInputContainer">
+                <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100">
+                <button id="btnSendChat">İLET</button>
+            </div>
+        </div>
     </div>
 
     <!-- TEK OYUNCULU SEÇİM EKRANI -->
@@ -542,9 +594,14 @@
                     BTN_BACK: "BACK TO MENU",
                     SHOP_DESC1: "Win: +100 Coins | Loss: +30 Coins",
                     SHOP_DESC2: "Play and win matches to earn coins!",
-                    RANK_ROOKIE: "[Rookie]",
-                    RANK_MASTER: "[Master]",
-                    RANK_LEGEND: "[Legend]"
+                    RANK_ROOKIE: "Rookie",
+                    RANK_MASTER: "Master",
+                    RANK_LEGEND: "Legend",
+                    RARITY_COMMON: "Common",
+                    RARITY_RARE: "Rare",
+                    RARITY_EPIC: "Epic",
+                    RARITY_LEGENDARY: "Legendary",
+                    RARITY_MYTHIC: "Mythic"
                 },
                 tr: {
                     LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ",
@@ -564,9 +621,14 @@
                     BTN_BACK: "ANA MENÜYE DÖN",
                     SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
                     SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!",
-                    RANK_ROOKIE: "[Çaylak]",
-                    RANK_MASTER: "[Usta]",
-                    RANK_LEGEND: "[Efsane]"
+                    RANK_ROOKIE: "Çaylak",
+                    RANK_MASTER: "Usta",
+                    RANK_LEGEND: "Efsane",
+                    RARITY_COMMON: "Sıradan",
+                    RARITY_RARE: "Nadir",
+                    RARITY_EPIC: "Destansı",
+                    RARITY_LEGENDARY: "Efsanevi",
+                    RARITY_MYTHIC: "Gizemli"
                 }
             },
             init() {
@@ -657,11 +719,11 @@
         }
 
         const SKINS = {
-            'default': { name: 'Klasik', rarity: 'Temel', color: '#fff', glow: '#fff', rarityColor: '#888' },
-            'blue':    { name: 'Neon Safir', rarity: 'Mavi', color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
-            'purple':  { name: 'Hiper Pembe', rarity: 'Mor', color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
-            'orange':  { name: 'Asit Yıldırımı', rarity: 'Turuncu', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
-            'red':     { name: 'MATRIX RGB', rarity: 'Kırmızı', color: 'rgb', glow: 'rgb', rarityColor: '#ff3333' }
+            'default': { name: 'Klasik', rarityKey: 'RARITY_COMMON', color: '#fff', glow: '#fff', rarityColor: '#888' },
+            'blue':    { name: 'Neon Safir', rarityKey: 'RARITY_RARE', color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
+            'purple':  { name: 'Hiper Pembe', rarityKey: 'RARITY_EPIC', color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
+            'orange':  { name: 'Asit Yıldırımı', rarityKey: 'RARITY_LEGENDARY', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
+            'red':     { name: 'MATRIX RGB', rarityKey: 'RARITY_MYTHIC', color: 'rgb', glow: 'rgb', rarityColor: '#ff3333' }
         };
         const CASE_PRICE = 500;
 
@@ -811,7 +873,42 @@
             updateProfileUI();
             checkDailyReward();
             reportStats();
+            socket.emit('getChatHistory');
         }
+
+        // GLOBAL CHAT LİSTENER'LARI
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        
+        function appendChatMessage(data) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            const titleHtml = data.title ? `<span class="chat-title">[${data.title}]</span>` : '';
+            div.innerHTML = `${titleHtml}<span class="chat-name">${data.name}:</span><span class="chat-text">${data.message}</span>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        socket.on('chatHistory', (history) => {
+            chatMessages.innerHTML = '';
+            history.forEach(msg => appendChatMessage(msg));
+        });
+
+        socket.on('receiveGlobalMessage', (data) => {
+            appendChatMessage(data);
+        });
+
+        document.getElementById('btnSendChat').addEventListener('click', () => {
+            const msg = chatInput.value.trim();
+            if (msg && user) {
+                socket.emit('sendGlobalMessage', { name: user.name, title: getTitle(user.level), message: msg });
+                chatInput.value = '';
+            }
+        });
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('btnSendChat').click();
+        });
 
         // GÜNLÜK ÖDÜL
         function checkDailyReward() {
@@ -1006,7 +1103,7 @@
                 title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
                 const rarityBadge = document.createElement('span');
                 rarityBadge.className = 'skin-rarity-badge';
-                rarityBadge.innerText = skin.rarity;
+                rarityBadge.innerText = LocalizationManager.t(skin.rarityKey);
                 rarityBadge.style.color = skin.rarityColor;
                 rarityBadge.style.border = `1px solid ${skin.rarityColor}`;
                 card.appendChild(paddle); card.appendChild(title); card.appendChild(rarityBadge);
@@ -1056,14 +1153,20 @@
             user.cases--; saveUser(); updateInventoryUI();
             playSoundEffect('caseOpen');
 
-            const container = document.getElementById('rouletteContainer');
-            const track = document.getElementById('rouletteTrack');
-            const banner = document.getElementById('wonSkinBanner');
-            banner.classList.add('hidden');
-            container.classList.remove('hidden');
-            track.innerHTML = '';
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0px)';
+            isSpinning = true;
+            document.getElementById('caseSection').classList.add('case-spin-anim');
+            
+            setTimeout(() => {
+                document.getElementById('caseSection').classList.remove('case-spin-anim');
+                
+                const container = document.getElementById('rouletteContainer');
+                const track = document.getElementById('rouletteTrack');
+                const banner = document.getElementById('wonSkinBanner');
+                banner.classList.add('hidden');
+                container.classList.remove('hidden');
+                track.innerHTML = '';
+                track.style.transition = 'none';
+                track.style.transform = 'translateX(0px)';
 
             const itemWidth = 150;
             const totalItems = 60;
@@ -1086,7 +1189,7 @@
                 title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
                 title.style.fontSize = '12px';
                 const subtitle = document.createElement('span');
-                subtitle.innerText = skin.rarity;
+                subtitle.innerText = LocalizationManager.t(skin.rarityKey);
                 subtitle.style.fontSize = '10px';
                 subtitle.style.color = skin.rarityColor;
                 subtitle.style.marginTop = '3px';
@@ -1121,7 +1224,7 @@
                 banner.style.boxShadow = `0 0 30px ${skin.rarityColor}40`;
                 const bt = document.createElement('h2');
                 bt.style.cssText = `color:${skin.color === 'rgb' ? '#fff' : skin.color}; text-shadow:0 0 15px ${skin.color === 'rgb' ? '#f0f' : skin.glow}; font-size:1.3rem;`;
-                bt.innerText = `🎊 [${skin.rarity}] ${skin.name} Kazandınız!`;
+                bt.innerText = `🎊 [${LocalizationManager.t(skin.rarityKey)}] ${skin.name} Kazandınız!`;
                 banner.appendChild(bt); banner.classList.remove('hidden');
                 setTimeout(() => container.classList.add('hidden'), 3000);
             }, 6500);

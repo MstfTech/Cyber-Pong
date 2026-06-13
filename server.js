@@ -35,6 +35,8 @@ let singleplayerSessions = {};
 const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
 let leaderboard = [];
 
+let chatHistory = [];
+
 function loadLeaderboard() {
     try {
         if (fs.existsSync(LEADERBOARD_FILE)) {
@@ -248,6 +250,26 @@ io.on('connection', (socket) => {
         socket.emit('leaderboardData', getTop10());
     });
 
+    socket.on('sendGlobalMessage', (data) => {
+        if (!data || !data.name || !data.message) return;
+        const msgStr = data.message.trim().substring(0, 100);
+        if (!msgStr) return;
+        const msgObj = {
+            id: Date.now() + Math.random(),
+            name: data.name,
+            title: data.title || '',
+            message: msgStr,
+            time: Date.now()
+        };
+        chatHistory.push(msgObj);
+        if (chatHistory.length > 50) chatHistory.shift();
+        io.emit('receiveGlobalMessage', msgObj);
+    });
+
+    socket.on('getChatHistory', () => {
+        socket.emit('chatHistory', chatHistory);
+    });
+
     socket.on('startSingleplayer', (difficulty) => {
         singleplayerSessions[socket.id] = { startTime: Date.now(), difficulty: difficulty };
     });
@@ -273,16 +295,16 @@ io.on('connection', (socket) => {
         let caseChance = 0;
 
         if (data.difficulty === 'easy') { 
-            rewardXp = data.win ? 50 : 15; 
-            rewardCoins = data.win ? 30 : 10; 
+            rewardXp = data.win ? 45 : 15; 
+            rewardCoins = data.win ? 30 : 9; 
             caseChance = 0.01; 
         } else if (data.difficulty === 'medium') { 
-            rewardXp = data.win ? 100 : 30; 
-            rewardCoins = data.win ? 60 : 20; 
+            rewardXp = data.win ? 105 : 35; 
+            rewardCoins = data.win ? 70 : 21; 
             caseChance = 0.04; 
         } else if (data.difficulty === 'hard') { 
-            rewardXp = data.win ? 150 : 50; 
-            rewardCoins = data.win ? 100 : 30; 
+            rewardXp = data.win ? 180 : 60; 
+            rewardCoins = data.win ? 120 : 36; 
             caseChance = 0.12; 
         }
         
