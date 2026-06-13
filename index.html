@@ -718,7 +718,7 @@
     </div>
 
     <!-- GİRİŞ -->
-    <div id="loginScreen" class="screen hidden">
+    <div id="loginScreen" class="screen">
         <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
         <h3 style="color: #888; margin-bottom: 30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
         <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
@@ -924,7 +924,6 @@
     <script>
 
         let socket;
-        try {
             const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
                 ? 'http://localhost:3000'
                 : 'https://cyber-pong.onrender.com';
@@ -934,7 +933,12 @@
             socket = { on: function(){}, emit: function(){}, connected: false };
         }
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let ctx = null;
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+        } else {
+            console.error("Canvas bulunamadı, ama sistem çalışmaya devam ediyor!");
+        }
         const ui = document.getElementById('ui');
         const messageEl = document.getElementById('message');
 
@@ -1917,7 +1921,7 @@
             }
 
             function renderLoop(timestamp) {
-                if (!isGameRunning) return;
+                  if (!isGameRunning || !ctx) return;
 
                 const now = performance.now();
                 if (!lastFrameTime) lastFrameTime = now;
