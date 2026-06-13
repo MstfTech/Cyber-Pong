@@ -718,7 +718,7 @@
     </div>
 
     <!-- GİRİŞ -->
-    <div id="loginScreen" class="screen hidden">
+    <div id="loginScreen" class="screen">
         <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
         <h3 style="color: #888; margin-bottom: 30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
         <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
@@ -922,11 +922,39 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io("https://cyber-pong.onrender.com", { transports: ['websocket'], upgrade: false });
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const ui = document.getElementById('ui');
-        const messageEl = document.getElementById('message');
+        window.onerror = function(msg, url, line, col, error) {
+            console.error("Global Hata Yakalandı:", msg, error);
+            try {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden'));
+                const ls = document.getElementById('loginScreen');
+                if (ls) ls.classList.remove('hidden');
+                const mm = document.getElementById('mainMenu');
+                if (mm) mm.classList.remove('hidden');
+            } catch(e) {}
+            return false;
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error("Promise Hatası:", event.reason);
+            try { document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden')); } catch(e) {}
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                let socket;
+                try {
+                    const serverUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                        ? "http://localhost:3000"
+                        : "https://cyber-pong.onrender.com";
+                    socket = io(serverUrl, { transports: ['websocket'], upgrade: false });
+                } catch (err) {
+                    console.warn("Socket.io yüklenemedi. Offline mod çalıştırılıyor.");
+                    socket = { on: () => {}, emit: () => {} };
+                }
+                const canvas = document.getElementById('gameCanvas');
+                const ctx = canvas.getContext('2d');
+                const ui = document.getElementById('ui');
+                const messageEl = document.getElementById('message');
 
         // GLOBAL OYUN DEĞİŞKENLERİ
         let isGameRunning = false;
@@ -1998,6 +2026,11 @@
 
                 requestAnimationFrame(renderLoop);
             }
+            } catch (mainError) {
+                console.error("Uygulama çalıştırılırken hata oluştu:", mainError);
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('hidden'));
+            }
+        });
     </script>
 </body>
 
