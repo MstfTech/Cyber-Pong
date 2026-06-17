@@ -1252,18 +1252,33 @@
             document.getElementById(id).classList.remove('hidden');
         }
 
-        // BAŞLANGIÇ — always start at login screen to keep main menu hidden by default
-        showScreen('loginScreen');
+        // BAŞLANGIÇ — Kayıtlı kullanıcı varsa login ekranını atla
+        if (user) {
+            showMainMenu(); // Doğrudan ana menüye — login ekranı gösterme
+        } else {
+            showScreen('loginScreen');
+        }
 
         document.getElementById('btnLogin').addEventListener('click', () => {
             initAudio();
             const name = document.getElementById('usernameInput').value.trim();
             if (!name) return alert("Lütfen bir kullanıcı adı girin.");
-            user = {
-                name, xp: 0, level: 1, lastDaily: 0, streak: 0,
-                cases: 0, skins: [], equippedSkin: 'default',
-                consecutiveNoDrop: 0, credits: 0
-            };
+            // BUG #3 FIX: Aynı isimle giriş yapılırsa mevcut veriyi koru, sıfırlama
+            const saved = JSON.parse(localStorage.getItem('pongUser'));
+            if (saved && saved.name === name) {
+                user = saved;
+                user.cases             = user.cases || 0;
+                user.skins             = user.skins || [];
+                user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+                user.credits           = user.credits || 0;
+                if (!user.equippedSkin) user.equippedSkin = 'default';
+            } else {
+                user = {
+                    name, xp: 0, level: 1, lastDaily: 0, streak: 0,
+                    cases: 0, skins: [], equippedSkin: 'default',
+                    consecutiveNoDrop: 0, credits: 0
+                };
+            }
             saveUser(); showMainMenu();
         });
 
