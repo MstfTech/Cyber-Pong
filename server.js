@@ -335,7 +335,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // [BUG FIX] BOT FARMING GÜVENLİK DUVARI TAMAMEN KALDIRILDI! MAÇ SÜRESİ KONTROLÜ YOKTUR.
+        // BOT FARMING GÜVENLİK DUVARI TAMAMEN KALDIRILDI!
         let rewardXp = 0;
         let rewardCoins = 0;
         let caseChance = 0;
@@ -420,20 +420,19 @@ function startGameLoop(roomName) {
         const p1 = room.players[playerIds[0]];
         const p2 = room.players[playerIds[1]];
 
-        // Aktif raket boyut hesaplamaları (Power-up etkileri)
         const p1Height = (p1.paddleGrowUntil && p1.paddleGrowUntil > Date.now()) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
         const p2Height = (p2.paddleGrowUntil && p2.paddleGrowUntil > Date.now()) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
 
         if (room.status === 'playing') {
-            // Dinamik Power-up Üretimi (Her 12 saniyede bir şans)
+            // Dynamic Power-ups
             if (!room.powerup.active && room.frameCount % 360 === 0 && Math.random() < 0.7) {
                 room.powerup.x = Math.random() * (CANVAS_WIDTH - 300) + 150;
                 room.powerup.y = Math.random() * (CANVAS_HEIGHT - 150) + 75;
-                room.powerup.type = Math.random() < 0.5 ? 0 : 1; // 0: Genişleme, 1: Hızlanma
+                room.powerup.type = Math.random() < 0.5 ? 0 : 1;
                 room.powerup.active = true;
             }
 
-            // Top Hareketi
+            // Ball movement
             const speedMultiplier = ball.currentSpeed / BASE_SPEED;
             const stepsPerTick = 60 / SERVER_TICK_RATE;
             for (let step = 0; step < stepsPerTick; step++) {
@@ -441,7 +440,7 @@ function startGameLoop(roomName) {
                 ball.y += ball.dy * speedMultiplier;
             }
 
-            // Duvar Çarpışmaları
+            // Wall collisions
             if (ball.y - BALL_RADIUS <= 0 || ball.y + BALL_RADIUS >= CANVAS_HEIGHT) {
                 ball.dy *= -1;
                 if (ball.y - BALL_RADIUS <= 0) ball.y = BALL_RADIUS;
@@ -449,7 +448,7 @@ function startGameLoop(roomName) {
                 io.to(roomName).emit('playSound', { type: 'wallHit', shake: true });
             }
 
-            // Sol Raket Çarpışma
+            // Left paddle collision
             const leftPaddleRight = 20 + PADDLE_WIDTH;
             if (ball.x - BALL_RADIUS <= leftPaddleRight && ball.x + BALL_RADIUS >= 20 &&
                 ball.y >= p1.y && ball.y <= p1.y + p1Height) {
@@ -467,7 +466,7 @@ function startGameLoop(roomName) {
                 }
             }
 
-            // Sağ Raket Çarpışma
+            // Right paddle collision
             const rightPaddleLeft = CANVAS_WIDTH - 30;
             if (ball.x + BALL_RADIUS >= rightPaddleLeft && ball.x - BALL_RADIUS <= CANVAS_WIDTH - 30 + PADDLE_WIDTH &&
                 ball.y >= p2.y && ball.y <= p2.y + p2Height) {
@@ -485,7 +484,7 @@ function startGameLoop(roomName) {
                 }
             }
 
-            // Power-up ile Topun Çarpışması
+            // Power-up collision
             if (room.powerup.active) {
                 const distX = ball.x - room.powerup.x;
                 const distY = ball.y - room.powerup.y;
@@ -495,11 +494,9 @@ function startGameLoop(roomName) {
                     const targetSide = ball.lastHit || (ball.dx > 0 ? 'left' : 'right');
                     
                     if (room.powerup.type === 0) {
-                        // Raket Genişletme (8 Saniye)
                         if (targetSide === 'left') p1.paddleGrowUntil = Date.now() + 8000;
                         else p2.paddleGrowUntil = Date.now() + 8000;
                     } else {
-                        // Topu Anında Çılgınca Hızlandırma
                         ball.currentSpeed = Math.min(ball.currentSpeed + 3.5, MAX_SPEED);
                     }
                     io.to(roomName).emit('powerupActivated', { type: room.powerup.type, side: targetSide });
@@ -507,7 +504,7 @@ function startGameLoop(roomName) {
                 }
             }
 
-            // Skor Kontrolleri
+            // Scoring
             let scored = false;
             if (ball.x < 0) { p2.score++; scored = true; }
             else if (ball.x > CANVAS_WIDTH) { p1.score++; scored = true; }
@@ -540,7 +537,7 @@ function startGameLoop(roomName) {
             }
         }
 
-        // Optimize Edilmiş Paket Gönderimi (Interpolation Desteği İçin Veriler Ekli)
+        // Optimized state broadcast
         const newState = {
             b: [
                 Math.round(ball.x * 10) / 10, Math.round(ball.y * 10) / 10,
