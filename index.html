@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk Pong RPG - Case Drop Edition</title>
+    <title>Cyber Pong — Siber Arena</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: #050508;
+            background: #050508;
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             height: 100vh;
@@ -23,10 +18,8 @@
 
         .screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,14 +27,12 @@
             background: #050508;
         }
 
-        .hidden {
-            display: none !important;
-            pointer-events: none !important;
-        }
+        .hidden { display: none !important; pointer-events: none !important; }
 
+        /* ─── Neon UI Kit ──────────────────────────────────── */
         .neon-title {
             color: #0ff;
-            text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+            text-shadow: 0 0 5px #0ff, 0 0 15px #0ff, 0 0 30px #0ff;
             font-size: 3rem;
             letter-spacing: 2px;
             margin-bottom: 20px;
@@ -49,7 +40,7 @@
         }
 
         .neon-input {
-            background: rgba(0, 255, 255, 0.05);
+            background: rgba(0,255,255,0.05);
             border: 2px solid #0ff;
             color: #fff;
             padding: 15px 20px;
@@ -59,14 +50,10 @@
             outline: none;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
             transition: box-shadow 0.3s;
         }
-
-        .neon-input:focus {
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
-            border-color: #fff;
-        }
+        .neon-input:focus { box-shadow: 0 0 25px rgba(0,255,255,0.7); }
 
         .neon-button {
             background: transparent;
@@ -79,1978 +66,1856 @@
             cursor: pointer;
             transition: all 0.2s;
             text-shadow: 0 0 5px #f0f;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3), inset 0 0 10px rgba(255, 0, 255, 0.1);
+            box-shadow: 0 0 10px rgba(255,0,255,0.3), inset 0 0 10px rgba(255,0,255,0.1);
             user-select: none;
         }
-
-        .neon-button:hover {
-            background: #f0f;
-            color: #000;
-            box-shadow: 0 0 30px #f0f;
-            text-shadow: none;
-        }
-
-        .neon-button:active {
-            transform: scale(0.96);
-        }
+        .neon-button:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; text-shadow: none; }
+        .neon-button:active { transform: scale(0.96); }
 
         .neon-button.cyan {
-            border-color: #0ff;
-            color: #0ff;
-            text-shadow: 0 0 5px #0ff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            border-color: #0ff; color: #0ff; text-shadow: 0 0 5px #0ff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3), inset 0 0 10px rgba(0,255,255,0.1);
         }
-
-        .neon-button.cyan:hover {
-            background: #0ff;
-            color: #000;
-            box-shadow: 0 0 30px #0ff;
-            text-shadow: none;
-        }
+        .neon-button.cyan:hover { background: #0ff; color: #000; box-shadow: 0 0 30px #0ff; text-shadow: none; }
 
         .neon-button.gold {
-            border-color: #ff0;
-            color: #ff0;
-            text-shadow: 0 0 5px #ff0;
-            box-shadow: 0 0 10px rgba(255, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 0, 0.1);
+            border-color: #ff0; color: #ff0; text-shadow: 0 0 5px #ff0;
+            box-shadow: 0 0 10px rgba(255,255,0,0.3), inset 0 0 10px rgba(255,255,0,0.1);
         }
-
-        .neon-button.gold:hover {
-            background: #ff0;
-            color: #000;
-            box-shadow: 0 0 30px #ff0;
-            text-shadow: none;
-        }
+        .neon-button.gold:hover { background: #ff0; color: #000; box-shadow: 0 0 30px #ff0; text-shadow: none; }
 
         .neon-button.green {
-            border-color: #0f0;
-            color: #0f0;
-            text-shadow: 0 0 5px #0f0;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3), inset 0 0 10px rgba(0, 255, 0, 0.1);
+            border-color: #0f0; color: #0f0; text-shadow: 0 0 5px #0f0;
+            box-shadow: 0 0 10px rgba(0,255,0,0.3), inset 0 0 10px rgba(0,255,0,0.1);
         }
+        .neon-button.green:hover { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; text-shadow: none; }
 
-        .neon-button.green:hover {
-            background: #0f0;
-            color: #000;
-            box-shadow: 0 0 30px #0f0;
-            text-shadow: none;
+        .neon-button.red {
+            border-color: #f44; color: #f44; text-shadow: 0 0 5px #f44;
+            box-shadow: 0 0 10px rgba(255,68,68,0.3);
         }
+        .neon-button.red:hover { background: #f44; color: #000; box-shadow: 0 0 30px #f44; }
 
+        /* ─── Profil Çubuğu ────────────────────────────────── */
         #profileBar {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.85);
+            top: 20px; left: 20px;
+            background: rgba(0,0,0,0.85);
             border: 2px solid #0ff;
             padding: 15px 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
             min-width: 270px;
             z-index: 5;
         }
+        .prof-name { font-size: 1.1rem; color: #fff; margin-bottom: 4px; }
+        .prof-level { font-size: 0.9rem; color: #0ff; margin-bottom: 4px; }
+        .prof-credits { font-size: 0.85rem; color: #ff0; margin-bottom: 10px; text-shadow: 0 0 5px rgba(255,255,0,0.4); }
+        .xp-bar-container { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; border: 1px solid #333; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #0f0, #0ff); width: 0%; box-shadow: 0 0 8px #0f0; transition: width 0.5s ease-out; }
+        .xp-text { font-size: 0.75rem; color: #777; margin-top: 4px; text-align: right; }
 
-        .prof-name {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        .prof-level {
-            font-size: 1rem;
-            color: #0ff;
-            margin-bottom: 5px;
-        }
-
-        .prof-credits {
-            font-size: 0.9rem;
-            color: #ff0;
-            margin-bottom: 10px;
-            text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
-        }
-
-        .xp-bar-container {
-            width: 100%;
-            height: 12px;
-            background: #222;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0f0, #0ff);
-            width: 0%;
-            box-shadow: 0 0 10px #0f0;
-            transition: width 0.5s ease-out;
-        }
-
-        .xp-text {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        #gameContainer {
-            position: relative;
-        }
+        /* ─── Oyun Ekranı ──────────────────────────────────── */
+        #gameContainer { position: relative; }
 
         canvas {
-            background-color: #0a0a12;
+            background: #0a0a12;
             border: 2px solid #0ff;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 20px rgba(0,255,255,0.05);
             display: none;
             cursor: none;
         }
 
-        .shake {
-            animation: shake 0.3s cubic-bezier(.36, .07, .19, .97) both;
+        /* ─── Emote Paneli ─────────────────────────────────── */
+        #emotePanel {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.75);
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 30px;
+            padding: 8px 16px;
+            z-index: 20;
+        }
+        .emote-btn {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: transform 0.15s, background 0.15s;
+            user-select: none;
+        }
+        .emote-btn:hover { transform: scale(1.35); background: rgba(255,255,255,0.1); }
+        .emote-btn:active { transform: scale(0.9); }
+
+        /* ─── Ping Göstergesi ──────────────────────────────── */
+        #pingDisplay {
+            position: absolute;
+            top: 8px; right: 12px;
+            font-size: 0.65rem;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            z-index: 20;
+            pointer-events: none;
         }
 
-        @keyframes shake {
-
-            10%,
-            90% {
-                transform: translate3d(-3px, 0, 0);
-            }
-
-            20%,
-            80% {
-                transform: translate3d(4px, 0, 0);
-            }
-
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-6px, 0, 0);
-            }
-
-            40%,
-            60% {
-                transform: translate3d(6px, 0, 0);
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.8;
-            }
-
-            50% {
-                opacity: 1;
-                text-shadow: 0 0 20px currentColor;
-                transform: scale(1.05);
-            }
-
-            100% {
-                opacity: 0.8;
-            }
-        }
-
+        /* ─── Overlay Kutuları ─────────────────────────────── */
         .overlay-box {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(5, 5, 8, 0.85);
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: rgba(5,5,8,0.88);
             border-radius: 8px;
             z-index: 10;
             pointer-events: auto;
         }
 
-        #message {
+        #message { font-size: 1.4rem; color: #f0f; text-shadow: 0 0 10px #f0f; animation: pulse 1.5s infinite; }
+
+        .neon-text { font-size: 60px; font-weight: 900; text-transform: uppercase; }
+        .win-text  { color: #0f0; text-shadow: 0 0 10px #0f0, 0 0 30px #0f0, 0 0 60px #0f0; }
+        .lose-text { color: #f00; text-shadow: 0 0 10px #f00, 0 0 30px #f00, 0 0 60px #f00; }
+
+        .xp-reward-text    { font-size: 1.8rem; color: #0f0; text-shadow: 0 0 10px #0f0; margin-top: 12px; }
+        .credit-reward-text { font-size: 1.3rem; color: #ff0; text-shadow: 0 0 8px #ff0; margin-top: 8px; }
+
+        /* ─── Maç İstatistikleri (oyun sonu) ──────────────── */
+        #matchStatsBox {
+            margin-top: 14px;
+            padding: 10px 20px;
+            background: rgba(0,255,255,0.04);
+            border: 1px solid rgba(0,255,255,0.2);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: #888;
+            text-align: center;
+            line-height: 1.8;
+        }
+        #matchStatsBox span { color: #0ff; }
+
+        /* ─── Rövanş Bölümü ────────────────────────────────── */
+        #rematchSection { margin-top: 20px; text-align: center; }
+        #rematchStatus  { color: #aaa; font-size: 0.75rem; margin-top: 8px; min-height: 18px; animation: pulse 1.5s infinite; }
+
+        /* ─── Arena Olayı Banner ───────────────────────────── */
+        #arenaEventBanner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #f0f;
+            border-radius: 10px;
+            padding: 10px 30px;
             font-size: 1.5rem;
             color: #f0f;
-            text-shadow: 0 0 10px #f0f;
-            animation: pulse 1.5s infinite;
+            text-shadow: 0 0 15px #f0f;
+            box-shadow: 0 0 30px rgba(255,0,255,0.4);
+            z-index: 15;
+            pointer-events: none;
+            animation: pulse 0.5s ease-in-out;
         }
 
-        .neon-text {
-            font-size: 60px;
-            font-weight: 900;
-            text-transform: uppercase;
+        /* ─── Animasyonlar ─────────────────────────────────── */
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.75; }
+            50% { opacity: 1; text-shadow: 0 0 25px currentColor; transform: scale(1.04); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes arenaFlash {
+            0%   { background: rgba(5,5,8,0.88); }
+            25%  { background: rgba(255,0,255,0.12); }
+            100% { background: rgba(5,5,8,0.88); }
         }
 
-        .win-text {
-            color: #0f0;
-            text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0;
+        /* ─── Menü Grid ────────────────────────────────────── */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; max-width: 700px; }
+        .menu-grid .neon-button { font-size: 1.1rem; padding: 18px 20px; }
+        .back-btn { margin-top: 30px; font-size: 1rem !important; padding: 10px 25px !important; }
+
+        /* ─── Oda & Kasa ───────────────────────────────────── */
+        .room-code-display {
+            font-size: 4rem; color: #0f0;
+            text-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
+            letter-spacing: 15px; margin: 20px 0; font-weight: 900;
+        }
+        .room-code-input {
+            background: rgba(0,255,0,0.05); border: 2px solid #0f0; color: #0f0;
+            padding: 15px 25px; font-size: 2rem; font-family: 'Orbitron', sans-serif;
+            border-radius: 8px; outline: none; text-align: center;
+            letter-spacing: 10px; text-transform: uppercase; width: 250px;
+            margin-bottom: 20px; box-shadow: 0 0 15px rgba(0,255,0,0.3);
         }
 
-        .lose-text {
-            color: #f00;
-            text-shadow: 0 0 10px #f00, 0 0 20px #f00, 0 0 40px #f00;
-        }
+        /* ─── Leaderboard ──────────────────────────────────── */
+        .lb-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+        .lb-table th { color: #0ff; font-size: 0.75rem; text-align: left; padding: 8px 15px; border-bottom: 1px solid rgba(0,255,255,0.2); }
+        .lb-table td { padding: 10px 15px; font-size: 0.8rem; background: rgba(0,255,255,0.03); }
+        .lb-table tr td:first-child { border-radius: 6px 0 0 6px; }
+        .lb-table tr td:last-child  { border-radius: 0 6px 6px 0; }
+        .lb-rank-1 td { background: rgba(255,215,0,0.12); color: #ffd700; }
+        .lb-rank-2 td { background: rgba(192,192,192,0.10); color: #c0c0c0; }
+        .lb-rank-3 td { background: rgba(205,127,50,0.10);  color: #cd7f32; }
 
-        .xp-reward-text {
-            font-size: 2rem;
-            color: #0f0;
-            text-shadow: 0 0 10px #0f0;
-            margin-top: 15px;
-        }
-
-        .credit-reward-text {
-            font-size: 1.5rem;
-            color: #ff0;
-            text-shadow: 0 0 10px #ff0;
-            margin-top: 10px;
-        }
-
-        /* ENVANTER */
-        #inventoryScreen {
-            overflow-y: auto;
-            justify-content: flex-start;
-            padding-top: 40px;
-        }
-
-        .tab-bar {
-            display: flex;
-            gap: 0;
-            margin-bottom: 25px;
-        }
-
+        /* ─── Envanter / Skinler ───────────────────────────── */
+        #inventoryScreen { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+        .tab-bar { display: flex; gap: 0; margin-bottom: 25px; }
         .tab-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #333;
-            color: #888;
-            padding: 12px 30px;
-            font-size: 0.9rem;
-            font-family: 'Orbitron', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
+            background: rgba(255,255,255,0.05); border: 2px solid #333; color: #888;
+            padding: 12px 30px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif;
+            cursor: pointer; transition: all 0.2s; user-select: none;
         }
-
-        .tab-btn:first-child {
-            border-radius: 8px 0 0 8px;
-        }
-
-        .tab-btn:last-child {
-            border-radius: 0 8px 8px 0;
-        }
-
-        .tab-btn.active {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: #0ff;
-            color: #0ff;
-            text-shadow: 0 0 5px #0ff;
-        }
-
-        .tab-btn:hover:not(.active) {
-            border-color: #555;
-            color: #ccc;
-        }
-
-        .tab-content {
-            display: none;
-            width: 850px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .shop-card {
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px solid #ff0;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(255, 255, 0, 0.15);
-            transition: all 0.3s;
-        }
-
-        .shop-card:hover {
-            box-shadow: 0 0 40px rgba(255, 255, 0, 0.3);
-            transform: translateY(-3px);
-        }
-
-        #rouletteContainer {
-            width: 800px;
-            height: 150px;
-            border: 2px solid #fff;
-            position: relative;
-            overflow: hidden;
-            margin: 20px auto;
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-        }
-
-        .center-line {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 4px;
-            background: #ff0000;
-            z-index: 10;
-            box-shadow: 0 0 15px #ff0000;
-            transform: translateX(-50%);
-        }
-
-        .center-arrow-top {
-            position: absolute;
-            top: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 16px solid #ff0000;
-            z-index: 11;
-            filter: drop-shadow(0 0 8px #ff0000);
-        }
-
-        .center-arrow-bottom {
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-bottom: 16px solid #ff0000;
-            z-index: 11;
-            filter: drop-shadow(0 0 8px #ff0000);
-        }
-
-        #rouletteTrack {
-            display: flex;
-            height: 100%;
-            position: absolute;
-            left: 0;
-        }
-
-        .roulette-item {
-            width: 150px;
-            height: 100%;
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            position: relative;
-        }
-
-        .roulette-item .skin-preview {
-            width: 14px;
-            height: 55px;
-            border-radius: 3px;
-            margin-bottom: 8px;
-        }
+        .tab-btn:first-child { border-radius: 8px 0 0 8px; }
+        .tab-btn:last-child  { border-radius: 0 8px 8px 0; }
+        .tab-btn.active { background: rgba(0,255,255,0.1); border-color: #0ff; color: #0ff; text-shadow: 0 0 5px #0ff; }
+        .tab-content { display: none; width: 850px; }
+        .tab-content.active { display: block; }
 
         .skin-card {
-            width: 150px;
-            height: 160px;
-            border: 2px solid #555;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            transition: all 0.2s;
-            user-select: none;
+            width: 150px; height: 160px; border: 2px solid #555; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; background: rgba(0,0,0,0.5); transition: all 0.2s; user-select: none;
         }
+        .skin-card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .skin-card.equipped { border-color: #0f0; box-shadow: 0 0 15px rgba(0,255,0,0.5); }
+        .skin-card .skin-paddle { width: 15px; height: 60px; border-radius: 3px; }
+        .skin-card .skin-name   { margin-top: 12px; font-size: 13px; text-align: center; }
+        .skin-card .skin-equipped { color: #0f0; font-size: 11px; margin-top: 5px; }
+        .skin-card .skin-rarity-badge { font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 4px; }
 
-        .skin-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        /* ─── Rulet ────────────────────────────────────────── */
+        #rouletteContainer {
+            width: 800px; height: 150px; border: 2px solid #fff; position: relative; overflow: hidden;
+            margin: 20px auto; background: rgba(0,0,0,0.5); box-shadow: 0 0 20px rgba(255,255,255,0.2); border-radius: 8px;
         }
+        .center-line { position: absolute; top:0; bottom:0; left:50%; width:4px; background:#f00; z-index:10; box-shadow:0 0 15px #f00; transform:translateX(-50%); }
+        .center-arrow-top    { position:absolute; top:-2px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-top:16px solid #f00; z-index:11; filter:drop-shadow(0 0 8px #f00); }
+        .center-arrow-bottom { position:absolute; bottom:-2px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:16px solid #f00; z-index:11; filter:drop-shadow(0 0 8px #f00); }
+        #rouletteTrack { display:flex; height:100%; position:absolute; left:0; }
+        .roulette-item { width:150px; height:100%; border-right:1px solid rgba(255,255,255,0.15); display:flex; flex-direction:column; justify-content:center; align-items:center; flex-shrink:0; font-size:14px; font-weight:bold; text-align:center; padding:10px; }
+        .roulette-item .skin-preview { width:14px; height:55px; border-radius:3px; margin-bottom:8px; }
 
-        .skin-card.equipped {
-            border-color: #0f0;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        /* ─── Global Chat ──────────────────────────────────── */
+        #globalChat {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 350px; height: 250px;
+            background: rgba(0,0,0,0.85); border: 2px solid #0ff; border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,255,255,0.4);
+            display: flex; flex-direction: column; z-index: 5; pointer-events: auto;
         }
+        #chatMessages { flex-grow:1; padding:10px; overflow-y:auto; font-size:0.78rem; color:#ccc; font-family:'Orbitron',sans-serif; display:flex; flex-direction:column; gap:4px; }
+        #chatMessages .chat-msg { background:rgba(0,255,255,0.04); padding:5px 8px; border-radius:4px; border-left:2px solid #0ff; }
+        #chatMessages .chat-name  { color:#0ff; font-weight:bold; margin-right:4px; }
+        #chatMessages .chat-title { color:#ff0; font-size:0.7rem; margin-right:4px; }
+        #chatInputContainer { display:flex; border-top:1px solid rgba(0,255,255,0.25); }
+        #chatInput { flex-grow:1; background:transparent; border:none; color:#fff; padding:10px; font-family:'Orbitron',sans-serif; outline:none; font-size:0.8rem; }
+        #btnSendChat { background:rgba(0,255,255,0.1); border:none; color:#0ff; padding:0 15px; cursor:pointer; font-family:'Orbitron',sans-serif; font-weight:bold; transition:all 0.2s; }
+        #btnSendChat:hover { background:#0ff; color:#000; }
 
-        .skin-card .skin-paddle {
-            width: 15px;
-            height: 60px;
-            border-radius: 3px;
+        /* ─── Mağaza Kartı ─────────────────────────────────── */
+        .shop-card {
+            background:rgba(0,0,0,0.6); border:2px solid #ff0; border-radius:12px; padding:30px;
+            text-align:center; box-shadow:0 0 20px rgba(255,255,0,0.15); transition:all 0.3s;
         }
-
-        .skin-card .skin-name {
-            margin-top: 12px;
-            font-size: 13px;
-            text-align: center;
-        }
-
-        .skin-card .skin-equipped {
-            color: #0f0;
-            font-size: 11px;
-            margin-top: 5px;
-        }
-
-        .skin-card .skin-rarity-badge {
-            font-size: 10px;
-            margin-top: 4px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
+        .shop-card:hover { box-shadow:0 0 40px rgba(255,255,0,0.3); transform:translateY(-3px); }
 
         @keyframes caseSpin {
-            0% {
-                transform: scale(1) rotate(0deg);
-            }
-
-            25% {
-                transform: scale(1.1) rotate(15deg);
-            }
-
-            50% {
-                transform: scale(1.1) rotate(-15deg);
-            }
-
-            75% {
-                transform: scale(1.1) rotate(15deg);
-            }
-
-            100% {
-                transform: scale(1) rotate(0deg);
-            }
+            0%   { transform: scale(1) rotate(0deg); }
+            25%  { transform: scale(1.1) rotate(15deg); }
+            50%  { transform: scale(1.1) rotate(-15deg); }
+            75%  { transform: scale(1.1) rotate(15deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
-
-        .case-spin-anim {
-            animation: caseSpin 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* GLOBAL CHAT */
-        #globalChat {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 350px;
-            height: 250px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #0ff;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
-            display: flex;
-            flex-direction: column;
-            z-index: 5;
-            pointer-events: auto;
-        }
-
-        #chatMessages {
-            flex-grow: 1;
-            padding: 10px;
-            overflow-y: auto;
-            font-size: 0.8rem;
-            color: #ccc;
-            font-family: 'Orbitron', sans-serif;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        #chatMessages .chat-msg {
-            background: rgba(0, 255, 255, 0.05);
-            padding: 5px 8px;
-            border-radius: 4px;
-            border-left: 2px solid #0ff;
-        }
-
-        #chatMessages .chat-name {
-            color: #0ff;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        #chatMessages .chat-title {
-            color: #ff0;
-            font-size: 0.7rem;
-            margin-right: 5px;
-        }
-
-        #chatMessages .chat-text {
-            word-wrap: break-word;
-        }
-
-        #chatInputContainer {
-            display: flex;
-            border-top: 1px solid rgba(0, 255, 255, 0.3);
-        }
-
-        #chatInput {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            color: #fff;
-            padding: 10px;
-            font-family: 'Orbitron', sans-serif;
-            outline: none;
-        }
-
-        #btnSendChat {
-            background: rgba(0, 255, 255, 0.1);
-            border: none;
-            color: #0ff;
-            padding: 0 15px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-
-        #btnSendChat:hover {
-            background: #0ff;
-            color: #000;
-        }
-
-        /* LEADERBOARD */
-        .lb-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 6px;
-        }
-
-        .lb-table th {
-            color: #0ff;
-            font-size: 0.75rem;
-            text-align: left;
-            padding: 8px 15px;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-        }
-
-        .lb-table td {
-            padding: 10px 15px;
-            font-size: 0.8rem;
-            background: rgba(0, 255, 255, 0.03);
-        }
-
-        .lb-table tr td:first-child {
-            border-radius: 6px 0 0 6px;
-        }
-
-        .lb-table tr td:last-child {
-            border-radius: 0 6px 6px 0;
-        }
-
-        .lb-rank-1 td {
-            background: rgba(255, 215, 0, 0.12);
-            color: #ffd700;
-        }
-
-        .lb-rank-2 td {
-            background: rgba(192, 192, 192, 0.1);
-            color: #c0c0c0;
-        }
-
-        .lb-rank-3 td {
-            background: rgba(205, 127, 50, 0.1);
-            color: #cd7f32;
-        }
-
-        /* ODA OLUŞTURMA */
-        .room-code-display {
-            font-size: 4rem;
-            color: #0f0;
-            text-shadow: 0 0 20px #0f0, 0 0 40px #0f0;
-            letter-spacing: 15px;
-            margin: 20px 0;
-            font-weight: 900;
-        }
-
-        .room-code-input {
-            background: rgba(0, 255, 0, 0.05);
-            border: 2px solid #0f0;
-            color: #0f0;
-            padding: 15px 25px;
-            font-size: 2rem;
-            font-family: 'Orbitron', sans-serif;
-            border-radius: 8px;
-            outline: none;
-            text-align: center;
-            letter-spacing: 10px;
-            text-transform: uppercase;
-            width: 250px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-
-        .room-code-input:focus {
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-            max-width: 700px;
-        }
-
-        .menu-grid .neon-button {
-            font-size: 1.1rem;
-            padding: 18px 20px;
-        }
-
-        .back-btn {
-            margin-top: 30px;
-            font-size: 1rem !important;
-            padding: 10px 25px !important;
-        }
+        .case-spin-anim { animation: caseSpin 0.8s cubic-bezier(0.25,1,0.5,1); }
     </style>
 </head>
 
 <body>
 
-    <!-- DİL SEÇİCİ -->
-    <div id="languageSelector"
-        style="position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px;">
-        <button class="lang-selector neon-button" style="padding: 5px 15px; font-size: 0.9rem;"
-            data-lang="tr">TR</button>
-        <button class="lang-selector neon-button" style="padding: 5px 15px; font-size: 0.9rem;"
-            data-lang="en">EN</button>
+<!-- ─── Dil Seçici ─────────────────────────────────────────────────────────── -->
+<div id="languageSelector" style="position:absolute; top:20px; right:20px; z-index:100; display:flex; gap:10px;">
+    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.9rem;" data-lang="tr">TR</button>
+    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.9rem;" data-lang="en">EN</button>
+</div>
+
+<!-- ─── Giriş Ekranı ──────────────────────────────────────────────────────── -->
+<div id="loginScreen" class="screen">
+    <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
+    <h3 style="color:#888; margin-bottom:30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
+    <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
+    <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">SİSTEME BAĞLAN</button>
+</div>
+
+<!-- ─── Ana Menü ──────────────────────────────────────────────────────────── -->
+<div id="mainMenu" class="screen hidden">
+    <div id="profileBar">
+        <div id="profName"    class="prof-name"></div>
+        <div id="profLevel"   class="prof-level"></div>
+        <div id="profCredits" class="prof-credits"></div>
+        <div class="xp-bar-container"><div id="xpBarFill" class="xp-bar-fill"></div></div>
+        <div id="xpText" class="xp-text"></div>
+    </div>
+    <h1 class="neon-title" style="font-size:5rem; margin-bottom:10px;">NEON PONG</h1>
+    <p style="color:#444; font-size:0.7rem; margin-bottom:25px;">Küresel Siber Arena v3.0</p>
+
+    <div class="menu-grid">
+        <button id="btnFindMatch"    class="neon-button"       style="font-size:1.4rem;" data-i18n="BTN_FIND_MATCH">⚔️ EŞLEŞME BUL</button>
+        <button id="btnSingleplayer" class="neon-button cyan"  style="font-size:1.4rem;" data-i18n="BTN_SINGLEPLAYER">🤖 TEK OYUNCULU</button>
+        <button id="btnCreateRoom"   class="neon-button green" style="font-size:1.4rem;" data-i18n="BTN_CREATE_ROOM">🔑 ODA OLUŞTUR</button>
+        <button id="btnJoinRoom"     class="neon-button gold"  style="font-size:1.4rem;" data-i18n="BTN_JOIN_ROOM">🚪 ODAYA KATIL</button>
+        <button id="btnInventory"    class="neon-button cyan"  style="font-size:1.4rem; grid-column:span 2;" data-i18n="BTN_INVENTORY">🎒 ENVANTER</button>
     </div>
 
-    <!-- GİRİŞ -->
-    <div id="loginScreen" class="screen">
-        <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
-        <h3 style="color: #888; margin-bottom: 30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
-        <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
-        <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">SİSTEME BAĞLAN</button>
-    </div>
+    <button id="btnLeaderboard" class="neon-button"
+        style="margin-top:20px; font-size:1rem; padding:12px 35px; border-color:#ffd700; color:#ffd700; text-shadow:0 0 5px #ffd700; box-shadow:0 0 10px rgba(255,215,0,0.3);"
+        data-i18n="BTN_LEADERBOARD">🏆 GLOBAL LİDERLİK TABLOSU</button>
 
-    <!-- ANA MENÜ -->
-    <div id="mainMenu" class="screen hidden">
-        <div id="profileBar">
-            <div id="profName" class="prof-name"></div>
-            <div id="profLevel" class="prof-level"></div>
-            <div id="profCredits" class="prof-credits"></div>
-            <div class="xp-bar-container">
-                <div id="xpBarFill" class="xp-bar-fill"></div>
-            </div>
-            <div id="xpText" class="xp-text"></div>
-        </div>
-
-        <h1 class="neon-title" style="font-size: 5rem; margin-bottom: 15px;">NEON PONG</h1>
-        <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;">Küresel Siber Arena v2.0</p>
-
-        <div class="menu-grid">
-            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;" data-i18n="BTN_FIND_MATCH">⚔️
-                EŞLEŞME BUL</button>
-            <button id="btnSingleplayer" class="neon-button cyan" style="font-size: 1.5rem;"
-                data-i18n="BTN_SINGLEPLAYER">🤖 TEK OYUNCULU</button>
-            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;"
-                data-i18n="BTN_CREATE_ROOM">🔑 ODA OLUŞTUR</button>
-            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;" data-i18n="BTN_JOIN_ROOM">🚪
-                ODAYA KATIL</button>
-            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem; grid-column: span 2;"
-                data-i18n="BTN_INVENTORY">🎒 ENVANTER</button>
-        </div>
-
-        <button id="btnLeaderboard" class="neon-button"
-            style="margin-top: 20px; font-size: 1rem; padding: 12px 35px; border-color: #ffd700; color: #ffd700; text-shadow: 0 0 5px #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3);"
-            data-i18n="BTN_LEADERBOARD">🏆 GLOBAL LİDERLİK TABLOSU</button>
-
-        <!-- GLOBAL CHAT -->
-        <div id="globalChat">
-            <div id="chatMessages"></div>
-            <div id="chatInputContainer">
-                <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100">
-                <button id="btnSendChat">İLET</button>
-            </div>
+    <div id="globalChat">
+        <div id="chatMessages"></div>
+        <div id="chatInputContainer">
+            <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100">
+            <button id="btnSendChat">İLET</button>
         </div>
     </div>
+</div>
 
-    <!-- TEK OYUNCULU SEÇİM EKRANI -->
-    <div id="singleplayerScreen" class="screen hidden">
-        <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
-        <p style="color: #aaa; margin-bottom: 30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller
-            artar.</p>
-        <div class="menu-grid">
-            <button class="neon-button green btn-difficulty" data-diff="easy" data-i18n="MATCH_EASY"
-                style="grid-column: span 2; font-size: 1.5rem;">Kolay Bot</button>
-            <button class="neon-button gold btn-difficulty" data-diff="medium" data-i18n="MATCH_MEDIUM"
-                style="grid-column: span 2; font-size: 1.5rem;">Orta Bot</button>
-            <button class="neon-button cyan btn-difficulty" data-diff="hard" data-i18n="MATCH_HARD"
-                style="grid-column: span 2; font-size: 1.5rem;">Zor Bot</button>
-        </div>
-        <button id="btnCancelSingleplayer" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
+<!-- ─── Tek Oyunculu Ekranı ───────────────────────────────────────────────── -->
+<div id="singleplayerScreen" class="screen hidden">
+    <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
+    <p style="color:#aaa; margin-bottom:30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller artar.</p>
+    <div class="menu-grid">
+        <button class="neon-button green btn-difficulty" data-diff="easy"   style="grid-column:span 2; font-size:1.5rem;">🤖 Kolay Bot</button>
+        <button class="neon-button gold  btn-difficulty" data-diff="medium" style="grid-column:span 2; font-size:1.5rem;">⚙️ Orta Bot</button>
+        <button class="neon-button cyan  btn-difficulty" data-diff="hard"   style="grid-column:span 2; font-size:1.5rem;">💀 Zor Bot</button>
+    </div>
+    <button id="btnCancelSingleplayer" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+</div>
+
+<!-- ─── Oda Oluştur ───────────────────────────────────────────────────────── -->
+<div id="createRoomScreen" class="screen hidden">
+    <h1 class="neon-title">🔑 ÖZEL ODA OLUŞTURULDU</h1>
+    <p style="color:#aaa; margin-bottom:10px;">Bu kodu arkadaşına gönder:</p>
+    <div id="roomCodeDisplay" class="room-code-display">----</div>
+    <p style="color:#666; font-size:0.75rem; margin-bottom:20px;">Rakibin katılmasını bekliyorsun...</p>
+    <div id="createRoomWaiting" style="color:#f0f; animation:pulse 1.5s infinite;">⏳ Bekleniyor...</div>
+    <button id="btnCancelCreate" class="neon-button back-btn">İPTAL ET</button>
+</div>
+
+<!-- ─── Odaya Katıl ───────────────────────────────────────────────────────── -->
+<div id="joinRoomScreen" class="screen hidden">
+    <h1 class="neon-title">🚪 ODAYA KATIL</h1>
+    <p style="color:#aaa; margin-bottom:20px;">Arkadaşının verdiği 4 haneli kodu gir:</p>
+    <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4">
+    <div id="joinRoomError" style="color:#f55; font-size:0.85rem; margin-bottom:15px; min-height:20px;"></div>
+    <button id="btnJoinRoomGo" class="neon-button green">ODAYA GİR</button>
+    <button id="btnCancelJoin" class="neon-button back-btn">GERİ DÖN</button>
+</div>
+
+<!-- ─── Leaderboard ───────────────────────────────────────────────────────── -->
+<div id="leaderboardScreen" class="screen hidden" style="justify-content:flex-start; padding-top:50px;">
+    <h1 class="neon-title" style="color:#ffd700; text-shadow:0 0 10px #ffd700, 0 0 25px #ffd700;">🏆 GLOBAL LİDERLİK TABLOSU</h1>
+    <p style="color:#555; font-size:0.7rem; margin-bottom:20px;">En İyi 10 Savaşçı</p>
+    <div style="width:700px; background:rgba(0,0,0,0.5); border:2px solid rgba(255,215,0,0.3); border-radius:12px; padding:20px; box-shadow:0 0 30px rgba(255,215,0,0.08);">
+        <table class="lb-table"><thead><tr><th>#</th><th>SAVAŞÇI</th><th>SEVİYE</th><th>TOPLAM XP</th></tr></thead>
+        <tbody id="leaderboardBody"><tr><td colspan="4" style="text-align:center; color:#555;">Yükleniyor...</td></tr></tbody></table>
+    </div>
+    <button id="btnLbRefresh" class="neon-button" style="margin-top:20px; font-size:0.85rem; padding:10px 25px; border-color:#ffd700; color:#ffd700;">🔄 YENİLE</button>
+    <button id="btnLbBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+</div>
+
+<!-- ─── Envanter & Mağaza ─────────────────────────────────────────────────── -->
+<div id="inventoryScreen" class="screen hidden">
+    <h1 class="neon-title" style="margin-bottom:15px;">ENVANTER & MAĞAZA</h1>
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
+        <button class="tab-btn"        data-tab="tabShop">MAĞAZA</button>
     </div>
 
-    <!-- ODA OLUŞTUR EKRANI -->
-    <div id="createRoomScreen" class="screen hidden">
-        <h1 class="neon-title">🔑 ÖZEL ODA OLUŞTURULDU</h1>
-        <p style="color: #aaa; margin-bottom: 10px;">Bu kodu arkadaşına gönder:</p>
-        <div id="roomCodeDisplay" class="room-code-display">----</div>
-        <p style="color: #666; font-size: 0.75rem; margin-bottom: 20px;">Rakibin katılmasını bekliyorsun...</p>
-        <div id="createRoomWaiting" style="color: #f0f; animation: pulse 1.5s infinite;">⏳ Bekleniyor...</div>
-        <button id="btnCancelCreate" class="neon-button back-btn">İPTAL ET</button>
+    <div id="tabInventory" class="tab-content active">
+        <div id="caseSection" style="text-align:center; margin-bottom:20px;">
+            <h2 style="color:#0ff; margin-bottom:15px;">Sahip Olduğun Siber Kasalar: <span id="caseCount" style="color:#fff; font-size:2rem;">0</span></h2>
+            <button id="btnOpenCase" class="neon-button gold">KASAYI AÇ</button>
+        </div>
+        <div id="rouletteContainer" class="hidden">
+            <div class="center-arrow-top"></div>
+            <div class="center-line"></div>
+            <div class="center-arrow-bottom"></div>
+            <div id="rouletteTrack"></div>
+        </div>
+        <div id="wonSkinBanner" class="hidden" style="text-align:center; margin:15px 0; padding:15px; border-radius:10px; background:rgba(0,0,0,0.6);"></div>
+        <h2 style="color:#f0f; margin-top:25px; margin-bottom:10px; text-align:center;">SAHİP OLDUĞUN SKİNLER</h2>
+        <div id="skinsSection" style="width:820px; display:flex; flex-wrap:wrap; gap:15px; justify-content:center; padding:20px; background:rgba(0,0,0,0.5); border-radius:8px;"></div>
     </div>
 
-    <!-- ODAYA KATIL EKRANI -->
-    <div id="joinRoomScreen" class="screen hidden">
-        <h1 class="neon-title">🚪 ODAYA KATIL</h1>
-        <p style="color: #aaa; margin-bottom: 20px;">Arkadaşının verdiği 4 haneli kodu gir:</p>
-        <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4">
-        <div id="joinRoomError" style="color: #f55; font-size: 0.85rem; margin-bottom: 15px; min-height: 20px;"></div>
-        <button id="btnJoinRoomGo" class="neon-button green">ODAYA GİR</button>
-        <button id="btnCancelJoin" class="neon-button back-btn">GERİ DÖN</button>
+    <div id="tabShop" class="tab-content">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2 style="color:#ff0; margin-bottom:5px;">Mevcut Jetonların: <span id="shopCredits" style="color:#fff;">0</span> <span style="font-size:0.8rem;">SİBER JETON</span></h2>
+        </div>
+        <div style="display:flex; gap:25px; justify-content:center; flex-wrap:wrap;">
+            <div class="shop-card" style="width:280px;">
+                <h3 style="color:#ff0; margin-bottom:10px;">🔒 SİBER KASA</h3>
+                <div style="font-size:3rem; margin:15px 0;">📦</div>
+                <p style="color:#aaa; font-size:0.7rem; margin-bottom:15px;">İçinden Neon Safir, Hiper Pembe, Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!</p>
+                <button id="btnBuyCase" class="neon-button gold" style="padding:10px 30px; font-size:1rem;">500 JETON İLE SATIN AL</button>
+            </div>
+        </div>
+        <div style="margin-top:30px; text-align:center; color:#444; font-size:0.7rem;">
+            <p>Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton</p>
+            <p style="margin-top:5px;">Maç kazanarak ve oynayarak jeton biriktir!</p>
+        </div>
     </div>
+    <button id="btnBackToMenu" class="neon-button back-btn">ANA MENÜYE DÖN</button>
+</div>
 
-    <!-- LEADERBOARD EKRANI -->
-    <div id="leaderboardScreen" class="screen hidden" style="justify-content: flex-start; padding-top: 50px;">
-        <h1 class="neon-title" style="color: #ffd700; text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;">🏆 GLOBAL
-            LİDERLİK TABLOSU</h1>
-        <p style="color: #666; font-size: 0.7rem; margin-bottom: 20px;">En İyi 10 Savaşçı</p>
-        <div
-            style="width: 700px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.1);">
-            <table class="lb-table" id="leaderboardTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>SAVAŞÇI</th>
-                        <th>SEVİYE</th>
-                        <th>TOPLAM XP</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                    <tr>
-                        <td colspan="4" style="text-align:center; color:#555;">Yükleniyor...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <button id="btnLbRefresh" class="neon-button"
-            style="margin-top: 20px; font-size: 0.85rem; padding: 10px 25px; border-color: #ffd700; color: #ffd700;">🔄
-            YENİLE</button>
-        <button id="btnLbBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
-    </div>
+<!-- ─── Oyun Ekranı ───────────────────────────────────────────────────────── -->
+<div id="gameScreen" class="screen hidden">
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-    <!-- ENVANTER & MAĞAZA -->
-    <div id="inventoryScreen" class="screen hidden">
-        <h1 class="neon-title" style="margin-bottom: 15px;">ENVANTER & MAĞAZA</h1>
-        <div class="tab-bar">
-            <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
-            <button class="tab-btn" data-tab="tabShop">MAĞAZA</button>
+        <!-- Ping Göstergesi -->
+        <div id="pingDisplay">⬤ --ms</div>
+
+        <!-- Emote Paneli -->
+        <div id="emotePanel" class="hidden">
+            <button class="emote-btn" data-emote="🔥" title="Ateş">🔥</button>
+            <button class="emote-btn" data-emote="😎" title="Cool">😎</button>
+            <button class="emote-btn" data-emote="💀" title="Kuru Kafa">💀</button>
+            <button class="emote-btn" data-emote="⚡" title="Şimşek">⚡</button>
+            <button class="emote-btn" data-emote="👍" title="Beğeni">👍</button>
+            <button class="emote-btn" data-emote="😂" title="Gülüş">😂</button>
+            <button class="emote-btn" data-emote="🎯" title="Hedef">🎯</button>
+            <button class="emote-btn" data-emote="💥" title="Patlama">💥</button>
         </div>
 
-        <div id="tabInventory" class="tab-content active">
-            <div id="caseSection" style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #0ff; margin-bottom: 15px;">Sahip Olduğun Siber Kasalar: <span id="caseCount"
-                        style="color: #fff; font-size: 2rem;">0</span></h2>
-                <button id="btnOpenCase" class="neon-button gold">KASAYI AÇ</button>
-            </div>
-            <div id="rouletteContainer" class="hidden">
-                <div class="center-arrow-top"></div>
-                <div class="center-line"></div>
-                <div class="center-arrow-bottom"></div>
-                <div id="rouletteTrack"></div>
-            </div>
-            <div id="wonSkinBanner" class="hidden"
-                style="text-align:center; margin: 15px 0; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.6);">
-            </div>
-            <h2 style="color: #f0f; margin-top: 25px; margin-bottom: 10px; text-align: center;">SAHİP OLDUĞUN SKİNLER
-            </h2>
-            <div id="skinsSection"
-                style="width: 820px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 8px;">
-            </div>
+        <!-- Bağlantı Mesajı -->
+        <div id="ui" class="overlay-box hidden">
+            <h2 id="message">Sisteme Bağlanılıyor...</h2>
         </div>
 
-        <div id="tabShop" class="tab-content">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #ff0; margin-bottom: 5px;">Mevcut Jetonların: <span id="shopCredits"
-                        style="color: #fff;">0</span> <span style="font-size: 0.8rem;">SİBER JETON</span></h2>
-            </div>
-            <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
-                <div class="shop-card" style="width: 280px;">
-                    <h3 style="color: #ff0; margin-bottom: 10px;">🔒 SİBER KASA</h3>
-                    <div style="font-size: 3rem; margin: 15px 0;">📦</div>
-                    <p style="color: #aaa; font-size: 0.7rem; margin-bottom: 15px;">İçinden Neon Safir, Hiper Pembe,
-                        Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!</p>
-                    <button id="btnBuyCase" class="neon-button gold" style="padding: 10px 30px; font-size: 1rem;">500
-                        JETON İLE SATIN AL</button>
+        <!-- Oyun Sonu Overlay -->
+        <div id="endGameOverlay" class="overlay-box hidden">
+            <div id="endGameText"       class="neon-text"></div>
+            <div id="endGameXpText"     class="xp-reward-text"></div>
+            <div id="endGameCreditText" class="credit-reward-text"></div>
+            <div id="matchStatsBox"></div>
+            <div id="endGameCaseText"   class="neon-title hidden"
+                 style="color:#ff0; text-shadow:0 0 20px #ff0; margin-top:15px; animation:pulse 1s infinite; font-size:1.6rem;">
+                🎁 SİBER KASA DÜŞTÜ!</div>
+
+            <!-- Rövanş Bölümü -->
+            <div id="rematchSection">
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button id="btnRematch"     class="neon-button cyan" style="font-size:1rem; padding:12px 25px;">🔄 RÖVANŞ İSTE</button>
+                    <button id="btnReturnMenu"  class="neon-button"      style="font-size:1rem; padding:12px 25px;">🏠 ANA MENÜ</button>
                 </div>
-            </div>
-            <div style="margin-top: 30px; text-align: center; color: #555; font-size: 0.7rem;">
-                <p data-i18n="SHOP_DESC1">Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton</p>
-                <p style="margin-top: 5px;" data-i18n="SHOP_DESC2">Maç kazanarak ve oynayarak jeton biriktir!</p>
-            </div>
-        </div>
-
-        <button id="btnBackToMenu" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
-    </div>
-
-    <!-- OYUN EKRANI -->
-    <div id="gameScreen" class="screen hidden">
-        <div id="gameContainer">
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
-            <div id="ui" class="overlay-box hidden">
-                <h2 id="message">Sisteme Bağlanılıyor...</h2>
-            </div>
-            <div id="endGameOverlay" class="overlay-box hidden">
-                <div id="endGameText" class="neon-text"></div>
-                <div id="endGameXpText" class="xp-reward-text"></div>
-                <div id="endGameCreditText" class="credit-reward-text"></div>
-                <div id="endGameCaseText" class="neon-title hidden"
-                    style="color: #ff0; text-shadow: 0 0 20px #ff0; margin-top: 20px; animation: pulse 1s infinite; font-size: 1.8rem;">
-                    🎁 SİBER KASA DÜŞTÜ!</div>
-                <button id="btnReturnMenu" class="neon-button" style="margin-top: 35px; font-size: 1.2rem;">Ana Menüye
-                    Dön</button>
+                <div id="rematchStatus"></div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- POPUPLAR -->
-    <div id="dailyRewardOverlay" class="screen hidden" style="background: rgba(0,0,0,0.92); z-index: 100;">
-        <h2 class="neon-title" style="color: #ff0;">GÜNLÜK ÖDÜLÜN HAZIR</h2>
-        <h3 id="streakText" style="color: #0ff; font-size: 1.5rem;">1. Gün Ardışık Giriş</h3>
-        <h1 id="dailyXpText" class="win-text" style="font-size: 80px; margin: 20px 0;">+100 XP</h1>
-        <button id="btnClaimDaily" class="neon-button gold">ÖDÜLÜ AL</button>
-    </div>
+<!-- ─── Günlük Ödül ────────────────────────────────────────────────────────── -->
+<div id="dailyRewardOverlay" class="screen hidden" style="background:rgba(0,0,0,0.93); z-index:100;">
+    <h2 class="neon-title" style="color:#ff0;">GÜNLÜK ÖDÜLÜN HAZIR</h2>
+    <h3 id="streakText" style="color:#0ff; font-size:1.5rem;">1. Gün Ardışık Giriş</h3>
+    <h1 id="dailyXpText" class="win-text" style="font-size:80px; margin:20px 0;">+100 XP</h1>
+    <button id="btnClaimDaily" class="neon-button gold">ÖDÜLÜ AL</button>
+</div>
 
-    <div id="levelUpOverlay" class="screen hidden"
-        style="background: rgba(255,255,255,0.05); z-index: 200;">
-        <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;">
-            SEVİYE ATLADIN!</h1>
-    </div>
+<!-- ─── Level Up ──────────────────────────────────────────────────────────── -->
+<div id="levelUpOverlay" class="screen hidden" style="background:rgba(255,255,255,0.04); z-index:200;">
+    <h1 id="lvlUpText" class="neon-title" style="font-size:90px; color:#f0f; animation:pulse 0.5s infinite;">SEVİYE ATLADIN!</h1>
+</div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
+<!-- ─── Arena Olayı Banner ────────────────────────────────────────────────── -->
+<div id="arenaEventBanner" class="hidden"></div>
 
-        let socket;
-        const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-            ? 'http://localhost:3000'
-            : 'https://cyber-pong.onrender.com';
+<script src="/socket.io/socket.io.js"></script>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Socket bağlantısı
+// ═══════════════════════════════════════════════════════════════════════════
+let socket;
+const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : window.location.origin;
+
+try {
+    socket = io(_serverUrl, { transports: ['websocket'], upgrade: false });
+} catch (e) {
+    console.warn('Socket.io başlatılamadı:', e);
+    socket = { on() {}, emit() {}, connected: false };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Canvas & Render değişkenleri
+// ═══════════════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas ? canvas.getContext('2d') : null;
+const ui     = document.getElementById('ui');
+const messageEl = document.getElementById('message');
+
+// Oyun durumu
+let gamePhase        = 'idle';   // 'idle' | 'countdown' | 'playing' | 'gameover'
+let isRenderRunning  = false;    // render döngüsü çalışıyor mu
+let mySide           = 'left';
+let opponentProfile  = null;
+let isSingleplayer   = false;
+let singleplayerBot  = null;
+let singleplayerDifficulty = 'medium';
+let gameAlreadyOver  = false;    // FIX: opponentLeft'in gameOver'ı ezmesini önler
+let currentCountdown = 3;        // Sayım değeri
+
+// Topu & oyuncuları sunucudan gelen verilerle senkronize
+let serverBall    = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
+let serverPlayers = {
+    left:  { y: 250, score: 0, grow: 0 },
+    right: { y: 250, score: 0, grow: 0 }
+};
+let clientPowerup = { active: false, x: 0, y: 0, type: 0 };
+let currentArenaEvent = null;
+
+// Render nesneleri (lerp için)
+let renderBall    = { x: 400, y: 300 };
+let predictedBall = { x: 400, y: 300, dx: 0, dy: 0 };
+let renderOffset  = { x: 0, y: 0 };
+let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
+
+const BASE_SPEED_CLIENT = 5;
+const LERP_SPEED        = 0.3;
+let lastFrameTime = 0;
+let lastServerTime = 0;
+let prevBallX = 400;
+let particles = [];
+let gridImageCache = null;
+
+// Görsel efektler
+let floatingEmotes = [];   // [{text, x, y, startTime}]
+let scoreFlashes   = { left: null, right: null }; // {time, side}
+let prevLeftScore  = 0;
+let prevRightScore = 0;
+
+// Ping
+let pingMs = 0;
+setInterval(() => { socket.emit('ping_check', Date.now()); }, 3000);
+socket.on('pong_check', (ts) => {
+    pingMs = Date.now() - ts;
+    const el  = document.getElementById('pingDisplay');
+    if (!el) return;
+    const color = pingMs < 60 ? '#0f0' : pingMs < 120 ? '#ff0' : '#f44';
+    el.style.color  = color;
+    el.style.textShadow = `0 0 5px ${color}`;
+    el.innerText = `⬤ ${pingMs}ms`;
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Çok Dilli Sistem
+// ═══════════════════════════════════════════════════════════════════════════
+const LocalizationManager = {
+    currentLang: localStorage.getItem('language') || 'tr',
+    translations: {
+        en: {
+            LOGIN_TITLE: 'LOGIN TO CYBER ARENA', LOGIN_SUBTITLE: 'Please Choose a Warrior Name',
+            BTN_LOGIN: 'CONNECT TO SYSTEM', BTN_FIND_MATCH: '⚔️ FIND MATCH',
+            BTN_SINGLEPLAYER: '🤖 SINGLEPLAYER', BTN_CREATE_ROOM: '🔑 CREATE ROOM',
+            BTN_JOIN_ROOM: '🚪 JOIN ROOM', BTN_INVENTORY: '🎒 INVENTORY',
+            BTN_LEADERBOARD: '🏆 GLOBAL LEADERBOARD', TITLE_DIFFICULTY: 'CHOOSE DIFFICULTY',
+            DESC_DIFFICULTY: 'Rewards scale based on bot difficulty.', BTN_BACK: 'BACK TO MENU',
+            RANK_ROOKIE: 'Rookie', RANK_MASTER: 'Master', RANK_LEGEND: 'Legend',
+            RARITY_COMMON: 'Common', RARITY_RARE: 'Rare', RARITY_EPIC: 'Epic',
+            RARITY_LEGENDARY: 'Legendary', RARITY_MYTHIC: 'Mythic'
+        },
+        tr: {
+            LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ", LOGIN_SUBTITLE: 'Lütfen Bir Savaşçı Adı Belirleyin',
+            BTN_LOGIN: 'SİSTEME BAĞLAN', BTN_FIND_MATCH: '⚔️ EŞLEŞME BUL',
+            BTN_SINGLEPLAYER: '🤖 TEK OYUNCULU', BTN_CREATE_ROOM: '🔑 ODA OLUŞTUR',
+            BTN_JOIN_ROOM: '🚪 ODAYA KATIL', BTN_INVENTORY: '🎒 ENVANTER',
+            BTN_LEADERBOARD: '🏆 GLOBAL LİDERLİK TABLOSU', TITLE_DIFFICULTY: 'ZORLUK SEÇİNİZ',
+            DESC_DIFFICULTY: 'Bot zorluğuna göre kazanılan ödüller artar.', BTN_BACK: 'ANA MENÜYE DÖN',
+            RANK_ROOKIE: 'Çaylak', RANK_MASTER: 'Usta', RANK_LEGEND: 'Efsane',
+            RARITY_COMMON: 'Sıradan', RARITY_RARE: 'Nadir', RARITY_EPIC: 'Destansı',
+            RARITY_LEGENDARY: 'Efsanevi', RARITY_MYTHIC: 'Gizemli'
+        }
+    },
+    init() {
+        this.setLanguage(this.currentLang);
+        document.querySelectorAll('.lang-selector').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setLanguage(e.currentTarget.dataset.lang));
+        });
+    },
+    setLanguage(langCode) {
+        if (!this.translations[langCode]) return;
+        this.currentLang = langCode;
+        localStorage.setItem('language', langCode);
+        this.updateUI();
+    },
+    updateUI() {
+        const dict = this.translations[this.currentLang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) el.innerText = dict[key];
+        });
+    },
+    t(key) { return this.translations[this.currentLang]?.[key] || key; }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
+} else {
+    LocalizationManager.init();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Bot (Tek Oyunculu)
+// ═══════════════════════════════════════════════════════════════════════════
+class SingleplayerBot {
+    constructor(canvasHeight, xPosition) {
+        this.canvasHeight = canvasHeight;
+        this.x = xPosition;
+        this.y = canvasHeight / 2;
+        this.targetY = this.y;
+        this.difficulty = 'medium';
+        this.reactionTimer = 0;
+        this.trackingOffset = 0;
+        this.settings = {
+            easy:   { speed: 250, delayMin: 0.15, delayMax: 0.25, offsetRange: 60 },
+            medium: { speed: 400, delayMin: 0.05, delayMax: 0.10, offsetRange: 15 },
+            hard:   { speed: 720, delayMin: 0,    delayMax: 0,    offsetRange: 0  }
+        };
+        this.resetReaction();
+    }
+    setDifficulty(level) { this.difficulty = level; this.resetReaction(); }
+    resetReaction() {
+        const c = this.settings[this.difficulty];
+        this.reactionTimer = c.delayMin + Math.random() * (c.delayMax - c.delayMin);
+        this.trackingOffset = (Math.random() * 2 - 1) * c.offsetRange;
+    }
+    update(dt, ball) {
+        if (!ball) return;
+        if (this.difficulty === 'hard') {
+            if (ball.dx > 0) {
+                const t = (this.x - ball.x) / (ball.dx || 0.001);
+                let py = ball.y + ball.dy * t;
+                let ey = py % (this.canvasHeight * 2);
+                if (ey < 0) ey = Math.abs(ey);
+                if (ey > this.canvasHeight) ey = this.canvasHeight * 2 - ey;
+                this.targetY = ey;
+            } else {
+                this.targetY = this.canvasHeight / 2;
+            }
+        } else {
+            this.reactionTimer -= dt;
+            if (this.reactionTimer <= 0) {
+                this.targetY = ball.y + this.trackingOffset;
+                this.resetReaction();
+            }
+        }
+        const dir = Math.sign(this.targetY - this.y);
+        const spd = this.settings[this.difficulty].speed;
+        if (Math.abs(this.targetY - this.y) > 3) this.y += dir * spd * dt;
+        this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y));
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Skinler & Kullanıcı
+// ═══════════════════════════════════════════════════════════════════════════
+const SKINS = {
+    'default': { name: 'Klasik',         rarityKey: 'RARITY_COMMON',    color: '#fff',    glow: '#fff',    rarityColor: '#888' },
+    'blue':    { name: 'Neon Safir',     rarityKey: 'RARITY_RARE',      color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
+    'purple':  { name: 'Hiper Pembe',    rarityKey: 'RARITY_EPIC',      color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
+    'orange':  { name: 'Asit Yıldırımı',rarityKey: 'RARITY_LEGENDARY', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
+    'red':     { name: 'MATRIX RGB',     rarityKey: 'RARITY_MYTHIC',    color: 'rgb',     glow: 'rgb',     rarityColor: '#ff3333' }
+};
+const CASE_PRICE = 500;
+
+let user = JSON.parse(localStorage.getItem('pongUser'));
+if (user) {
+    user.cases = user.cases || 0;
+    user.skins = user.skins || [];
+    user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+    user.credits = user.credits || 0;
+    if (!user.equippedSkin) user.equippedSkin = 'default';
+}
+
+const XP_PER_LEVEL = 500;
+function saveUser() { localStorage.setItem('pongUser', JSON.stringify(user)); }
+function getTitle(level) {
+    if (level >= 10) return LocalizationManager.t('RANK_LEGEND');
+    if (level >= 5)  return LocalizationManager.t('RANK_MASTER');
+    return LocalizationManager.t('RANK_ROOKIE');
+}
+function getLevel(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
+
+function updateProfileUI() {
+    document.getElementById('profName').innerText    = `${user.name} [${getTitle(user.level)}]`;
+    document.getElementById('profLevel').innerText   = `Seviye ${user.level}`;
+    document.getElementById('profCredits').innerText = `💰 ${user.credits || 0} Siber Jeton`;
+    const xpForCurrentLvl = (user.level - 1) * XP_PER_LEVEL;
+    const pct = Math.min(((user.xp - xpForCurrentLvl) / XP_PER_LEVEL) * 100, 100);
+    document.getElementById('xpBarFill').style.width = pct + '%';
+    document.getElementById('xpText').innerText = `${user.xp} / ${user.level * XP_PER_LEVEL} XP`;
+}
+
+function addXP(amount) {
+    const old = user.level;
+    user.xp += amount; user.level = getLevel(user.xp);
+    saveUser(); updateProfileUI();
+    if (user.level > old) {
+        playSoundEffect('levelUp');
+        document.getElementById('lvlUpText').innerText = `SEVİYE ${user.level} OLDUN!`;
+        const ov = document.getElementById('levelUpOverlay');
+        ov.classList.remove('hidden');
+        setTimeout(() => ov.classList.add('hidden'), 3000);
+    }
+}
+function addCredits(amount) {
+    user.credits = (user.credits || 0) + amount;
+    saveUser(); updateProfileUI();
+}
+function reportStats() {
+    if (user) socket.emit('reportStats', { name: user.name, xp: user.xp, level: user.level });
+}
+function getProfile() {
+    return { name: user.name, level: user.level, title: getTitle(user.level), equippedSkin: user.equippedSkin || 'default' };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Ekran Yönetimi
+// ═══════════════════════════════════════════════════════════════════════════
+function hideAllScreens() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+}
+function showScreen(id) {
+    hideAllScreens();
+    document.getElementById(id).classList.remove('hidden');
+}
+function showMainMenu() {
+    showScreen('mainMenu');
+    updateProfileUI();
+    reportStats();
+    socket.emit('getChatHistory');
+}
+
+// ─── Başlangıç ────────────────────────────────────────────────────────────
+if (user) { showMainMenu(); } else { showScreen('loginScreen'); }
+
+// ─── Giriş ────────────────────────────────────────────────────────────────
+document.getElementById('btnLogin').addEventListener('click', () => {
+    initAudio();
+    const name = document.getElementById('usernameInput').value.trim();
+    if (!name) return alert('Lütfen bir kullanıcı adı girin.');
+    const saved = JSON.parse(localStorage.getItem('pongUser'));
+    if (saved && saved.name === name) {
+        user = saved;
+        user.cases = user.cases || 0; user.skins = user.skins || [];
+        user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+        user.credits = user.credits || 0;
+        if (!user.equippedSkin) user.equippedSkin = 'default';
+    } else {
+        user = { name, xp:0, level:1, lastDaily:0, streak:0, cases:0, skins:[], equippedSkin:'default', consecutiveNoDrop:0, credits:0 };
+    }
+    saveUser(); showMainMenu();
+});
+document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btnLogin').click(); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Ses Sistemi
+// ═══════════════════════════════════════════════════════════════════════════
+let audioCtx = null;
+let audioInit = false;
+
+function initAudio() {
+    if (!audioInit) {
         try {
-            socket = io(_serverUrl, { transports: ['websocket'], upgrade: false });
-        } catch (e) {
-            console.warn('Socket.io init failed, running offline:', e);
-            socket = { on: function () { }, emit: function () { }, connected: false };
-        }
-        const canvas = document.getElementById('gameCanvas');
-        let ctx = null;
-        if (canvas) {
-            ctx = canvas.getContext('2d');
-        } else {
-            console.error("Canvas bulunamadı, ama sistem çalışmaya devam ediyor!");
-        }
-        const ui = document.getElementById('ui');
-        const messageEl = document.getElementById('message');
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioInit = true;
+        } catch (e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
 
-        // GLOBAL OYUN DEĞİŞKENLERİ
-        let isGameRunning = false;
-        let mySide = 'left';
-        let opponentProfile = null;
-        let isSingleplayer = false;
-        let singleplayerBot = null;
-        let singleplayerDifficulty = 'medium';
-        let serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
-        let serverPlayers = { left: { y: 250, score: 0 }, right: { y: 250, score: 0 } };
-        let renderBall = { x: 400, y: 300 };
-        let predictedBall = { x: 400, y: 300, dx: 0, dy: 0 };
-        let renderOffset = { x: 0, y: 0 };
-        let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
-        const BASE_SPEED_CLIENT = 5;
-        const LERP_SPEED = 0.3;
-        let lastFrameTime = 0;
-        let lastServerTime = 0;
-        let particles = [];
-        let isSpinning = false;
-        let prevBallX = 400;
-        let gridImageCache = null;
+function playTone(freq, type, duration, vol = 0.08) {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
 
-        const LocalizationManager = {
-            currentLang: localStorage.getItem('language') || 'tr',
-            translations: {
-                en: {
-                    LOGIN_TITLE: "LOGIN TO CYBER ARENA",
-                    LOGIN_SUBTITLE: "Please Choose a Warrior Name",
-                    BTN_LOGIN: "CONNECT TO SYSTEM",
-                    BTN_FIND_MATCH: "⚔️ FIND MATCH",
-                    BTN_SINGLEPLAYER: "🤖 SINGLEPLAYER",
-                    BTN_CREATE_ROOM: "🔑 CREATE ROOM",
-                    BTN_JOIN_ROOM: "🚪 JOIN ROOM",
-                    BTN_INVENTORY: "🎒 INVENTORY",
-                    BTN_LEADERBOARD: "🏆 GLOBAL LEADERBOARD",
-                    TITLE_DIFFICULTY: "CHOOSE DIFFICULTY",
-                    DESC_DIFFICULTY: "Rewards scale based on bot difficulty.",
-                    MATCH_EASY: "Easy Bot",
-                    MATCH_MEDIUM: "Medium Bot",
-                    MATCH_HARD: "Hard Bot",
-                    BTN_BACK: "BACK TO MENU",
-                    SHOP_DESC1: "Win: +100 Coins | Loss: +30 Coins",
-                    SHOP_DESC2: "Play and win matches to earn coins!",
-                    RANK_ROOKIE: "Rookie",
-                    RANK_MASTER: "Master",
-                    RANK_LEGEND: "Legend",
-                    RARITY_COMMON: "Common",
-                    RARITY_RARE: "Rare",
-                    RARITY_EPIC: "Epic",
-                    RARITY_LEGENDARY: "Legendary",
-                    RARITY_MYTHIC: "Mythic"
-                },
-                tr: {
-                    LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ",
-                    LOGIN_SUBTITLE: "Lütfen Bir Savaşçı Adı Belirleyin",
-                    BTN_LOGIN: "SİSTEME BAĞLAN",
-                    BTN_FIND_MATCH: "⚔️ EŞLEŞME BUL",
-                    BTN_SINGLEPLAYER: "🤖 TEK OYUNCULU",
-                    BTN_CREATE_ROOM: "🔑 ODA OLUŞTUR",
-                    BTN_JOIN_ROOM: "🚪 ODAYA KATIL",
-                    BTN_INVENTORY: "🎒 ENVANTER",
-                    BTN_LEADERBOARD: "🏆 GLOBAL LİDERLİK TABLOSU",
-                    TITLE_DIFFICULTY: "ZORLUK SEÇİNİZ",
-                    DESC_DIFFICULTY: "Bot zorluğuna göre kazanılan ödüller artar.",
-                    MATCH_EASY: "Kolay Bot",
-                    MATCH_MEDIUM: "Orta Bot",
-                    MATCH_HARD: "Zor Bot",
-                    BTN_BACK: "ANA MENÜYE DÖN",
-                    SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
-                    SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!",
-                    RANK_ROOKIE: "Çaylak",
-                    RANK_MASTER: "Usta",
-                    RANK_LEGEND: "Efsane",
-                    RARITY_COMMON: "Sıradan",
-                    RARITY_RARE: "Nadir",
-                    RARITY_EPIC: "Destansı",
-                    RARITY_LEGENDARY: "Efsanevi",
-                    RARITY_MYTHIC: "Gizemli"
-                }
-            },
-            init() {
-                this.setLanguage(this.currentLang);
-                document.querySelectorAll('.lang-selector').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        this.setLanguage(e.currentTarget.dataset.lang);
-                    });
-                });
-            },
-            setLanguage(langCode) {
-                if (!this.translations[langCode]) return;
-                this.currentLang = langCode;
-                localStorage.setItem('language', langCode);
-                this.updateUI();
-            },
-            updateUI() {
-                const dict = this.translations[this.currentLang];
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if (dict[key]) el.innerText = dict[key];
-                });
-                if (user && user.level) {
-                    const levelLabel = document.getElementById('profLevel');
-                    if (levelLabel) levelLabel.innerText = `Seviye ${user.level} ${getTitle(user.level)}`;
-                }
-            },
-            t(key) { return this.translations[this.currentLang]?.[key] || key; }
-        };
+function playSoundEffect(type) {
+    if (!audioInit) return;
+    if (type === 'paddleHit') playTone(600, 'square', 0.1, 0.05);
+    else if (type === 'wallHit') playTone(300, 'triangle', 0.1, 0.04);
+    else if (type === 'score') {
+        playTone(400,'sawtooth',0.1,0.1);
+        setTimeout(()=>playTone(600,'sawtooth',0.1,0.1),100);
+        setTimeout(()=>playTone(800,'sawtooth',0.2,0.1),200);
+    }
+    else if (type === 'win') {
+        playTone(440,'square',0.2,0.1);
+        setTimeout(()=>playTone(554,'square',0.2,0.1),200);
+        setTimeout(()=>playTone(659,'square',0.2,0.1),400);
+        setTimeout(()=>playTone(880,'square',0.6,0.1),600);
+    }
+    else if (type === 'lose') {
+        playTone(400,'sawtooth',0.3,0.1);
+        setTimeout(()=>playTone(350,'sawtooth',0.3,0.1),300);
+        setTimeout(()=>playTone(300,'sawtooth',0.6,0.1),600);
+    }
+    else if (type === 'levelUp') {
+        [440,554,659,880,1108].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.15,0.08),i*100));
+    }
+    else if (type === 'tick')     playTone(800 + Math.random()*400, 'square', 0.04, 0.04);
+    else if (type === 'caseOpen') { [523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,'sine',0.15,0.1),i*100)); }
+    else if (type === 'purchase') { playTone(700,'triangle',0.1,0.08); setTimeout(()=>playTone(900,'triangle',0.15,0.1),80); }
+    else if (type === 'countdown') { playTone(440,'square',0.15,0.12); }
+    else if (type === 'go') { playTone(880,'square',0.3,0.15); }
+    else if (type === 'emote') { playTone(1200,'sine',0.08,0.05); }
+    else if (type === 'arenaEvent') {
+        playTone(300,'sawtooth',0.2,0.1);
+        setTimeout(()=>playTone(600,'sawtooth',0.2,0.1),150);
+        setTimeout(()=>playTone(900,'sawtooth',0.3,0.1),300);
+    }
+}
 
-        // Initialize on DOM ready
-        document.addEventListener('DOMContentLoaded', () => {
-            LocalizationManager.init();
+// ═══════════════════════════════════════════════════════════════════════════
+// Render Yardımcıları
+// ═══════════════════════════════════════════════════════════════════════════
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function getSkinStyle(skinId) {
+    if (!skinId || !SKINS[skinId]) return SKINS['default'];
+    return SKINS[skinId];
+}
+
+function getSkinColor(ss) {
+    return ss.color === 'rgb' ? `hsl(${(Date.now() / 5) % 360},100%,50%)` : ss.color;
+}
+function getSkinGlow(ss) {
+    return ss.glow === 'rgb' ? `hsl(${(Date.now() / 5) % 360},100%,50%)` : ss.glow;
+}
+
+function spawnParticles(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random()-0.5)*6, vy: (Math.random()-0.5)*6,
+            life: 1.0, color, size: Math.random()*3+1
         });
-        
-        // Initialize immediately if already loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
-        } else {
-            LocalizationManager.init();
-        }
+    }
+    if (particles.length > 200) particles.splice(0, particles.length - 200);
+}
 
-        class SingleplayerBot {
-            constructor(canvasHeight, xPosition, ballReference) {
-                this.canvasHeight = canvasHeight;
-                this.x = xPosition;
-                this.y = canvasHeight / 2;
-                this.ball = ballReference;
-                this.difficulty = 'medium';
-                this.targetY = this.y;
-                this.reactionTimer = 0;
-                this.trackingOffset = 0;
-                this.settings = {
-                    easy: { speed: 250, delayMin: 0.15, delayMax: 0.25, offsetRange: 60 },
-                    medium: { speed: 400, delayMin: 0.05, delayMax: 0.05, offsetRange: 15 },
-                    hard: { speed: 700, delayMin: 0, delayMax: 0, offsetRange: 0 }
-                };
-                this.resetReaction();
-            }
-            setDifficulty(level) {
-                this.difficulty = level;
-                this.resetReaction();
-            }
-            resetReaction() {
-                const conf = this.settings[this.difficulty];
-                this.reactionTimer = conf.delayMin + Math.random() * (conf.delayMax - conf.delayMin);
-                this.trackingOffset = (Math.random() * 2 - 1) * conf.offsetRange;
-            }
-            update(deltaTime) {
-                if (!this.ball) return;
-                if (this.difficulty === 'easy' || this.difficulty === 'medium') {
-                    this.reactionTimer -= deltaTime;
-                    if (this.reactionTimer <= 0) {
-                        this.targetY = this.ball.y + this.trackingOffset;
-                        this.resetReaction();
-                    }
-                } else if (this.difficulty === 'hard') {
-                    if (this.ball.dx > 0) {
-                        if (this.ball.dx === 0) this.targetY = this.ball.y;
-                        else {
-                            const timeToReach = (this.x - this.ball.x) / this.ball.dx;
-                            let predictedY = this.ball.y + (this.ball.dy * timeToReach);
-                            let effectiveY = predictedY % (this.canvasHeight * 2);
-                            if (effectiveY < 0) effectiveY = Math.abs(effectiveY);
-                            if (effectiveY > this.canvasHeight) effectiveY = (this.canvasHeight * 2) - effectiveY;
-                            this.targetY = effectiveY;
-                        }
-                    } else {
-                        this.targetY = this.canvasHeight / 2;
-                    }
-                }
-                const dist = Math.abs(this.targetY - this.y);
-                const direction = Math.sign(this.targetY - this.y);
-                const currentSpeed = this.settings[this.difficulty].speed;
-                if (dist > 5) this.y += direction * currentSpeed * deltaTime;
-                this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y)); // 100 is paddle height
-            }
-        }
+function updateAndDrawParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.life -= 0.04 * dt;
+        if (p.life <= 0) { particles.splice(i, 1); continue; }
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle   = p.color;
+        ctx.shadowBlur  = 5; ctx.shadowColor = p.color;
+        ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+    }
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+}
 
-        const SKINS = {
-            'default': { name: 'Klasik', rarityKey: 'RARITY_COMMON', color: '#fff', glow: '#fff', rarityColor: '#888' },
-            'blue': { name: 'Neon Safir', rarityKey: 'RARITY_RARE', color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
-            'purple': { name: 'Hiper Pembe', rarityKey: 'RARITY_EPIC', color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
-            'orange': { name: 'Asit Yıldırımı', rarityKey: 'RARITY_LEGENDARY', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
-            'red': { name: 'MATRIX RGB', rarityKey: 'RARITY_MYTHIC', color: 'rgb', glow: 'rgb', rarityColor: '#ff3333' }
-        };
-        const CASE_PRICE = 500;
+function drawGrid() {
+    if (!gridImageCache) {
+        const off  = document.createElement('canvas');
+        off.width  = 800; off.height = 600;
+        const octx = off.getContext('2d');
+        octx.strokeStyle = 'rgba(0,255,255,0.035)';
+        octx.lineWidth   = 1;
+        octx.beginPath();
+        for (let x = 0; x <= 800; x += 40) { octx.moveTo(x,0); octx.lineTo(x,600); }
+        for (let y = 0; y <= 600; y += 40) { octx.moveTo(0,y); octx.lineTo(800,y); }
+        octx.stroke();
+        // Orta çizgi
+        octx.setLineDash([15,15]);
+        octx.beginPath(); octx.moveTo(400,0); octx.lineTo(400,600);
+        octx.strokeStyle = 'rgba(0,255,255,0.14)';
+        octx.lineWidth   = 2; octx.stroke();
+        gridImageCache = off;
+    }
+    ctx.drawImage(gridImageCache, 0, 0);
+}
 
-        // SES
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let audioInit = false;
-        function initAudio() {
-            if (!audioInit && audioCtx.state === 'suspended') { audioCtx.resume(); audioInit = true; }
-        }
-        function playTone(freq, type, duration, vol = 0.1) {
-            if (audioCtx.state === 'suspended') return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
-        }
-        function playSoundEffect(type) {
-            if (type === 'paddleHit') playTone(600, 'square', 0.1, 0.05);
-            else if (type === 'wallHit') playTone(300, 'triangle', 0.1, 0.05);
-            else if (type === 'score') {
-                playTone(400, 'sawtooth', 0.1, 0.1);
-                setTimeout(() => playTone(600, 'sawtooth', 0.1, 0.1), 100);
-                setTimeout(() => playTone(800, 'sawtooth', 0.2, 0.1), 200);
-            }
-            else if (type === 'win') {
-                playTone(440, 'square', 0.2, 0.1);
-                setTimeout(() => playTone(554, 'square', 0.2, 0.1), 200);
-                setTimeout(() => playTone(659, 'square', 0.2, 0.1), 400);
-                setTimeout(() => playTone(880, 'square', 0.6, 0.1), 600);
-            }
-            else if (type === 'lose') {
-                playTone(400, 'sawtooth', 0.3, 0.1);
-                setTimeout(() => playTone(350, 'sawtooth', 0.3, 0.1), 300);
-                setTimeout(() => playTone(300, 'sawtooth', 0.6, 0.1), 600);
-            }
-            else if (type === 'levelUp') {
-                playTone(440, 'triangle', 0.1, 0.1);
-                setTimeout(() => playTone(554, 'triangle', 0.1, 0.1), 100);
-                setTimeout(() => playTone(659, 'triangle', 0.1, 0.1), 200);
-                setTimeout(() => playTone(880, 'triangle', 0.1, 0.1), 300);
-                setTimeout(() => playTone(1108, 'triangle', 0.4, 0.1), 400);
-            }
-            else if (type === 'tick') playTone(800 + Math.random() * 400, 'square', 0.04, 0.04);
-            else if (type === 'caseOpen') {
-                playTone(523, 'sine', 0.15, 0.12);
-                setTimeout(() => playTone(659, 'sine', 0.15, 0.12), 100);
-                setTimeout(() => playTone(784, 'sine', 0.15, 0.12), 200);
-            }
-            else if (type === 'purchase') {
-                playTone(700, 'triangle', 0.1, 0.08);
-                setTimeout(() => playTone(900, 'triangle', 0.15, 0.1), 80);
-            }
-        }
+// ─── Power-up Çizimi ──────────────────────────────────────────────────────
+function drawPowerup() {
+    if (!clientPowerup.active) return;
+    const now    = Date.now();
+    const pulse  = Math.sin(now / 200) * 0.3 + 0.7; // 0.4 – 1.0
+    const radius = 20 * pulse;
+    const color  = clientPowerup.type === 0 ? '#0f0' : '#0ff';
+    const icon   = clientPowerup.type === 0 ? '🛡' : '⚡';
 
-        // KULLANICI
-        let user = JSON.parse(localStorage.getItem('pongUser'));
-        if (user) {
-            user.cases = user.cases || 0;
-            user.skins = user.skins || [];
-            user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
-            user.credits = user.credits || 0;
-            if (!user.equippedSkin) user.equippedSkin = 'default';
+    ctx.save();
+    ctx.shadowBlur  = 25 * pulse; ctx.shadowColor = color;
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.globalAlpha = pulse;
+    ctx.beginPath(); ctx.arc(clientPowerup.x, clientPowerup.y, radius, 0, Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.font        = '20px serif';
+    ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(icon, clientPowerup.x, clientPowerup.y);
+    ctx.restore();
+}
+
+// ─── Skor Flash Animasyonu ────────────────────────────────────────────────
+function drawScoreFlashes() {
+    const now = Date.now();
+    ['left','right'].forEach(side => {
+        const f = scoreFlashes[side];
+        if (!f) return;
+        const prog = (now - f.time) / 700;
+        if (prog >= 1) { scoreFlashes[side] = null; return; }
+        const alpha  = 1 - prog;
+        const yOff   = -50 * prog;
+        const x      = side === 'left' ? 200 : 600;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle   = '#0f0';
+        ctx.shadowBlur  = 15; ctx.shadowColor = '#0f0';
+        ctx.font        = `bold ${Math.round(28 - 8*prog)}px Orbitron`;
+        ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('+1', x, 80 + yOff);
+        ctx.restore();
+    });
+}
+
+// ─── Yüzen Emote Çizimi ───────────────────────────────────────────────────
+function drawFloatingEmotes(dtFactor) {
+    const now = Date.now();
+    floatingEmotes = floatingEmotes.filter(e => (now - e.startTime) < 2200);
+    for (const em of floatingEmotes) {
+        const prog  = (now - em.startTime) / 2200;
+        const alpha = 1 - prog;
+        const yOff  = -90 * prog;
+        const scale = 1 + 0.4 * prog;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.font        = `${Math.round(38 * scale)}px serif`;
+        ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(em.text, em.x, em.y + yOff);
+        ctx.restore();
+    }
+}
+
+// ─── Sayım (Countdown) Çizimi ─────────────────────────────────────────────
+function drawCountdown() {
+    ctx.save();
+    const t   = currentCountdown > 0 ? currentCountdown.toString() : 'BAŞLA!';
+    const col = currentCountdown > 0 ? '#0ff' : '#0f0';
+    const sz  = currentCountdown > 0 ? 220 : 120;
+    ctx.font        = `900 ${sz}px Orbitron`;
+    ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle   = col;
+    ctx.shadowBlur  = 60; ctx.shadowColor = col;
+    ctx.globalAlpha = 0.92;
+    ctx.fillText(t, 400, 300);
+    ctx.restore();
+}
+
+// ─── HUD (Top Hızı) ───────────────────────────────────────────────────────
+function drawHUD() {
+    if (gamePhase !== 'playing') return;
+    ctx.save();
+    ctx.font      = '11px Orbitron';
+    ctx.fillStyle = 'rgba(0,255,255,0.45)';
+    ctx.textAlign = 'center';
+    const spd = (serverBall.speed || BASE_SPEED_CLIENT).toFixed(1);
+    ctx.fillText(`HIZI: ${spd}`, 400, 580);
+    ctx.restore();
+}
+
+// ─── Arena Olayı Efekti ───────────────────────────────────────────────────
+function drawArenaEventEffect() {
+    if (!currentArenaEvent) return;
+    if (currentArenaEvent === 'speedSurge') {
+        ctx.save();
+        ctx.globalAlpha = 0.06 + Math.abs(Math.sin(Date.now()/100)) * 0.06;
+        ctx.fillStyle   = '#ff0';
+        ctx.fillRect(0, 0, 800, 600);
+        ctx.restore();
+    } else if (currentArenaEvent === 'gravityFlip') {
+        ctx.save();
+        ctx.globalAlpha = 0.05 + Math.abs(Math.sin(Date.now()/150)) * 0.05;
+        ctx.fillStyle   = '#f0f';
+        ctx.fillRect(0, 0, 800, 600);
+        ctx.restore();
+    } else if (currentArenaEvent === 'mirrorBall') {
+        ctx.save();
+        ctx.globalAlpha = 0.04 + Math.abs(Math.sin(Date.now()/120)) * 0.04;
+        ctx.fillStyle   = '#0ff';
+        ctx.fillRect(0, 0, 800, 600);
+        ctx.restore();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Tek Oyunculu Fizik
+// ═══════════════════════════════════════════════════════════════════════════
+function updateLocalPhysics(dt) {
+    if (!isSingleplayer || gamePhase !== 'playing' || !singleplayerBot) return;
+
+    singleplayerBot.update(dt, serverBall);
+    serverPlayers.right.y = singleplayerBot.y;
+
+    const steps   = 3;
+    const subDt   = dt / steps;
+    let   stopped = false;
+
+    for (let i = 0; i < steps && !stopped; i++) {
+        serverBall.x += serverBall.dx * 60 * subDt;
+        serverBall.y += serverBall.dy * 60 * subDt;
+
+        // Duvar
+        if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
+            serverBall.dy *= -1;
+            serverBall.y   = serverBall.y - 8 <= 0 ? 8 : 592;
+            playSoundEffect('wallHit');
         }
 
-        const XP_PER_LEVEL = 500;
-        function saveUser() { localStorage.setItem('pongUser', JSON.stringify(user)); }
-        function getTitle(level) {
-            if (level >= 10) return LocalizationManager.t('RANK_LEGEND');
-            if (level >= 5) return LocalizationManager.t('RANK_MASTER');
-            return LocalizationManager.t('RANK_ROOKIE');
-        }
-        function getLevel(xp) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
-
-        function updateProfileUI() {
-            document.getElementById('profName').innerText = `${user.name} [${getTitle(user.level)}]`;
-            document.getElementById('profLevel').innerText = `Seviye ${user.level}`;
-            document.getElementById('profCredits').innerText = `💰 ${user.credits || 0} Siber Jeton`;
-            const xpForCurrentLvl = (user.level - 1) * XP_PER_LEVEL;
-            const xpInLevel = user.xp - xpForCurrentLvl;
-            const pct = Math.min((xpInLevel / XP_PER_LEVEL) * 100, 100);
-            document.getElementById('xpBarFill').style.width = pct + '%';
-            document.getElementById('xpText').innerText = `${user.xp} / ${user.level * XP_PER_LEVEL} XP`;
-        }
-        function addXP(amount) {
-            const oldLevel = user.level;
-            user.xp += amount; user.level = getLevel(user.xp);
-            saveUser(); updateProfileUI();
-            if (user.level > oldLevel) {
-                playSoundEffect('levelUp');
-                const overlay = document.getElementById('levelUpOverlay');
-                document.getElementById('lvlUpText').innerText = `SEVİYE ${user.level} OLDUN!`;
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('hidden'), 3000);
-            }
-        }
-        function addCredits(amount) {
-            user.credits = (user.credits || 0) + amount;
-            saveUser(); updateProfileUI();
-        }
-
-        function reportStats() {
-            if (user) socket.emit('reportStats', { name: user.name, xp: user.xp, level: user.level });
-        }
-
-        function getProfile() {
-            return {
-                name: user.name, level: user.level,
-                title: getTitle(user.level),
-                equippedSkin: user.equippedSkin || 'default'
-            };
-        }
-
-        // EKRAN YÖNETİMİ
-        function hideAllScreens() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-        }
-        function showScreen(id) {
-            hideAllScreens();
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        // BAŞLANGIÇ — Kayıtlı kullanıcı varsa login ekranını atla
-        if (user) {
-            showMainMenu(); // Doğrudan ana menüye — login ekranı gösterme
-        } else {
-            showScreen('loginScreen');
-        }
-
-        document.getElementById('btnLogin').addEventListener('click', () => {
-            initAudio();
-            const name = document.getElementById('usernameInput').value.trim();
-            if (!name) return alert("Lütfen bir kullanıcı adı girin.");
-            // BUG #3 FIX: Aynı isimle giriş yapılırsa mevcut veriyi koru, sıfırlama
-            const saved = JSON.parse(localStorage.getItem('pongUser'));
-            if (saved && saved.name === name) {
-                user = saved;
-                user.cases             = user.cases || 0;
-                user.skins             = user.skins || [];
-                user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
-                user.credits           = user.credits || 0;
-                if (!user.equippedSkin) user.equippedSkin = 'default';
-            } else {
-                user = {
-                    name, xp: 0, level: 1, lastDaily: 0, streak: 0,
-                    cases: 0, skins: [], equippedSkin: 'default',
-                    consecutiveNoDrop: 0, credits: 0
-                };
-            }
-            saveUser(); showMainMenu();
-        });
-
-        document.getElementById('usernameInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnLogin').click();
-        });
-
-        function showMainMenu() {
-            showScreen('mainMenu');
-            updateProfileUI();
-            // moved daily reward check out of automatic main-menu display to avoid
-            // overlays blocking interaction. Call `checkDailyReward()` manually
-            // after login or when you explicitly want to show the daily reward.
-            reportStats();
-            socket.emit('getChatHistory');
-        }
-
-        // GLOBAL CHAT LİSTENER'LARI
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-
-        function appendChatMessage(data) {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            const titleHtml = data.title ? `<span class="chat-title">[${data.title}]</span>` : '';
-            div.innerHTML = `${titleHtml}<span class="chat-name">${data.name}:</span><span class="chat-text">${data.message}</span>`;
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        socket.on('chatHistory', (history) => {
-            chatMessages.innerHTML = '';
-            history.forEach(msg => appendChatMessage(msg));
-        });
-
-        socket.on('receiveGlobalMessage', (data) => {
-            appendChatMessage(data);
-        });
-
-        document.getElementById('btnSendChat').addEventListener('click', () => {
-            const msg = chatInput.value.trim();
-            if (msg && user) {
-                socket.emit('sendGlobalMessage', { name: user.name, title: getTitle(user.level), message: msg });
-                chatInput.value = '';
-            }
-        });
-
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnSendChat').click();
-        });
-
-        // GÜNLÜK ÖDÜL
-        function checkDailyReward() {
-            const now = new Date();
-            const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            if (!user.lastDaily) promptDailyReward(todayMidnight, 1);
-            else {
-                const diffDays = Math.floor((todayMidnight - user.lastDaily) / 86400000);
-                if (diffDays === 1) promptDailyReward(todayMidnight, user.streak + 1);
-                else if (diffDays > 1) promptDailyReward(todayMidnight, 1);
-            }
-        }
-        function promptDailyReward(todayTs, streak) {
-            const xpReward = streak * 100;
-            document.getElementById('streakText').innerText = `${streak}. GÜN ARDIŞIK GİRİŞ`;
-            document.getElementById('dailyXpText').innerText = `+${xpReward} XP`;
-            document.getElementById('dailyRewardOverlay').classList.remove('hidden');
-            document.getElementById('btnClaimDaily').onclick = () => {
-                initAudio(); playSoundEffect('score');
-                user.streak = streak; user.lastDaily = todayTs; saveUser();
-                document.getElementById('dailyRewardOverlay').classList.add('hidden');
-                addXP(xpReward);
-            };
-        }
-
-        // EŞLEŞME BUL
-        document.getElementById('btnFindMatch').addEventListener('click', () => {
-
-            initAudio();
-            showScreen('gameScreen');
-            ui.classList.remove('hidden');
-            messageEl.innerText = "Siber Arena İçin Rakip Aranıyor...";
-            socket.emit('joinMatchmaking', getProfile());
-        });
-
-        // TEK OYUNCULU SEÇİM EKRANI AÇ
-        document.getElementById('btnSingleplayer').addEventListener('click', () => {
-
-            initAudio();
-            showScreen('singleplayerScreen');
-        });
-
-        document.getElementById('btnCancelSingleplayer').addEventListener('click', () => {
-            initAudio();
-            showMainMenu();
-        });
-
-        // Completely refactored difficulty button listener
-        document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-difficulty');
-            if (btn) {
-                initAudio();
-                const difficulty = btn.getAttribute('data-diff');
-                if (difficulty) {
-                    startSingleplayerMatch(difficulty);
-                }
-            }
-        });
-
-        // ODA OLUŞTUR
-        document.getElementById('btnCreateRoom').addEventListener('click', () => {
-            initAudio();
-            showScreen('createRoomScreen');
-            document.getElementById('roomCodeDisplay').innerText = '----';
-            document.getElementById('createRoomWaiting').innerText = '⏳ Oda oluşturuluyor...';
-            socket.emit('createPrivateRoom', getProfile());
-        });
-
-        socket.on('privateRoomCreated', (data) => {
-            document.getElementById('roomCodeDisplay').innerText = data.code;
-            document.getElementById('createRoomWaiting').innerText = '⏳ Rakibin katılmasını bekliyorsun...';
-        });
-
-        document.getElementById('btnCancelCreate').addEventListener('click', () => {
-            initAudio();
-            socket.emit('cancelPrivateRoom');
-            showMainMenu();
-        });
-
-        // ODAYA KATIL
-        document.getElementById('btnJoinRoom').addEventListener('click', () => {
-            initAudio();
-            showScreen('joinRoomScreen');
-            document.getElementById('roomCodeInput').value = '';
-            document.getElementById('joinRoomError').innerText = '';
-            document.getElementById('roomCodeInput').focus();
-        });
-
-        document.getElementById('btnJoinRoomGo').addEventListener('click', () => {
-            initAudio();
-            const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
-            if (code.length !== 4) {
-                document.getElementById('joinRoomError').innerText = 'Lütfen 4 haneli bir kod gir!';
-                return;
-            }
-            document.getElementById('joinRoomError').innerText = '';
-            socket.emit('joinPrivateRoom', { code, profile: getProfile() });
-        });
-
-        document.getElementById('roomCodeInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('btnJoinRoomGo').click();
-        });
-
-        socket.on('privateRoomError', (msg) => {
-            document.getElementById('joinRoomError').innerText = msg;
-        });
-
-        document.getElementById('btnCancelJoin').addEventListener('click', () => {
-            initAudio(); showMainMenu();
-        });
-
-        // LEADERBOARD
-        document.getElementById('btnLeaderboard').addEventListener('click', () => {
-            initAudio();
-            showScreen('leaderboardScreen');
-            socket.emit('getLeaderboard');
-        });
-
-        document.getElementById('btnLbRefresh').addEventListener('click', () => {
-            initAudio(); playSoundEffect('paddleHit');
-            socket.emit('getLeaderboard');
-        });
-
-        document.getElementById('btnLbBack').addEventListener('click', () => {
-            initAudio(); showMainMenu();
-        });
-
-        socket.on('leaderboardData', (data) => {
-            const tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#555;">Henüz veri yok. Maç oynayarak liderlik tablosuna gir!</td></tr>';
-                return;
-            }
-            const rankIcons = ['👑', '🥈', '🥉'];
-            data.forEach((entry, i) => {
-                const tr = document.createElement('tr');
-                if (i < 3) tr.className = `lb-rank-${i + 1}`;
-                const isMe = user && entry.name === user.name;
-                tr.innerHTML = `
-                    <td style="width:50px; text-align:center; font-size:1.1rem;">${i < 3 ? rankIcons[i] : (i + 1)}</td>
-                    <td style="${isMe ? 'color:#0ff; text-shadow:0 0 5px #0ff;' : ''}">${entry.name}${isMe ? ' (Sen)' : ''}</td>
-                    <td>Lv.${entry.level || 1}</td>
-                    <td style="text-align:right;">${entry.xp.toLocaleString()} XP</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        });
-
-        // TAB SİSTEMİ
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                initAudio(); playSoundEffect('paddleHit');
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
-
-        // ENVANTER
-        document.getElementById('btnInventory').addEventListener('click', () => {
-            initAudio();
-            showScreen('inventoryScreen');
-            updateInventoryUI();
-        });
-        document.getElementById('btnBackToMenu').addEventListener('click', () => {
-            initAudio(); showMainMenu();
-        });
-
-        function updateInventoryUI() {
-            document.getElementById('caseCount').innerText = user.cases || 0;
-            document.getElementById('shopCredits').innerText = user.credits || 0;
-            const skinsSection = document.getElementById('skinsSection');
-            skinsSection.innerHTML = '';
-            const allSkins = ['default', ...(user.skins || [])];
-            const uniqueSkins = [...new Set(allSkins)];
-            uniqueSkins.forEach(skinId => {
-                const skin = SKINS[skinId];
-                if (!skin) return;
-                const card = document.createElement('div');
-                card.className = 'skin-card' + (user.equippedSkin === skinId ? ' equipped' : '');
-                const paddle = document.createElement('div');
-                paddle.className = 'skin-paddle';
-                if (skin.color === 'rgb') {
-                    paddle.style.background = 'linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)';
-                } else {
-                    paddle.style.background = skin.color;
-                    paddle.style.boxShadow = `0 0 15px ${skin.glow}`;
-                }
-                const title = document.createElement('span');
-                title.className = 'skin-name';
-                title.innerText = skin.name;
-                title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
-                const rarityBadge = document.createElement('span');
-                rarityBadge.className = 'skin-rarity-badge';
-                rarityBadge.innerText = LocalizationManager.t(skin.rarityKey);
-                rarityBadge.style.color = skin.rarityColor;
-                rarityBadge.style.border = `1px solid ${skin.rarityColor}`;
-                card.appendChild(paddle); card.appendChild(title); card.appendChild(rarityBadge);
-                if (user.equippedSkin === skinId) {
-                    const eq = document.createElement('span');
-                    eq.className = 'skin-equipped'; eq.innerText = '✓ KUŞANILDI';
-                    card.appendChild(eq);
-                }
-                const count = allSkins.filter(s => s === skinId).length;
-                if (count > 1) {
-                    const cb = document.createElement('span');
-                    cb.style.cssText = 'font-size:10px; color:#aaa; margin-top:3px;';
-                    cb.innerText = `x${count}`;
-                    card.appendChild(cb);
-                }
-                card.onclick = () => {
-                    initAudio(); playSoundEffect('paddleHit');
-                    user.equippedSkin = skinId; saveUser(); updateInventoryUI();
-                };
-                skinsSection.appendChild(card);
-            });
-        }
-
-        // MAĞAZA
-        document.getElementById('btnBuyCase').addEventListener('click', () => {
-            initAudio();
-            if ((user.credits || 0) < CASE_PRICE) return alert(`Yetersiz jeton! ${CASE_PRICE} gerekiyor.\nMevcut: ${user.credits || 0}`);
-            user.credits -= CASE_PRICE;
-            user.cases = (user.cases || 0) + 1;
-            saveUser(); updateInventoryUI(); playSoundEffect('purchase');
-        });
-        
-        // GAME LOGIC FUNCTIONS
-        function getSkinIdByRoll() {
-            const r = Math.random();
-            if (r < 0.02) return 'red';
-            if (r < 0.10) return 'orange';
-            if (r < 0.30) return 'purple';
-            return 'blue';
-        }
-        
-        function getSkinStyle(skinId) {
-            if (!skinId || !SKINS[skinId]) return SKINS['default'];
-            return SKINS[skinId];
-        }
-        
-        function spawnParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
-                    life: 1.0, color, size: Math.random() * 3 + 1
-                });
-            }
-            if (particles.length > 150) particles.splice(0, particles.length - 150);
-        }
-        
-        function updateAndDrawParticles(dt) {
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx * dt; p.y += p.vy * dt;
-                p.life -= 0.04 * dt;
-                if (p.life <= 0) { particles.splice(i, 1); continue; }
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.shadowBlur = 6; ctx.shadowColor = p.color;
-                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
-            }
-            ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
-        }
-        
-        function drawGrid() {
-            if (!gridImageCache) {
-                const offscreen = document.createElement('canvas');
-                offscreen.width = 800; offscreen.height = 600;
-                const octx = offscreen.getContext('2d');
-                octx.strokeStyle = 'rgba(0, 255, 255, 0.04)';
-                octx.lineWidth = 1; octx.beginPath();
-                for (let x = 0; x <= 800; x += 40) { octx.moveTo(x, 0); octx.lineTo(x, 600); }
-                for (let y = 0; y <= 600; y += 40) { octx.moveTo(0, y); octx.lineTo(800, y); }
-                octx.stroke();
-                octx.setLineDash([15, 15]); octx.beginPath();
-                octx.moveTo(400, 0); octx.lineTo(400, 600);
-                octx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
-                octx.lineWidth = 2; octx.stroke();
-                gridImageCache = offscreen;
-            }
-            ctx.drawImage(gridImageCache, 0, 0);
-        }
-        
-        function lerp(a, b, t) { return a + (b - a) * t; }
-
-        // RULET
-
-        document.getElementById('btnOpenCase').addEventListener('click', () => {
-            if (isSpinning) return;
-            if ((user.cases || 0) <= 0) return alert("Açacak kasan yok!\nMaç oynayarak düşürebilir veya mağazadan satın alabilirsin.");
-            initAudio();
-            user.cases--; saveUser(); updateInventoryUI();
-            playSoundEffect('caseOpen');
-
-            isSpinning = true;
-            document.getElementById('caseSection').classList.add('case-spin-anim');
-
-            setTimeout(() => {
-                document.getElementById('caseSection').classList.remove('case-spin-anim');
-
-                const container = document.getElementById('rouletteContainer');
-                const track = document.getElementById('rouletteTrack');
-                const banner = document.getElementById('wonSkinBanner');
-                banner.classList.add('hidden');
-                container.classList.remove('hidden');
-                track.innerHTML = '';
-                track.style.transition = 'none';
-                track.style.transform = 'translateX(0px)';
-
-                const itemWidth = 150;
-                const totalItems = 60;
-                const winIndex = 45;
-                const wonSkinId = getSkinIdByRoll();
-
-                for (let i = 0; i < totalItems; i++) {
-                    const skinId = i === winIndex ? wonSkinId : getSkinIdByRoll();
-                    const skin = SKINS[skinId];
-                    const el = document.createElement('div');
-                    el.className = 'roulette-item';
-                    const bgColors = { 'blue': 'rgba(0,255,255,0.08)', 'purple': 'rgba(255,0,255,0.1)', 'orange': 'rgba(255,255,0,0.1)', 'red': 'rgba(255,0,0,0.2)' };
-                    el.style.background = bgColors[skinId] || 'transparent';
-                    const preview = document.createElement('div');
-                    preview.className = 'skin-preview';
-                    if (skin.color === 'rgb') preview.style.background = 'linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff)';
-                    else { preview.style.background = skin.color; preview.style.boxShadow = `0 0 12px ${skin.glow}`; }
-                    const title = document.createElement('span');
-                    title.innerText = skin.name;
-                    title.style.color = skin.color === 'rgb' ? '#fff' : skin.color;
-                    title.style.fontSize = '12px';
-                    const subtitle = document.createElement('span');
-                    subtitle.innerText = LocalizationManager.t(skin.rarityKey);
-                    subtitle.style.fontSize = '10px';
-                    subtitle.style.color = skin.rarityColor;
-                    subtitle.style.marginTop = '3px';
-                    el.appendChild(preview); el.appendChild(title); el.appendChild(subtitle);
-                    track.appendChild(el);
-                }
-
-                isSpinning = true;
-                const randomOffset = (Math.random() - 0.5) * (itemWidth * 0.6);
-                const containerCenter = container.offsetWidth / 2;
-                const targetX = containerCenter - ((winIndex * itemWidth) + (itemWidth / 2)) + randomOffset;
-                void track.offsetWidth;
-                track.style.transition = 'transform 6s cubic-bezier(0.12, 0.88, 0.18, 1)';
-                track.style.transform = `translateX(${targetX}px)`;
-
-                let tickInterval = 40, tickCount = 0;
-                function playRouletteTicks() {
-                    if (!isSpinning || tickCount >= 55) return;
-                    playSoundEffect('tick'); tickCount++;
-                    tickInterval += tickCount < 20 ? 5 : tickCount < 35 ? 15 : 30;
-                    setTimeout(playRouletteTicks, tickInterval);
-                }
-                playRouletteTicks();
-
-                setTimeout(() => {
-                    isSpinning = false;
-                    user.skins.push(wonSkinId); saveUser(); updateInventoryUI();
-                    playSoundEffect('levelUp');
-                    const skin = SKINS[wonSkinId];
-                    banner.innerHTML = '';
-                    banner.style.border = `2px solid ${skin.rarityColor}`;
-                    banner.style.boxShadow = `0 0 30px ${skin.rarityColor}40`;
-                    const bt = document.createElement('h2');
-                    bt.style.cssText = `color:${skin.color === 'rgb' ? '#fff' : skin.color}; text-shadow:0 0 15px ${skin.color === 'rgb' ? '#f0f' : skin.glow}; font-size:1.3rem;`;
-                    bt.innerText = `🎊 [${LocalizationManager.t(skin.rarityKey)}] ${skin.name} Kazandınız!`;
-                    banner.appendChild(bt); banner.classList.remove('hidden');
-                    setTimeout(() => container.classList.add('hidden'), 3000);
-                }, 6500);
-            });
-        });
-
-        function startSingleplayerMatch(difficulty) {
-            isSingleplayer = true;
-            singleplayerDifficulty = difficulty;
-            mySide = 'left';
-            opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
-            serverPlayers.left.score = 0; serverPlayers.right.score = 0;
-            serverPlayers.left.y = 250; serverPlayers.right.y = 250;
-            serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
-
-            singleplayerBot = new SingleplayerBot(600, 770, serverBall);
-            singleplayerBot.setDifficulty(difficulty);
-
-            socket.emit('startSingleplayer', difficulty);
-
-            showScreen('gameScreen');
-            ui.classList.add('hidden');
-            canvas.style.display = 'block';
-            lastFrameTime = performance.now();
-            isGameRunning = true;
-
-            requestAnimationFrame(renderLoop);
-        }
-
-        function updateLocalPhysics(dt) {
-            if (!isSingleplayer || !isGameRunning || !singleplayerBot) return;
-
-            // Update Bot
-            singleplayerBot.update(dt);
-            serverPlayers.right.y = singleplayerBot.y;
-
-            // Sub-step physics to avoid passing through paddles at high speed
-            const steps = 3;
-            const subDt = dt / steps;
-
-            for (let i = 0; i < steps; i++) {
-                // Ball physics (scaled by step)
-                serverBall.x += serverBall.dx * 60 * subDt; // dx is units per frame at 60hz roughly, so scale by dt
-                serverBall.y += serverBall.dy * 60 * subDt;
-
-                if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
-                    serverBall.dy *= -1;
-                    serverBall.y = serverBall.y - 8 <= 0 ? 8 : 592;
-                    playSoundEffect('wallHit');
-                }
-
-                // Left Paddle
-                if (serverBall.x - 8 <= 30 && serverBall.x >= 20 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
-                    if (serverBall.dx < 0) {
-                        const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
-                        const angle = (hitPos - 0.5) * (Math.PI / 3);
-                        serverBall.dx = Math.abs(Math.cos(angle) * serverBall.speed);
-                        serverBall.dy = Math.sin(angle) * serverBall.speed;
-                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
-                        serverBall.lastHit = 'left';
-                        playSoundEffect('paddleHit');
-                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-                    }
-                }
-
-                // Right Paddle (Bot)
-                if (serverBall.x + 8 >= 770 && serverBall.x <= 780 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
-                    if (serverBall.dx > 0) {
-                        const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
-                        const angle = (hitPos - 0.5) * (Math.PI / 3);
-                        serverBall.dx = -Math.abs(Math.cos(angle) * serverBall.speed);
-                        serverBall.dy = Math.sin(angle) * serverBall.speed;
-                        serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
-                        serverBall.lastHit = 'right';
-                        playSoundEffect('paddleHit');
-                        canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-                    }
-                }
-
-                // Scoring
-                let scored = false;
-                if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
-                else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
-
-                if (scored) {
-                    playSoundEffect('score');
-                    if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
-                        isGameRunning = false;
-
-                        const isWin = serverPlayers.left.score >= 5;
-                        playSoundEffect(isWin ? 'win' : 'lose');
-
-                        socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
-                        break;
-                    } else {
-                        serverBall.x = 400; serverBall.y = 300;
-                        serverBall.speed = 5;
-                        const angle = Math.random() * (Math.PI / 3 - Math.PI / 6) + Math.PI / 6;
-                        serverBall.dx = Math.cos(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
-                        serverBall.dy = Math.sin(angle) * 5 * (Math.random() > 0.5 ? 1 : -1);
-                        serverBall.lastHit = null;
-                        break;
-                    }
-                }
-            }
-        }
-
-        socket.on('singleplayerReward', (data) => {
-            if (data.error) {
-                alert("Ödül Hatası: " + data.error);
-                showMainMenu();
-                return;
-            }
-
-            addXP(data.xp_granted);
-            addCredits(data.coins_granted);
-            reportStats();
-
-            let droppedCase = data.case_dropped;
-            if (droppedCase) {
-                user.cases = (user.cases || 0) + 1;
-                saveUser();
-            }
-
-            const overlay = document.getElementById('endGameOverlay');
-            const endText = document.getElementById('endGameText');
-            overlay.classList.remove('hidden');
-
-            if (serverPlayers.left.score >= 5) {
-                endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text";
-            } else {
-                endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text";
-            }
-
-            document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP KAZANDIN`;
-            document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
-            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-        });
-
-        document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
-
-        canvas.addEventListener('mousemove', (event) => {
-            if (!isGameRunning) return;
-            const rect = canvas.getBoundingClientRect();
-            let y = event.clientY - rect.top - 50;
-            if (y < 0) y = 0;
-            if (y > canvas.height - 100) y = canvas.height - 100;
-
-            if (isSingleplayer) {
-                serverPlayers.left.y = y;
-            } else {
-                socket.emit('move', { y: y });
-            }
-        });
-
-        socket.on('waiting', (msg) => { messageEl.innerText = msg; });
-        socket.on('init', (data) => {
-            mySide = data.side;
-            opponentProfile = data.opponent;
-            showScreen('gameScreen');
-            ui.classList.add('hidden');
-        });
-        socket.on('startGame', () => {
-            isSingleplayer = false;
-            isGameRunning = true;
-            ui.classList.add('hidden');
-            canvas.style.display = 'block';
-            lastFrameTime = performance.now();
-            requestAnimationFrame(renderLoop);
-        });
-
-        socket.on('opponentLeft', () => {
-            isGameRunning = false; canvas.style.display = 'none';
-            const overlay = document.getElementById('endGameOverlay');
-            document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
-            document.getElementById('endGameText').className = "neon-text win-text";
-            document.getElementById('endGameXpText').innerText = "+0 XP";
-            document.getElementById('endGameCreditText').innerText = "";
-            document.getElementById('endGameCaseText').classList.add('hidden');
-            overlay.classList.remove('hidden');
-        });
-
-        socket.on('playSound', (data) => {
-            playSoundEffect(data.type);
-            if (data.shake) {
+        // Sol raket (oyuncu)
+        if (serverBall.x - 8 <= 32 && serverBall.x >= 20 &&
+            serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100) {
+            if (serverBall.dx < 0) {
+                const hitPos = (serverBall.y - serverPlayers.left.y) / 100;
+                const angle  = (hitPos - 0.5) * (Math.PI / 3);
+                serverBall.dx    = Math.abs(Math.cos(angle) * serverBall.speed);
+                serverBall.dy    = Math.sin(angle) * serverBall.speed;
+                serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                serverBall.lastHit = 'left';
+                playSoundEffect('paddleHit');
                 canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
             }
-        });
-
-        socket.on('gs', (s) => {
-            if (!isGameRunning) return;
-            const lastHitMap = ['left', 'right', null];
-
-            const newX = s.b[0];
-            const newY = s.b[1];
-
-            if (!isSingleplayer) {
-                renderOffset.x += (predictedBall.x - newX);
-                renderOffset.y += (predictedBall.y - newY);
-
-                predictedBall.x = newX;
-                predictedBall.y = newY;
-                predictedBall.dx = s.b[2];
-                predictedBall.dy = s.b[3];
-            }
-
-            serverBall.x = newX;
-            serverBall.y = newY;
-            serverBall.dx = s.b[2];
-            serverBall.dy = s.b[3];
-            serverBall.speed = s.b[4];
-            serverBall.lastHit = lastHitMap[s.b[5]] || null;
-
-            serverPlayers.left.y = s.p[0];
-            serverPlayers.left.score = s.p[1];
-            serverPlayers.right.y = s.p[2];
-            serverPlayers.right.score = s.p[3];
-
-            lastServerTime = s.t;
-        });
-
-        socket.on('gameOver', (data) => {
-            isGameRunning = false;
-            const isWin = (data.winner === mySide);
-            playSoundEffect(isWin ? 'win' : 'lose');
-            const xpGained = isWin ? 150 : 50;
-            addXP(xpGained);
-            const creditsGained = data.credits || (isWin ? 100 : 30);
-            addCredits(creditsGained);
-            reportStats();
-
-            let dropChance = isWin ? 0.70 : 0.40;
-            let droppedCase = false;
-            user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
-            if (user.consecutiveNoDrop >= 2) dropChance = 1.0;
-            if (Math.random() < dropChance) {
-                user.cases = (user.cases || 0) + 1;
-                droppedCase = true; user.consecutiveNoDrop = 0;
-            } else { user.consecutiveNoDrop++; }
-            saveUser();
-
-            const overlay = document.getElementById('endGameOverlay');
-            const endText = document.getElementById('endGameText');
-            overlay.classList.remove('hidden');
-            if (isWin) { endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text"; }
-            else { endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text"; }
-            document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
-            document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
-            document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-        });
-
-    function renderLoop(timestamp) {
-            if (!isGameRunning || !ctx) return;
-
-            const now = performance.now();
-            if (!lastFrameTime) lastFrameTime = now;
-
-            const dtMs = now - lastFrameTime;
-            lastFrameTime = now;
-            const dtFactor = Math.min(dtMs / 16.67, 3);
-            const dtSec = dtMs / 1000;
-
-            if (isSingleplayer) {
-                updateLocalPhysics(dtSec);
-            }
-
-            const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
-
-            if (isSingleplayer) {
-                renderBall.x = lerp(renderBall.x, serverBall.x, LERP_SPEED * dtFactor);
-                renderBall.y = lerp(renderBall.y, serverBall.y, LERP_SPEED * dtFactor);
-            } else {
-                predictedBall.x += predictedBall.dx * speedMul * dtFactor;
-                predictedBall.y += predictedBall.dy * speedMul * dtFactor;
-
-                if (predictedBall.y <= 0) {
-                    predictedBall.y = 0;
-                    predictedBall.dy = Math.abs(predictedBall.dy);
-                } else if (predictedBall.y >= 600) {
-                    predictedBall.y = 600;
-                    predictedBall.dy = -Math.abs(predictedBall.dy);
-                }
-
-                renderOffset.x = lerp(renderOffset.x, 0, LERP_SPEED * dtFactor);
-                renderOffset.y = lerp(renderOffset.y, 0, LERP_SPEED * dtFactor);
-
-                renderBall.x = predictedBall.x + renderOffset.x;
-                renderBall.y = predictedBall.y + renderOffset.y;
-            }
-
-            renderPlayers.left.y = lerp(renderPlayers.left.y, serverPlayers.left.y, LERP_SPEED * dtFactor);
-            renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
-
-            ctx.clearRect(0, 0, 800, 600);
-            drawGrid();
-
-            const mySkin = user.equippedSkin || 'default';
-            const oppSkin = (opponentProfile && opponentProfile.equippedSkin) ? opponentProfile.equippedSkin : 'default';
-            const leftSkinStyle = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
-            const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
-
-            let ballSkinStyle = SKINS['default'];
-            const lh = serverBall.lastHit;
-            if (lh === 'left') ballSkinStyle = leftSkinStyle;
-            else if (lh === 'right') ballSkinStyle = rightSkinStyle;
-
-            const dynamicRGB = `hsl(${(Date.now() / 5) % 360}, 100%, 50%)`;
-            const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
-            const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
-
-            if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
-            prevBallX = renderBall.x;
-            spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
-            updateAndDrawParticles(dtFactor);
-
-            ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
-            ctx.fillStyle = rc(ballSkinStyle);
-            ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI * 2); ctx.fill();
-
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = rg(leftSkinStyle); ctx.fillStyle = rc(leftSkinStyle);
-            ctx.beginPath(); ctx.roundRect(20, renderPlayers.left.y, 10, 100, 3); ctx.fill();
-
-            ctx.shadowColor = rg(rightSkinStyle); ctx.fillStyle = rc(rightSkinStyle);
-            ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 10, 100, 3); ctx.fill();
-
-            ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillStyle = rc(leftSkinStyle); ctx.shadowColor = ctx.fillStyle;
-            ctx.fillText(serverPlayers.left.score, 200, 80);
-            ctx.fillStyle = rc(rightSkinStyle); ctx.shadowColor = ctx.fillStyle;
-            ctx.fillText(serverPlayers.right.score, 600, 80);
-
-            ctx.shadowBlur = 0; ctx.font = '16px Orbitron';
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-
-            const safeOppName = opponentProfile ? opponentProfile.name : 'Rakip';
-            const safeOppTitle = opponentProfile ? opponentProfile.title : '';
-
-            const lt = (mySide === 'left')
-                ? user.name + ' [' + getTitle(user.level) + ']'
-                : safeOppName + ' [' + safeOppTitle + ']';
-            const rt = (mySide === 'right')
-                ? user.name + ' [' + getTitle(user.level) + ']'
-                : safeOppName + ' [' + safeOppTitle + ']';
-            ctx.fillText(lt, 200, 30);
-            ctx.fillText(rt, 600, 30);
-
-            requestAnimationFrame(renderLoop);
         }
 
-    </script>
-</body>
+        // Sağ raket (bot)
+        if (serverBall.x + 8 >= 770 && serverBall.x <= 782 &&
+            serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100) {
+            if (serverBall.dx > 0) {
+                const hitPos = (serverBall.y - serverPlayers.right.y) / 100;
+                const angle  = (hitPos - 0.5) * (Math.PI / 3);
+                serverBall.dx    = -Math.abs(Math.cos(angle) * serverBall.speed);
+                serverBall.dy    = Math.sin(angle) * serverBall.speed;
+                serverBall.speed = Math.min(serverBall.speed + 0.5, 15);
+                serverBall.lastHit = 'right';
+                playSoundEffect('paddleHit');
+                canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
+            }
+        }
 
+        // Skor
+        let scored = false;
+        if (serverBall.x < 0)   { serverPlayers.right.score++; scored = true; }
+        if (serverBall.x > 800) { serverPlayers.left.score++;  scored = true; }
+
+        if (scored) {
+            // Score flash
+            if (serverBall.x < 0)   { scoreFlashes.right = { time: Date.now() }; }
+            else                     { scoreFlashes.left  = { time: Date.now() }; }
+            playSoundEffect('score');
+
+            if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
+                const isWin = serverPlayers.left.score >= 5;
+                gamePhase       = 'gameover';
+                isRenderRunning = false;
+                gameAlreadyOver = true;
+                playSoundEffect(isWin ? 'win' : 'lose');
+                socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
+                stopped = true;
+                break;
+            }
+
+            // Top sıfırla
+            serverBall.x  = 400; serverBall.y = 300; serverBall.speed = 5;
+            const angle   = Math.random()*(Math.PI/3 - Math.PI/6) + Math.PI/6;
+            serverBall.dx = Math.cos(angle)*5*(Math.random()>0.5?1:-1);
+            serverBall.dy = Math.sin(angle)*5*(Math.random()>0.5?1:-1);
+            serverBall.lastHit = null;
+            stopped = true; // Kareyi sıfırladıktan sonra adımı durdur
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Ana Render Döngüsü
+// ═══════════════════════════════════════════════════════════════════════════
+function renderLoop(timestamp) {
+    if (!isRenderRunning || !ctx) return;
+
+    const now   = performance.now();
+    if (!lastFrameTime) lastFrameTime = now;
+    const dtMs  = now - lastFrameTime;
+    lastFrameTime = now;
+    const dtFactor = Math.min(dtMs / 16.67, 3);
+    const dtSec    = dtMs / 1000;
+
+    // Fizik (yalnızca playing fazında)
+    if (gamePhase === 'playing') {
+        if (isSingleplayer) {
+            updateLocalPhysics(dtSec);
+        } else {
+            // Sunucu tahmini
+            const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
+            predictedBall.x += predictedBall.dx * speedMul * dtFactor;
+            predictedBall.y += predictedBall.dy * speedMul * dtFactor;
+            if (predictedBall.y <= 0)   { predictedBall.y = 0;   predictedBall.dy = Math.abs(predictedBall.dy); }
+            if (predictedBall.y >= 600) { predictedBall.y = 600; predictedBall.dy = -Math.abs(predictedBall.dy); }
+            renderOffset.x = lerp(renderOffset.x, 0, LERP_SPEED * dtFactor);
+            renderOffset.y = lerp(renderOffset.y, 0, LERP_SPEED * dtFactor);
+            renderBall.x   = predictedBall.x + renderOffset.x;
+            renderBall.y   = predictedBall.y + renderOffset.y;
+        }
+    }
+
+    if (isSingleplayer && gamePhase === 'playing') {
+        renderBall.x = lerp(renderBall.x, serverBall.x, LERP_SPEED * dtFactor);
+        renderBall.y = lerp(renderBall.y, serverBall.y, LERP_SPEED * dtFactor);
+    }
+
+    renderPlayers.left.y  = lerp(renderPlayers.left.y,  serverPlayers.left.y,  LERP_SPEED * dtFactor);
+    renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, LERP_SPEED * dtFactor);
+
+    // ── Skor değişimi tespiti ──────────────────────────────────────────────
+    if (serverPlayers.left.score  !== prevLeftScore)  { scoreFlashes.left  = { time: Date.now() }; prevLeftScore  = serverPlayers.left.score; }
+    if (serverPlayers.right.score !== prevRightScore) { scoreFlashes.right = { time: Date.now() }; prevRightScore = serverPlayers.right.score; }
+
+    // ── Çizim ─────────────────────────────────────────────────────────────
+    ctx.clearRect(0, 0, 800, 600);
+    drawGrid();
+    drawArenaEventEffect();
+
+    // Skin seçimi
+    const mySkin  = user.equippedSkin || 'default';
+    const oppSkin = (opponentProfile && opponentProfile.equippedSkin) ? opponentProfile.equippedSkin : 'default';
+    const leftSkinStyle  = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
+    const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
+    const lc = getSkinColor(leftSkinStyle),  lg = getSkinGlow(leftSkinStyle);
+    const rc = getSkinColor(rightSkinStyle), rg = getSkinGlow(rightSkinStyle);
+
+    // Top skin
+    let ballSkinStyle = getSkinStyle('default');
+    if (serverBall.lastHit === 'left')  ballSkinStyle = leftSkinStyle;
+    if (serverBall.lastHit === 'right') ballSkinStyle = rightSkinStyle;
+    const bc = getSkinColor(ballSkinStyle), bg = getSkinGlow(ballSkinStyle);
+
+    // Particles
+    if (gamePhase === 'playing') {
+        if (Math.abs(renderBall.x - prevBallX) > 25) spawnParticles(renderBall.x, renderBall.y, bc, 5);
+        prevBallX = renderBall.x;
+        spawnParticles(renderBall.x, renderBall.y, bc, 1);
+    }
+    updateAndDrawParticles(dtFactor);
+
+    // Power-up
+    drawPowerup();
+
+    // Top
+    if (gamePhase === 'playing') {
+        ctx.shadowBlur  = 22; ctx.shadowColor = bg;
+        ctx.fillStyle   = bc;
+        ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Raketler
+    const p1H = (serverPlayers.left.grow  === 1) ? 150 : 100;
+    const p2H = (serverPlayers.right.grow === 1) ? 150 : 100;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = lg; ctx.fillStyle = lc;
+    ctx.beginPath(); ctx.roundRect(20,  renderPlayers.left.y,  12, p1H, 3); ctx.fill();
+    ctx.shadowColor = rg; ctx.fillStyle = rc;
+    ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 12, p2H, 3); ctx.fill();
+
+    // Skorlar
+    ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = lc; ctx.shadowColor = lc;
+    ctx.fillText(serverPlayers.left.score,  200, 80);
+    ctx.fillStyle = rc; ctx.shadowColor = rc;
+    ctx.fillText(serverPlayers.right.score, 600, 80);
+
+    // İsimler
+    ctx.shadowBlur = 0; ctx.font = '13px Orbitron';
+    ctx.fillStyle  = 'rgba(255,255,255,0.5)';
+    const safeOppName  = opponentProfile ? opponentProfile.name : 'Rakip';
+    const safeOppTitle = opponentProfile ? (opponentProfile.title || '') : '';
+    const lt = mySide==='left'  ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
+    const rt = mySide==='right' ? `${user.name} [${getTitle(user.level)}]` : `${safeOppName} [${safeOppTitle}]`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(lt, 200, 28);
+    ctx.fillText(rt, 600, 28);
+
+    // Sayım (countdown fazında büyük rakam)
+    if (gamePhase === 'countdown') drawCountdown();
+
+    // Skor flash + emote + HUD
+    drawScoreFlashes();
+    drawFloatingEmotes(dtFactor);
+    drawHUD();
+
+    requestAnimationFrame(renderLoop);
+}
+
+// ─── Render döngüsünü başlat ──────────────────────────────────────────────
+function startRenderLoop() {
+    if (isRenderRunning) return;
+    isRenderRunning = true;
+    lastFrameTime   = 0;
+    requestAnimationFrame(renderLoop);
+}
+
+// ─── Oyun reset yardımcısı ────────────────────────────────────────────────
+function resetGameState() {
+    serverBall    = { x:400, y:300, dx:0, dy:0, speed:5, lastHit:null };
+    serverPlayers = { left: { y:250, score:0, grow:0 }, right: { y:250, score:0, grow:0 } };
+    renderBall    = { x:400, y:300 };
+    predictedBall = { x:400, y:300, dx:0, dy:0 };
+    renderOffset  = { x:0, y:0 };
+    renderPlayers = { left: { y:250 }, right: { y:250 } };
+    clientPowerup = { active:false, x:0, y:0, type:0 };
+    particles     = [];
+    floatingEmotes = [];
+    scoreFlashes  = { left:null, right:null };
+    prevLeftScore = prevRightScore = 0;
+    gameAlreadyOver = false;
+    currentArenaEvent = null;
+    prevBallX = 400;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Socket Olayları — Sunucudan Gelen
+// ═══════════════════════════════════════════════════════════════════════════
+
+socket.on('waiting', (msg) => { messageEl.innerText = msg; });
+
+socket.on('init', (data) => {
+    mySide          = data.side;
+    opponentProfile = data.opponent;
+    currentCountdown = 3;
+    gamePhase        = 'countdown';
+    resetGameState();
+    showScreen('gameScreen');
+    ui.classList.add('hidden');
+    canvas.style.display = 'block';
+    document.getElementById('emotePanel').classList.remove('hidden');
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    startRenderLoop();
+});
+
+// FIX #7: countdownUpdate artık canvas'ta gösteriliyor
+socket.on('countdownUpdate', (n) => {
+    currentCountdown = n;
+    if (n > 0) playSoundEffect('countdown');
+});
+
+socket.on('startGame', () => {
+    isSingleplayer  = false;
+    gamePhase       = 'playing';
+    lastFrameTime   = 0;
+    playSoundEffect('go');
+    if (!isRenderRunning) {
+        canvas.style.display = 'block';
+        startRenderLoop();
+    }
+});
+
+// FIX #8: gs paketi artık doğru indekslerle okunuyor
+socket.on('gs', (s) => {
+    if (gamePhase === 'gameover') return;
+    const lastHitMap = ['left', 'right', null];
+
+    const newX = s.b[0];
+    const newY = s.b[1];
+
+    if (!isSingleplayer) {
+        renderOffset.x += (predictedBall.x - newX);
+        renderOffset.y += (predictedBall.y - newY);
+        predictedBall.x  = newX; predictedBall.y = newY;
+        predictedBall.dx = s.b[2]; predictedBall.dy = s.b[3];
+    }
+
+    serverBall.x       = newX; serverBall.y = newY;
+    serverBall.dx      = s.b[2]; serverBall.dy = s.b[3];
+    serverBall.speed   = s.b[4];
+    serverBall.lastHit = lastHitMap[s.b[5]] ?? null;
+
+    // FIX #8: Doğru indeksler — [y, score, grow] her oyuncu için
+    serverPlayers.left.y     = s.p[0];
+    serverPlayers.left.score = s.p[1];
+    serverPlayers.left.grow  = s.p[2];
+    serverPlayers.right.y    = s.p[3];  // ← ÖNCEDEN s.p[2] YANLIŞTI
+    serverPlayers.right.score= s.p[4];  // ← ÖNCEDEN s.p[3] YANLIŞTI
+    serverPlayers.right.grow = s.p[5];
+
+    // Power-up durumu
+    clientPowerup.active = s.pw[0] === 1;
+    clientPowerup.x      = s.pw[1];
+    clientPowerup.y      = s.pw[2];
+    clientPowerup.type   = s.pw[3];
+
+    // Arena olayı
+    if (s.ae !== undefined) currentArenaEvent = s.ae;
+
+    lastServerTime = s.t;
+});
+
+// Skor olayı (anlık skor flash için)
+socket.on('scored', (data) => {
+    if (data.side === 'left')  scoreFlashes.left  = { time: Date.now() };
+    if (data.side === 'right') scoreFlashes.right = { time: Date.now() };
+    playSoundEffect('score');
+});
+
+socket.on('playSound', (data) => {
+    playSoundEffect(data.type);
+    if (data.shake) { canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake'); }
+});
+
+socket.on('powerupSpawned', (data) => {
+    clientPowerup = { active: true, x: data.x, y: data.y, type: data.type };
+});
+socket.on('powerupActivated', (data) => {
+    clientPowerup.active = false;
+    playSoundEffect('powerup');
+});
+
+// Arena olayı bildirimi
+socket.on('arenaEvent', (data) => {
+    currentArenaEvent = data.type;
+    playSoundEffect('arenaEvent');
+    const labels = { speedSurge: '⚡ HIZ PATLAMASI!', mirrorBall: '🔀 AYNA TOPU!', gravityFlip: '🌀 YERÇEKİMİ TEPSİ!' };
+    const banner = document.getElementById('arenaEventBanner');
+    banner.innerText = labels[data.type] || data.type;
+    banner.classList.remove('hidden');
+    setTimeout(() => banner.classList.add('hidden'), 3000);
+});
+socket.on('arenaEventEnd', () => { currentArenaEvent = null; });
+
+// ─── Emote Sistemi ────────────────────────────────────────────────────────
+socket.on('receiveEmote', (data) => {
+    playSoundEffect('emote');
+    const x = data.side === 'left' ? 60 : 740;
+    const y = 400;
+    floatingEmotes.push({ text: data.emote, x, y, startTime: Date.now() });
+});
+
+document.getElementById('emotePanel').addEventListener('click', (e) => {
+    const btn = e.target.closest('.emote-btn');
+    if (!btn) return;
+    initAudio();
+    const emote = btn.dataset.emote;
+    if (!isSingleplayer) {
+        socket.emit('sendEmote', emote);
+    } else {
+        // SP modunda sadece kendi emote'u göster
+        floatingEmotes.push({ text: emote, x: 60, y: 400, startTime: Date.now() });
+        playSoundEffect('emote');
+    }
+});
+
+// ─── Oyun Sonu (Multiplayer) ──────────────────────────────────────────────
+socket.on('gameOver', (data) => {
+    gamePhase       = 'gameover';
+    isRenderRunning = false;
+    gameAlreadyOver = true;
+
+    const isWin = (data.winner === mySide);
+    playSoundEffect(isWin ? 'win' : 'lose');
+
+    const xpGained      = isWin ? 150 : 50;
+    const creditsGained = data.credits || (isWin ? 100 : 30);
+    addXP(xpGained);
+    addCredits(creditsGained);
+    reportStats();
+
+    let dropChance = isWin ? 0.70 : 0.40;
+    user.consecutiveNoDrop = user.consecutiveNoDrop || 0;
+    if (user.consecutiveNoDrop >= 2) dropChance = 1.0;
+    let droppedCase = false;
+    if (Math.random() < dropChance) {
+        user.cases = (user.cases || 0) + 1;
+        droppedCase = true; user.consecutiveNoDrop = 0;
+    } else { user.consecutiveNoDrop++; }
+    saveUser();
+
+    // Maç istatistikleri
+    const stats = data.stats || {};
+    const statHtml = `
+        📊 Maks. Hız: <span>${stats.maxSpeed || 0}</span> &nbsp;|&nbsp;
+        🎯 Toplam Vuruş: <span>${stats.totalHits || 0}</span> &nbsp;|&nbsp;
+        💥 Senin Vuruşun: <span>${stats.yourHits || 0}</span>
+    `;
+
+    const overlay  = document.getElementById('endGameOverlay');
+    const endText  = document.getElementById('endGameText');
+    endText.innerText  = isWin ? 'KAZANDIN!' : 'KAYBETTİN!';
+    endText.className  = `neon-text ${isWin ? 'win-text' : 'lose-text'}`;
+    document.getElementById('endGameXpText').innerText     = `+${xpGained} XP KAZANDIN`;
+    document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
+    document.getElementById('matchStatsBox').innerHTML     = statHtml;
+    document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
+    document.getElementById('rematchSection').classList.remove('hidden');
+    document.getElementById('rematchStatus').innerText     = '';
+    document.getElementById('btnRematch').disabled         = false;
+    document.getElementById('btnRematch').innerText        = '🔄 RÖVANŞ İSTE';
+    overlay.classList.remove('hidden');
+});
+
+// FIX #9: Rakip rövanş istedi
+socket.on('opponentRequestedRematch', () => {
+    document.getElementById('rematchStatus').innerText = '⚡ Rakip rövanş istiyor! Kabul et!';
+    const btn = document.getElementById('btnRematch');
+    btn.style.borderColor = '#0f0'; btn.style.color = '#0f0';
+});
+
+// FIX #10: Rövanş başladı — TÜM DONMA SORUNUNU ÇÖZEN OLAY
+socket.on('rematchStarted', () => {
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    document.getElementById('emotePanel').classList.remove('hidden');
+    currentCountdown = 3;
+    gamePhase        = 'countdown';
+    gameAlreadyOver  = false;
+    resetGameState();
+    canvas.style.display = 'block';
+    startRenderLoop();
+});
+
+// FIX #11: Rakip rövanşı reddetti / bağlantısı koptu
+socket.on('rematchUnavailable', () => {
+    if (gameAlreadyOver) {
+        document.getElementById('rematchStatus').innerText = '❌ Rakip ayrıldı, rövanş mümkün değil.';
+        document.getElementById('btnRematch').disabled     = true;
+    }
+});
+
+// FIX #12: Rakip aktif maç sırasında ayrıldı
+socket.on('opponentLeft', () => {
+    if (gameAlreadyOver) return; // FIX: Oyun bitmişse bu olayı yoksay
+    gamePhase       = 'gameover';
+    isRenderRunning = false;
+    const overlay   = document.getElementById('endGameOverlay');
+    document.getElementById('endGameText').innerText        = 'RAKİP KAÇTI!';
+    document.getElementById('endGameText').className        = 'neon-text win-text';
+    document.getElementById('endGameXpText').innerText      = '+0 XP';
+    document.getElementById('endGameCreditText').innerText  = '';
+    document.getElementById('matchStatsBox').innerHTML      = '';
+    document.getElementById('endGameCaseText').classList.add('hidden');
+    document.getElementById('rematchSection').classList.add('hidden');
+    overlay.classList.remove('hidden');
+});
+
+// ─── Rövanş Butonu ────────────────────────────────────────────────────────
+document.getElementById('btnRematch').addEventListener('click', () => {
+    initAudio(); playSoundEffect('paddleHit');
+    document.getElementById('btnRematch').innerText        = '⏳ Bekleniyor...';
+    document.getElementById('btnRematch').disabled         = true;
+    document.getElementById('rematchStatus').innerText     = 'Rakibin kararı bekleniyor...';
+    socket.emit('requestRematch');
+});
+
+// ─── Ana Menüye Dön Butonu ────────────────────────────────────────────────
+document.getElementById('btnReturnMenu').addEventListener('click', () => {
+    isRenderRunning  = false;
+    gamePhase        = 'idle';
+    canvas.style.display = 'none';
+    document.getElementById('emotePanel').classList.add('hidden');
+    showMainMenu();
+    resetGameState();
+});
+
+// ─── Singleplayer Ödülü ───────────────────────────────────────────────────
+socket.on('singleplayerReward', (data) => {
+    if (data.error) { alert('Ödül Hatası: ' + data.error); showMainMenu(); return; }
+
+    addXP(data.xp_granted);
+    addCredits(data.coins_granted);
+    reportStats();
+
+    if (data.case_dropped) { user.cases = (user.cases || 0) + 1; saveUser(); }
+
+    const overlay  = document.getElementById('endGameOverlay');
+    const endText  = document.getElementById('endGameText');
+    const isWin    = serverPlayers.left.score >= 5;
+    endText.innerText  = isWin ? 'KAZANDIN!' : 'KAYBETTİN!';
+    endText.className  = `neon-text ${isWin ? 'win-text' : 'lose-text'}`;
+    document.getElementById('endGameXpText').innerText     = `+${data.xp_granted} XP KAZANDIN`;
+    document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
+    document.getElementById('matchStatsBox').innerHTML     = '';
+    document.getElementById('endGameCaseText').classList[data.case_dropped ? 'remove' : 'add']('hidden');
+    document.getElementById('rematchSection').classList.add('hidden'); // SP'de rövanş yok
+    overlay.classList.remove('hidden');
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Menü Butonları
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.getElementById('btnFindMatch').addEventListener('click', () => {
+    initAudio();
+    resetGameState();
+    gamePhase = 'countdown';
+    showScreen('gameScreen');
+    ui.classList.remove('hidden');
+    messageEl.innerText = 'Siber Arena İçin Rakip Aranıyor...';
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    canvas.style.display = 'none';
+    document.getElementById('emotePanel').classList.add('hidden');
+    socket.emit('joinMatchmaking', getProfile());
+});
+
+document.getElementById('btnSingleplayer').addEventListener('click', () => {
+    initAudio(); showScreen('singleplayerScreen');
+});
+document.getElementById('btnCancelSingleplayer').addEventListener('click', () => {
+    initAudio(); showMainMenu();
+});
+
+document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-difficulty');
+    if (btn) { initAudio(); startSingleplayerMatch(btn.dataset.diff); }
+});
+
+function startSingleplayerMatch(difficulty) {
+    isSingleplayer         = true;
+    singleplayerDifficulty = difficulty;
+    mySide          = 'left';
+    opponentProfile = { name: 'SİBER BOT', title: difficulty.toUpperCase() + ' AI', equippedSkin: 'red' };
+    resetGameState();
+    serverPlayers.left.score  = 0;
+    serverPlayers.right.score = 0;
+
+    singleplayerBot = new SingleplayerBot(600, 770);
+    singleplayerBot.setDifficulty(difficulty);
+    serverBall = { x:400, y:300, speed:5, lastHit:null,
+        dx: Math.cos(Math.PI/4)*5*(Math.random()>0.5?1:-1),
+        dy: Math.sin(Math.PI/4)*5*(Math.random()>0.5?1:-1)
+    };
+
+    socket.emit('startSingleplayer', difficulty);
+    showScreen('gameScreen');
+    ui.classList.add('hidden');
+    canvas.style.display = 'block';
+    document.getElementById('emotePanel').classList.remove('hidden');
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    gamePhase = 'playing';
+    gameAlreadyOver = false;
+    startRenderLoop();
+}
+
+// Fare hareket
+canvas.addEventListener('mousemove', (event) => {
+    if (gamePhase !== 'playing' && gamePhase !== 'countdown') return;
+    const rect = canvas.getBoundingClientRect();
+    let y = event.clientY - rect.top - 50;
+    y = Math.max(0, Math.min(canvas.height - 100, y));
+    if (isSingleplayer) {
+        serverPlayers.left.y = y;
+    } else {
+        socket.emit('move', { y });
+    }
+});
+
+// Dokunmatik destek
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (gamePhase !== 'playing' && gamePhase !== 'countdown') return;
+    const rect  = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    let y = touch.clientY - rect.top - 50;
+    y = Math.max(0, Math.min(canvas.height - 100, y));
+    if (isSingleplayer) { serverPlayers.left.y = y; }
+    else { socket.emit('move', { y }); }
+}, { passive: false });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Oda Sistemi
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.getElementById('btnCreateRoom').addEventListener('click', () => {
+    initAudio();
+    showScreen('createRoomScreen');
+    document.getElementById('roomCodeDisplay').innerText  = '----';
+    document.getElementById('createRoomWaiting').innerText = '⏳ Oda oluşturuluyor...';
+    socket.emit('createPrivateRoom', getProfile());
+});
+
+socket.on('privateRoomCreated', (data) => {
+    document.getElementById('roomCodeDisplay').innerText  = data.code;
+    document.getElementById('createRoomWaiting').innerText = '⏳ Rakibin katılmasını bekliyorsun...';
+});
+document.getElementById('btnCancelCreate').addEventListener('click', () => {
+    initAudio(); socket.emit('cancelPrivateRoom'); showMainMenu();
+});
+
+document.getElementById('btnJoinRoom').addEventListener('click', () => {
+    initAudio(); showScreen('joinRoomScreen');
+    document.getElementById('roomCodeInput').value   = '';
+    document.getElementById('joinRoomError').innerText = '';
+    document.getElementById('roomCodeInput').focus();
+});
+document.getElementById('btnJoinRoomGo').addEventListener('click', () => {
+    initAudio();
+    const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+    if (code.length !== 4) { document.getElementById('joinRoomError').innerText = 'Lütfen 4 haneli bir kod gir!'; return; }
+    document.getElementById('joinRoomError').innerText = '';
+    socket.emit('joinPrivateRoom', { code, profile: getProfile() });
+});
+document.getElementById('roomCodeInput').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('btnJoinRoomGo').click(); });
+socket.on('privateRoomError', (msg) => { document.getElementById('joinRoomError').innerText = msg; });
+document.getElementById('btnCancelJoin').addEventListener('click', () => { initAudio(); showMainMenu(); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Leaderboard
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.getElementById('btnLeaderboard').addEventListener('click', () => {
+    initAudio(); showScreen('leaderboardScreen'); socket.emit('getLeaderboard');
+});
+document.getElementById('btnLbRefresh').addEventListener('click', () => {
+    initAudio(); playSoundEffect('paddleHit'); socket.emit('getLeaderboard');
+});
+document.getElementById('btnLbBack').addEventListener('click', () => { initAudio(); showMainMenu(); });
+
+socket.on('leaderboardData', (data) => {
+    const tbody = document.getElementById('leaderboardBody');
+    tbody.innerHTML = '';
+    if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#555;">Henüz veri yok. Maç oynayarak liderlik tablosuna gir!</td></tr>';
+        return;
+    }
+    const icons = ['👑','🥈','🥉'];
+    data.forEach((entry, i) => {
+        const tr   = document.createElement('tr');
+        if (i < 3) tr.className = `lb-rank-${i+1}`;
+        const isMe = user && entry.name === user.name;
+        tr.innerHTML = `
+            <td style="width:50px; text-align:center; font-size:1.1rem;">${i<3?icons[i]:i+1}</td>
+            <td style="${isMe?'color:#0ff;text-shadow:0 0 5px #0ff;':''}">${entry.name}${isMe?' (Sen)':''}</td>
+            <td>Lv.${entry.level||1}</td>
+            <td style="text-align:right;">${entry.xp.toLocaleString()} XP</td>
+        `;
+        tbody.appendChild(tr);
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Envanter
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        initAudio(); playSoundEffect('paddleHit');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+});
+
+document.getElementById('btnInventory').addEventListener('click', () => { initAudio(); showScreen('inventoryScreen'); updateInventoryUI(); });
+document.getElementById('btnBackToMenu').addEventListener('click', () => { initAudio(); showMainMenu(); });
+
+function updateInventoryUI() {
+    document.getElementById('caseCount').innerText  = user.cases || 0;
+    document.getElementById('shopCredits').innerText = user.credits || 0;
+    const sec = document.getElementById('skinsSection');
+    sec.innerHTML = '';
+    const all    = ['default', ...(user.skins || [])];
+    const unique = [...new Set(all)];
+    unique.forEach(skinId => {
+        const skin = SKINS[skinId];
+        if (!skin) return;
+        const card = document.createElement('div');
+        card.className = 'skin-card' + (user.equippedSkin===skinId?' equipped':'');
+        const paddle   = document.createElement('div');
+        paddle.className = 'skin-paddle';
+        if (skin.color === 'rgb') paddle.style.background = 'linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f)';
+        else { paddle.style.background = skin.color; paddle.style.boxShadow = `0 0 12px ${skin.glow}`; }
+        const title   = document.createElement('span'); title.className = 'skin-name'; title.innerText = skin.name;
+        title.style.color = skin.color==='rgb'?'#fff':skin.color;
+        const badge   = document.createElement('span'); badge.className = 'skin-rarity-badge';
+        badge.innerText = LocalizationManager.t(skin.rarityKey);
+        badge.style.color = skin.rarityColor; badge.style.border = `1px solid ${skin.rarityColor}`;
+        card.append(paddle, title, badge);
+        if (user.equippedSkin===skinId) {
+            const eq = document.createElement('span'); eq.className = 'skin-equipped'; eq.innerText = '✓ KUŞANILDI';
+            card.appendChild(eq);
+        }
+        const count = all.filter(s=>s===skinId).length;
+        if (count > 1) {
+            const cb = document.createElement('span'); cb.style.cssText = 'font-size:10px; color:#aaa; margin-top:3px;';
+            cb.innerText = `x${count}`; card.appendChild(cb);
+        }
+        card.onclick = () => { initAudio(); playSoundEffect('paddleHit'); user.equippedSkin=skinId; saveUser(); updateInventoryUI(); };
+        sec.appendChild(card);
+    });
+}
+
+document.getElementById('btnBuyCase').addEventListener('click', () => {
+    initAudio();
+    if ((user.credits||0) < CASE_PRICE) return alert(`Yetersiz jeton! ${CASE_PRICE} gerekiyor.\nMevcut: ${user.credits||0}`);
+    user.credits -= CASE_PRICE; user.cases = (user.cases||0)+1;
+    saveUser(); updateInventoryUI(); playSoundEffect('purchase');
+});
+
+// ─── Rulet ────────────────────────────────────────────────────────────────
+let isSpinning = false;
+
+function getSkinIdByRoll() {
+    const r = Math.random();
+    if (r < 0.02) return 'red';
+    if (r < 0.10) return 'orange';
+    if (r < 0.30) return 'purple';
+    return 'blue';
+}
+
+document.getElementById('btnOpenCase').addEventListener('click', () => {
+    if (isSpinning) return;
+    if ((user.cases||0) <= 0) return alert('Açacak kasan yok!\nMaç oynayarak düşürebilir veya mağazadan satın alabilirsin.');
+    initAudio();
+    user.cases--; saveUser(); updateInventoryUI();
+    playSoundEffect('caseOpen');
+    isSpinning = true;
+    document.getElementById('caseSection').classList.add('case-spin-anim');
+
+    setTimeout(() => {
+        document.getElementById('caseSection').classList.remove('case-spin-anim');
+        const container = document.getElementById('rouletteContainer');
+        const track     = document.getElementById('rouletteTrack');
+        const banner    = document.getElementById('wonSkinBanner');
+        banner.classList.add('hidden');
+        container.classList.remove('hidden');
+        track.innerHTML = '';
+        track.style.transition = 'none';
+        track.style.transform  = 'translateX(0px)';
+
+        const itemWidth  = 150;
+        const totalItems = 60;
+        const winIndex   = 45;
+        const wonSkinId  = getSkinIdByRoll();
+
+        for (let i = 0; i < totalItems; i++) {
+            const sid  = i === winIndex ? wonSkinId : getSkinIdByRoll();
+            const skin = SKINS[sid];
+            const el   = document.createElement('div');
+            el.className = 'roulette-item';
+            const bg = { blue:'rgba(0,255,255,0.08)', purple:'rgba(255,0,255,0.1)', orange:'rgba(255,255,0,0.1)', red:'rgba(255,0,0,0.2)' };
+            el.style.background = bg[sid] || 'transparent';
+            const preview = document.createElement('div'); preview.className = 'skin-preview';
+            if (skin.color==='rgb') preview.style.background = 'linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f)';
+            else { preview.style.background = skin.color; preview.style.boxShadow = `0 0 12px ${skin.glow}`; }
+            const ttl = document.createElement('span'); ttl.innerText = skin.name; ttl.style.color = skin.color==='rgb'?'#fff':skin.color; ttl.style.fontSize='12px';
+            const sub = document.createElement('span'); sub.innerText = LocalizationManager.t(skin.rarityKey); sub.style.fontSize='10px'; sub.style.color=skin.rarityColor; sub.style.marginTop='3px';
+            el.append(preview, ttl, sub); track.appendChild(el);
+        }
+
+        const randomOffset  = (Math.random()-0.5) * (itemWidth*0.6);
+        const containerCtr  = container.offsetWidth / 2;
+        const targetX       = containerCtr - ((winIndex*itemWidth)+(itemWidth/2)) + randomOffset;
+        void track.offsetWidth;
+        track.style.transition = 'transform 6s cubic-bezier(0.12,0.88,0.18,1)';
+        track.style.transform  = `translateX(${targetX}px)`;
+
+        let tickInterval = 40, tickCount = 0;
+        function doTick() {
+            if (!isSpinning || tickCount >= 55) return;
+            playSoundEffect('tick'); tickCount++;
+            tickInterval += tickCount<20?5:tickCount<35?15:30;
+            setTimeout(doTick, tickInterval);
+        }
+        doTick();
+
+        setTimeout(() => {
+            isSpinning = false;
+            user.skins.push(wonSkinId); saveUser(); updateInventoryUI();
+            playSoundEffect('levelUp');
+            const skin = SKINS[wonSkinId];
+            banner.innerHTML = '';
+            banner.style.border     = `2px solid ${skin.rarityColor}`;
+            banner.style.boxShadow  = `0 0 30px ${skin.rarityColor}40`;
+            const bt = document.createElement('h2');
+            bt.style.cssText = `color:${skin.color==='rgb'?'#fff':skin.color}; text-shadow:0 0 15px ${skin.color==='rgb'?'#f0f':skin.glow}; font-size:1.3rem;`;
+            bt.innerText = `🎊 [${LocalizationManager.t(skin.rarityKey)}] ${skin.name} Kazandınız!`;
+            banner.appendChild(bt); banner.classList.remove('hidden');
+            setTimeout(() => container.classList.add('hidden'), 3000);
+        }, 6500);
+    });
+});
+
+// ─── Günlük Ödül ─────────────────────────────────────────────────────────
+function checkDailyReward() {
+    const now   = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    if (!user.lastDaily) { promptDailyReward(today, 1); return; }
+    const diff = Math.floor((today - user.lastDaily) / 86400000);
+    if (diff === 1) promptDailyReward(today, user.streak + 1);
+    else if (diff > 1) promptDailyReward(today, 1);
+}
+
+function promptDailyReward(ts, streak) {
+    const xp = streak * 100;
+    document.getElementById('streakText').innerText  = `${streak}. GÜN ARDIŞIK GİRİŞ`;
+    document.getElementById('dailyXpText').innerText = `+${xp} XP`;
+    document.getElementById('dailyRewardOverlay').classList.remove('hidden');
+    document.getElementById('btnClaimDaily').onclick = () => {
+        initAudio(); playSoundEffect('score');
+        user.streak = streak; user.lastDaily = ts; saveUser();
+        document.getElementById('dailyRewardOverlay').classList.add('hidden');
+        addXP(xp);
+    };
+}
+
+// ─── Global Chat ──────────────────────────────────────────────────────────
+const chatMessages = document.getElementById('chatMessages');
+const chatInput    = document.getElementById('chatInput');
+
+function appendChatMessage(data) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    const tHtml = data.title ? `<span class="chat-title">[${data.title}]</span>` : '';
+    div.innerHTML = `${tHtml}<span class="chat-name">${data.name}:</span><span class="chat-text"> ${data.message}</span>`;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+socket.on('chatHistory',          (h) => { chatMessages.innerHTML=''; h.forEach(m=>appendChatMessage(m)); });
+socket.on('receiveGlobalMessage', (d) => appendChatMessage(d));
+
+document.getElementById('btnSendChat').addEventListener('click', () => {
+    const msg = chatInput.value.trim();
+    if (msg && user) { socket.emit('sendGlobalMessage', { name:user.name, title:getTitle(user.level), message:msg }); chatInput.value=''; }
+});
+chatInput.addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('btnSendChat').click(); });
+
+// ─── Matchmaking iptal ───────────────────────────────────────────────────
+socket.on('cancelMatchmaking', () => socket.emit('cancelMatchmaking'));
+</script>
+</body>
 </html>
