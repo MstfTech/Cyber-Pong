@@ -249,17 +249,6 @@
             }
         }
 
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-                transform: translateX(-50%) scale(1.2);
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(-50%) scale(1);
-            }
-        }
-
         .overlay-box {
             position: absolute;
             top: 0;
@@ -364,7 +353,7 @@
         }
 
         .tab-content.active {
-            display: block !important;
+            display: block;
         }
 
         .shop-card {
@@ -716,49 +705,6 @@
             font-size: 1rem !important;
             padding: 10px 25px !important;
         }
-
-        /* EMOTE PANEL */
-        #emotePanel {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            gap: 15px;
-            z-index: 15;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 20px;
-            border-radius: 30px;
-            border: 2px solid #0ff;
-        }
-        .emote-btn {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .emote-btn:hover {
-            transform: scale(1.3);
-        }
-
-        /* Countdown overlay */
-        #countdownOverlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            pointer-events: none;
-        }
-        #countdownNumber {
-            font-size: 120px;
-            font-weight: 900;
-            color: #0ff;
-            text-shadow: 0 0 40px #0ff, 0 0 80px #0ff, 0 0 120px #0ff;
-            animation: pulse 0.8s infinite;
-        }
     </style>
 </head>
 
@@ -777,7 +723,7 @@
     <div id="loginScreen" class="screen">
         <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
         <h3 style="color: #888; margin-bottom: 30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
-        <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12" data-i18n-placeholder="USERNAME_PLACEHOLDER">
+        <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
         <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">SİSTEME BAĞLAN</button>
     </div>
 
@@ -794,14 +740,19 @@
         </div>
 
         <h1 class="neon-title" style="font-size: 5rem; margin-bottom: 15px;">NEON PONG</h1>
-        <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;" data-i18n="GLOBAL_ARENA">Küresel Siber Arena v2.0</p>
+        <p style="color: #555; font-size: 0.7rem; margin-bottom: 25px;">Küresel Siber Arena v2.0</p>
 
         <div class="menu-grid">
-            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;" data-i18n="BTN_FIND_MATCH">⚔️ EŞLEŞME BUL</button>
-            <button id="btnSingleplayer" class="neon-button cyan" style="font-size: 1.5rem;" data-i18n="BTN_SINGLEPLAYER">🤖 TEK OYUNCULU</button>
-            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;" data-i18n="BTN_CREATE_ROOM">🔑 ODA OLUŞTUR</button>
-            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;" data-i18n="BTN_JOIN_ROOM">🚪 ODAYA KATIL</button>
-            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem; grid-column: span 2;" data-i18n="BTN_INVENTORY">🎒 ENVANTER</button>
+            <button id="btnFindMatch" class="neon-button" style="font-size: 1.5rem;" data-i18n="BTN_FIND_MATCH">⚔️
+                EŞLEŞME BUL</button>
+            <button id="btnSingleplayer" class="neon-button cyan" style="font-size: 1.5rem;"
+                data-i18n="BTN_SINGLEPLAYER">🤖 TEK OYUNCULU</button>
+            <button id="btnCreateRoom" class="neon-button green" style="font-size: 1.5rem;"
+                data-i18n="BTN_CREATE_ROOM">🔑 ODA OLUŞTUR</button>
+            <button id="btnJoinRoom" class="neon-button gold" style="font-size: 1.5rem;" data-i18n="BTN_JOIN_ROOM">🚪
+                ODAYA KATIL</button>
+            <button id="btnInventory" class="neon-button cyan" style="font-size: 1.5rem; grid-column: span 2;"
+                data-i18n="BTN_INVENTORY">🎒 ENVANTER</button>
         </div>
 
         <button id="btnLeaderboard" class="neon-button"
@@ -812,8 +763,8 @@
         <div id="globalChat">
             <div id="chatMessages"></div>
             <div id="chatInputContainer">
-                <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100" data-i18n-placeholder="CHAT_PLACEHOLDER">
-                <button id="btnSendChat" data-i18n="SEND">İLET</button>
+                <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100">
+                <button id="btnSendChat">İLET</button>
             </div>
         </div>
     </div>
@@ -821,72 +772,81 @@
     <!-- TEK OYUNCULU SEÇİM EKRANI -->
     <div id="singleplayerScreen" class="screen hidden">
         <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
-        <p style="color: #aaa; margin-bottom: 30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller artar.</p>
+        <p style="color: #aaa; margin-bottom: 30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller
+            artar.</p>
         <div class="menu-grid">
-            <button class="neon-button green btn-difficulty" data-diff="easy" data-i18n="MATCH_EASY" style="grid-column: span 2; font-size: 1.5rem;">Kolay Bot</button>
-            <button class="neon-button gold btn-difficulty" data-diff="medium" data-i18n="MATCH_MEDIUM" style="grid-column: span 2; font-size: 1.5rem;">Orta Bot</button>
-            <button class="neon-button cyan btn-difficulty" data-diff="hard" data-i18n="MATCH_HARD" style="grid-column: span 2; font-size: 1.5rem;">Zor Bot</button>
+            <button class="neon-button green btn-difficulty" data-diff="easy" data-i18n="MATCH_EASY"
+                style="grid-column: span 2; font-size: 1.5rem;">Kolay Bot</button>
+            <button class="neon-button gold btn-difficulty" data-diff="medium" data-i18n="MATCH_MEDIUM"
+                style="grid-column: span 2; font-size: 1.5rem;">Orta Bot</button>
+            <button class="neon-button cyan btn-difficulty" data-diff="hard" data-i18n="MATCH_HARD"
+                style="grid-column: span 2; font-size: 1.5rem;">Zor Bot</button>
         </div>
-        <button id="btnCancelSingleplayer" class="neon-button back-btn" data-i18n="BACK">ANA MENÜYE DÖN</button>
+        <button id="btnCancelSingleplayer" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
     </div>
 
     <!-- ODA OLUŞTUR EKRANI -->
     <div id="createRoomScreen" class="screen hidden">
-        <h1 class="neon-title" data-i18n="PRIVATE_ROOM_CREATED">🔑 ÖZEL ODA OLUŞTURULDU</h1>
-        <p style="color: #aaa; margin-bottom: 10px;" data-i18n="SHARE_CODE">Bu kodu arkadaşına gönder:</p>
+        <h1 class="neon-title">🔑 ÖZEL ODA OLUŞTURULDU</h1>
+        <p style="color: #aaa; margin-bottom: 10px;">Bu kodu arkadaşına gönder:</p>
         <div id="roomCodeDisplay" class="room-code-display">----</div>
-        <p style="color: #666; font-size: 0.75rem; margin-bottom: 20px;" data-i18n="WAITING_OPPONENT">Rakibin katılmasını bekliyorsun...</p>
+        <p style="color: #666; font-size: 0.75rem; margin-bottom: 20px;">Rakibin katılmasını bekliyorsun...</p>
         <div id="createRoomWaiting" style="color: #f0f; animation: pulse 1.5s infinite;">⏳ Bekleniyor...</div>
-        <button id="btnCancelCreate" class="neon-button back-btn" data-i18n="CANCEL">İPTAL ET</button>
+        <button id="btnCancelCreate" class="neon-button back-btn">İPTAL ET</button>
     </div>
 
     <!-- ODAYA KATIL EKRANI -->
     <div id="joinRoomScreen" class="screen hidden">
-        <h1 class="neon-title" data-i18n="JOIN_ROOM">🚪 ODAYA KATIL</h1>
-        <p style="color: #aaa; margin-bottom: 20px;" data-i18n="ENTER_CODE">Arkadaşının verdiği 4 haneli kodu gir:</p>
-        <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4" data-i18n-placeholder="ROOM_CODE_PLACEHOLDER">
+        <h1 class="neon-title">🚪 ODAYA KATIL</h1>
+        <p style="color: #aaa; margin-bottom: 20px;">Arkadaşının verdiği 4 haneli kodu gir:</p>
+        <input type="text" id="roomCodeInput" class="room-code-input" placeholder="XXXX" maxlength="4">
         <div id="joinRoomError" style="color: #f55; font-size: 0.85rem; margin-bottom: 15px; min-height: 20px;"></div>
-        <button id="btnJoinRoomGo" class="neon-button green" data-i18n="JOIN">ODAYA GİR</button>
-        <button id="btnCancelJoin" class="neon-button back-btn" data-i18n="BACK">GERİ DÖN</button>
+        <button id="btnJoinRoomGo" class="neon-button green">ODAYA GİR</button>
+        <button id="btnCancelJoin" class="neon-button back-btn">GERİ DÖN</button>
     </div>
 
     <!-- LEADERBOARD EKRANI -->
     <div id="leaderboardScreen" class="screen hidden" style="justify-content: flex-start; padding-top: 50px;">
-        <h1 class="neon-title" style="color: #ffd700; text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;" data-i18n="LEADERBOARD_TITLE">🏆 GLOBAL LİDERLİK TABLOSU</h1>
-        <p style="color: #666; font-size: 0.7rem; margin-bottom: 20px;" data-i18n="TOP_10">En İyi 10 Savaşçı</p>
-        <div style="width: 700px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.1);">
+        <h1 class="neon-title" style="color: #ffd700; text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;">🏆 GLOBAL
+            LİDERLİK TABLOSU</h1>
+        <p style="color: #666; font-size: 0.7rem; margin-bottom: 20px;">En İyi 10 Savaşçı</p>
+        <div
+            style="width: 700px; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 0 30px rgba(255,215,0,0.1);">
             <table class="lb-table" id="leaderboardTable">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th data-i18n="WARRIOR">SAVAŞÇI</th>
-                        <th data-i18n="LEVEL">SEVİYE</th>
-                        <th data-i18n="TOTAL_XP">TOPLAM XP</th>
+                        <th>SAVAŞÇI</th>
+                        <th>SEVİYE</th>
+                        <th>TOPLAM XP</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboardBody">
                     <tr>
-                        <td colspan="4" style="text-align:center; color:#555;" data-i18n="LOADING">Yükleniyor...</td>
+                        <td colspan="4" style="text-align:center; color:#555;">Yükleniyor...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <button id="btnLbRefresh" class="neon-button" style="margin-top: 20px; font-size: 0.85rem; padding: 10px 25px; border-color: #ffd700; color: #ffd700;" data-i18n="REFRESH">🔄 YENİLE</button>
-        <button id="btnLbBack" class="neon-button back-btn" data-i18n="BACK">ANA MENÜYE DÖN</button>
+        <button id="btnLbRefresh" class="neon-button"
+            style="margin-top: 20px; font-size: 0.85rem; padding: 10px 25px; border-color: #ffd700; color: #ffd700;">🔄
+            YENİLE</button>
+        <button id="btnLbBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
     </div>
 
     <!-- ENVANTER & MAĞAZA -->
     <div id="inventoryScreen" class="screen hidden">
-        <h1 class="neon-title" style="margin-bottom: 15px;" data-i18n="INVENTORY_SHOP">ENVANTER & MAĞAZA</h1>
+        <h1 class="neon-title" style="margin-bottom: 15px;">ENVANTER & MAĞAZA</h1>
         <div class="tab-bar">
-            <button class="tab-btn active" data-tab="tabInventory" data-i18n="CASES_SKINS">KASALAR & SKİNLER</button>
-            <button class="tab-btn" data-tab="tabShop" data-i18n="SHOP">MAĞAZA</button>
+            <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
+            <button class="tab-btn" data-tab="tabShop">MAĞAZA</button>
         </div>
 
         <div id="tabInventory" class="tab-content active">
             <div id="caseSection" style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #0ff; margin-bottom: 15px;" data-i18n="CASES_OWNED">Sahip Olduğun Siber Kasalar: <span id="caseCount" style="color: #fff; font-size: 2rem;">0</span></h2>
-                <button id="btnOpenCase" class="neon-button gold" data-i18n="OPEN_CASE">KASAYI AÇ</button>
+                <h2 style="color: #0ff; margin-bottom: 15px;">Sahip Olduğun Siber Kasalar: <span id="caseCount"
+                        style="color: #fff; font-size: 2rem;">0</span></h2>
+                <button id="btnOpenCase" class="neon-button gold">KASAYI AÇ</button>
             </div>
             <div id="rouletteContainer" class="hidden">
                 <div class="center-arrow-top"></div>
@@ -894,21 +854,29 @@
                 <div class="center-arrow-bottom"></div>
                 <div id="rouletteTrack"></div>
             </div>
-            <div id="wonSkinBanner" class="hidden" style="text-align:center; margin: 15px 0; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.6);"></div>
-            <h2 style="color: #f0f; margin-top: 25px; margin-bottom: 10px; text-align: center;" data-i18n="SKINS_OWNED">SAHİP OLDUĞUN SKİNLER</h2>
-            <div id="skinsSection" style="width: 820px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 8px;"></div>
+            <div id="wonSkinBanner" class="hidden"
+                style="text-align:center; margin: 15px 0; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.6);">
+            </div>
+            <h2 style="color: #f0f; margin-top: 25px; margin-bottom: 10px; text-align: center;">SAHİP OLDUĞUN SKİNLER
+            </h2>
+            <div id="skinsSection"
+                style="width: 820px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 8px;">
+            </div>
         </div>
 
         <div id="tabShop" class="tab-content">
             <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #ff0; margin-bottom: 5px;" data-i18n="CREDITS">Mevcut Jetonların: <span id="shopCredits" style="color: #fff;">0</span> <span style="font-size: 0.8rem;" data-i18n="CYBER_COINS">SİBER JETON</span></h2>
+                <h2 style="color: #ff0; margin-bottom: 5px;">Mevcut Jetonların: <span id="shopCredits"
+                        style="color: #fff;">0</span> <span style="font-size: 0.8rem;">SİBER JETON</span></h2>
             </div>
             <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
                 <div class="shop-card" style="width: 280px;">
-                    <h3 style="color: #ff0; margin-bottom: 10px;" data-i18n="CYBER_CASE">🔒 SİBER KASA</h3>
+                    <h3 style="color: #ff0; margin-bottom: 10px;">🔒 SİBER KASA</h3>
                     <div style="font-size: 3rem; margin: 15px 0;">📦</div>
-                    <p style="color: #aaa; font-size: 0.7rem; margin-bottom: 15px;" data-i18n="CASE_DESC">İçinden Neon Safir, Hiper Pembe, Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!</p>
-                    <button id="btnBuyCase" class="neon-button gold" style="padding: 10px 30px; font-size: 1rem;" data-i18n="BUY_CASE_BUTTON">500 JETON İLE SATIN AL</button>
+                    <p style="color: #aaa; font-size: 0.7rem; margin-bottom: 15px;">İçinden Neon Safir, Hiper Pembe,
+                        Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!</p>
+                    <button id="btnBuyCase" class="neon-button gold" style="padding: 10px 30px; font-size: 1rem;">500
+                        JETON İLE SATIN AL</button>
                 </div>
             </div>
             <div style="margin-top: 30px; text-align: center; color: #555; font-size: 0.7rem;">
@@ -917,7 +885,7 @@
             </div>
         </div>
 
-        <button id="btnBackToMenu" class="neon-button back-btn" data-i18n="BACK">ANA MENÜYE DÖN</button>
+        <button id="btnBackToMenu" class="neon-button back-btn" data-i18n="BTN_BACK">ANA MENÜYE DÖN</button>
     </div>
 
     <!-- OYUN EKRANI -->
@@ -925,50 +893,33 @@
         <div id="gameContainer">
             <canvas id="gameCanvas" width="800" height="600"></canvas>
             <div id="ui" class="overlay-box hidden">
-                <h2 id="message" data-i18n="CONNECTING">Sisteme Bağlanılıyor...</h2>
+                <h2 id="message">Sisteme Bağlanılıyor...</h2>
             </div>
             <div id="endGameOverlay" class="overlay-box hidden">
                 <div id="endGameText" class="neon-text"></div>
                 <div id="endGameXpText" class="xp-reward-text"></div>
                 <div id="endGameCreditText" class="credit-reward-text"></div>
-                <div id="endGameCaseText" class="neon-title hidden" style="color: #ff0; text-shadow: 0 0 20px #ff0; margin-top: 20px; animation: pulse 1s infinite; font-size: 1.8rem;" data-i18n="CASE_DROPPED">🎁 SİBER KASA DÜŞTÜ!</div>
-                <!-- İstatistikler -->
-                <div id="statsContainer" style="margin-top: 15px; color: #aaa; font-size: 0.9rem; display: none;">
-                    <h3 data-i18n="MATCH_STATS">Maç İstatistikleri</h3>
-                    <p><span data-i18n="MAX_SPEED">Maksimum Hız:</span> <span id="statMaxSpeed">0</span></p>
-                    <p><span data-i18n="TOTAL_HITS">Toplam Vuruş:</span> <span id="statTotalHits">0</span></p>
-                    <p><span data-i18n="YOUR_HITS">Sizin Vuruşlarınız:</span> <span id="statYourHits">0</span></p>
-                </div>
-                <div style="display: flex; gap: 15px; margin-top: 20px;">
-                    <button id="btnRematch" class="neon-button cyan" style="font-size: 1.2rem;" data-i18n="REMATCH">🔄 YENİDEN OYNA</button>
-                    <button id="btnReturnMenu" class="neon-button" style="font-size: 1.2rem;" data-i18n="BACK">Ana Menüye Dön</button>
-                </div>
-            </div>
-            <!-- Countdown overlay -->
-            <div id="countdownOverlay">
-                <div id="countdownNumber">3</div>
-            </div>
-            <!-- Emote Panel -->
-            <div id="emotePanel" class="hidden">
-                <button class="emote-btn" data-emote="👾">👾</button>
-                <button class="emote-btn" data-emote="💀">💀</button>
-                <button class="emote-btn" data-emote="🔥">🔥</button>
-                <button class="emote-btn" data-emote="🤖">🤖</button>
-                <button class="emote-btn" data-emote="💪">💪</button>
+                <div id="endGameCaseText" class="neon-title hidden"
+                    style="color: #ff0; text-shadow: 0 0 20px #ff0; margin-top: 20px; animation: pulse 1s infinite; font-size: 1.8rem;">
+                    🎁 SİBER KASA DÜŞTÜ!</div>
+                <button id="btnReturnMenu" class="neon-button" style="margin-top: 35px; font-size: 1.2rem;">Ana Menüye
+                    Dön</button>
             </div>
         </div>
     </div>
 
     <!-- POPUPLAR -->
     <div id="dailyRewardOverlay" class="screen hidden" style="background: rgba(0,0,0,0.92); z-index: 100;">
-        <h2 class="neon-title" style="color: #ff0;" data-i18n="DAILY_REWARD">GÜNLÜK ÖDÜLÜN HAZIR</h2>
+        <h2 class="neon-title" style="color: #ff0;">GÜNLÜK ÖDÜLÜN HAZIR</h2>
         <h3 id="streakText" style="color: #0ff; font-size: 1.5rem;">1. Gün Ardışık Giriş</h3>
         <h1 id="dailyXpText" class="win-text" style="font-size: 80px; margin: 20px 0;">+100 XP</h1>
-        <button id="btnClaimDaily" class="neon-button gold" data-i18n="CLAIM">ÖDÜLÜ AL</button>
+        <button id="btnClaimDaily" class="neon-button gold">ÖDÜLÜ AL</button>
     </div>
 
-    <div id="levelUpOverlay" class="screen hidden" style="background: rgba(255,255,255,0.05); z-index: 200;">
-        <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;" data-i18n="LEVEL_UP">SEVİYE ATLADIN!</h1>
+    <div id="levelUpOverlay" class="screen hidden"
+        style="background: rgba(255,255,255,0.05); z-index: 200;">
+        <h1 id="lvlUpText" class="neon-title" style="font-size: 100px; color: #f0f; animation: pulse 0.5s infinite;">
+            SEVİYE ATLADIN!</h1>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -1008,7 +959,6 @@
         let renderOffset = { x: 0, y: 0 };
         let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
         const BASE_SPEED_CLIENT = 5;
-        const MAX_SPEED_CLIENT = 18;
         const LERP_SPEED = 0.3;
         let lastFrameTime = 0;
         let lastServerTime = 0;
@@ -1016,12 +966,6 @@
         let isSpinning = false;
         let prevBallX = 400;
         let gridImageCache = null;
-        let animationFrameId = null;
-        let countdownValue = 0;
-        let powerupMessage = '';
-        let powerupMessageTimer = 0;
-        let emoteDisplayTimer = 0;
-        let emoteDisplayText = '';
 
         const LocalizationManager = {
             currentLang: localStorage.getItem('language') || 'tr',
@@ -1041,7 +985,7 @@
                     MATCH_EASY: "Easy Bot",
                     MATCH_MEDIUM: "Medium Bot",
                     MATCH_HARD: "Hard Bot",
-                    BACK: "BACK TO MENU",
+                    BTN_BACK: "BACK TO MENU",
                     SHOP_DESC1: "Win: +100 Coins | Loss: +30 Coins",
                     SHOP_DESC2: "Play and win matches to earn coins!",
                     RANK_ROOKIE: "Rookie",
@@ -1051,56 +995,7 @@
                     RARITY_RARE: "Rare",
                     RARITY_EPIC: "Epic",
                     RARITY_LEGENDARY: "Legendary",
-                    RARITY_MYTHIC: "Mythic",
-                    PROFILE_LEVEL: "Level",
-                    CYBER_COINS: "Cyber Coins",
-                    XP: "XP",
-                    CASES_OWNED: "Cyber Cases Owned:",
-                    OPEN_CASE: "Open Case",
-                    SKINS_OWNED: "OWNED SKINS",
-                    SHOP: "SHOP",
-                    INVENTORY_SHOP: "INVENTORY & SHOP",
-                    CASES_SKINS: "CASES & SKINS",
-                    CREDITS: "Current Coins:",
-                    CYBER_CASE: "🔒 CYBER CASE",
-                    CASE_DESC: "Contains Neon Sapphire, Hyper Pink, Acid Lightning, or legendary MATRIX RGB!",
-                    BUY_CASE_BUTTON: "BUY FOR 500 COINS",
-                    YOU_WON: "YOU WON!",
-                    YOU_LOST: "YOU LOST!",
-                    CASE_DROPPED: "🎁 CYBER CASE DROPPED!",
-                    CONNECTING: "Connecting to System...",
-                    DAILY_REWARD: "DAILY REWARD READY",
-                    DAY_STREAK: "Day Streak",
-                    CLAIM: "CLAIM REWARD",
-                    LEVEL_UP: "LEVEL UP!",
-                    ALERT_NO_USERNAME: "Please enter a username.",
-                    ALERT_NO_CASES: "You have no cases to open!",
-                    ALERT_INSUFFICIENT_CREDITS: "Insufficient credits! Need {price}.",
-                    ALERT_INVALID_ROOM_CODE: "Please enter a 4-digit code!",
-                    CHAT_PLACEHOLDER: "Send a message to Cyber Network...",
-                    USERNAME_PLACEHOLDER: "Username",
-                    ROOM_CODE_PLACEHOLDER: "XXXX",
-                    PRIVATE_ROOM_CREATED: "🔑 PRIVATE ROOM CREATED",
-                    SHARE_CODE: "Share this code with your friend:",
-                    WAITING_OPPONENT: "Waiting for opponent to join...",
-                    CANCEL: "CANCEL",
-                    JOIN_ROOM: "🚪 JOIN ROOM",
-                    ENTER_CODE: "Enter the 4-digit code given by your friend:",
-                    JOIN: "JOIN ROOM",
-                    LEADERBOARD_TITLE: "🏆 GLOBAL LEADERBOARD",
-                    TOP_10: "Top 10 Warriors",
-                    LOADING: "Loading...",
-                    REFRESH: "🔄 REFRESH",
-                    MATCH_STATS: "Match Stats",
-                    MAX_SPEED: "Max Speed:",
-                    TOTAL_HITS: "Total Hits:",
-                    YOUR_HITS: "Your Hits:",
-                    REMATCH: "🔄 REMATCH",
-                    SEND: "SEND",
-                    GLOBAL_ARENA: "Global Cyber Arena v2.0",
-                    WARRIOR: "Warrior",
-                    LEVEL: "Level",
-                    TOTAL_XP: "Total XP"
+                    RARITY_MYTHIC: "Mythic"
                 },
                 tr: {
                     LOGIN_TITLE: "SİBER ARENA'YA GİRİŞ",
@@ -1117,7 +1012,7 @@
                     MATCH_EASY: "Kolay Bot",
                     MATCH_MEDIUM: "Orta Bot",
                     MATCH_HARD: "Zor Bot",
-                    BACK: "ANA MENÜYE DÖN",
+                    BTN_BACK: "ANA MENÜYE DÖN",
                     SHOP_DESC1: "Galibiyet: +100 Jeton | Mağlubiyet: +30 Jeton",
                     SHOP_DESC2: "Maç kazanarak ve oynayarak jeton biriktir!",
                     RANK_ROOKIE: "Çaylak",
@@ -1127,56 +1022,7 @@
                     RARITY_RARE: "Nadir",
                     RARITY_EPIC: "Destansı",
                     RARITY_LEGENDARY: "Efsanevi",
-                    RARITY_MYTHIC: "Gizemli",
-                    PROFILE_LEVEL: "Seviye",
-                    CYBER_COINS: "Siber Jeton",
-                    XP: "XP",
-                    CASES_OWNED: "Sahip Olduğun Siber Kasalar:",
-                    OPEN_CASE: "Kasa Aç",
-                    SKINS_OWNED: "SAHİP OLDUĞUN SKİNLER",
-                    SHOP: "MAĞAZA",
-                    INVENTORY_SHOP: "ENVANTER & MAĞAZA",
-                    CASES_SKINS: "KASALAR & SKİNLER",
-                    CREDITS: "Mevcut Jetonların:",
-                    CYBER_CASE: "🔒 SİBER KASA",
-                    CASE_DESC: "İçinden Neon Safir, Hiper Pembe, Asit Yıldırımı veya efsanevi MATRIX RGB çıkabilir!",
-                    BUY_CASE_BUTTON: "500 JETON İLE SATIN AL",
-                    YOU_WON: "KAZANDIN!",
-                    YOU_LOST: "KAYBETTİN!",
-                    CASE_DROPPED: "🎁 SİBER KASA DÜŞTÜ!",
-                    CONNECTING: "Sisteme Bağlanılıyor...",
-                    DAILY_REWARD: "GÜNLÜK ÖDÜLÜN HAZIR",
-                    DAY_STREAK: "Gün Ardışık Giriş",
-                    CLAIM: "ÖDÜLÜ AL",
-                    LEVEL_UP: "SEVİYE ATLADIN!",
-                    ALERT_NO_USERNAME: "Lütfen bir kullanıcı adı girin.",
-                    ALERT_NO_CASES: "Açacak kasan yok!",
-                    ALERT_INSUFFICIENT_CREDITS: "Yetersiz jeton! {price} gerekiyor.",
-                    ALERT_INVALID_ROOM_CODE: "Lütfen 4 haneli bir kod gir!",
-                    CHAT_PLACEHOLDER: "Siber Ağa Mesaj Gönder...",
-                    USERNAME_PLACEHOLDER: "Kullanıcı Adı",
-                    ROOM_CODE_PLACEHOLDER: "XXXX",
-                    PRIVATE_ROOM_CREATED: "🔑 ÖZEL ODA OLUŞTURULDU",
-                    SHARE_CODE: "Bu kodu arkadaşına gönder:",
-                    WAITING_OPPONENT: "Rakibin katılmasını bekliyorsun...",
-                    CANCEL: "İPTAL ET",
-                    JOIN_ROOM: "🚪 ODAYA KATIL",
-                    ENTER_CODE: "Arkadaşının verdiği 4 haneli kodu gir:",
-                    JOIN: "ODAYA GİR",
-                    LEADERBOARD_TITLE: "🏆 GLOBAL LİDERLİK TABLOSU",
-                    TOP_10: "En İyi 10 Savaşçı",
-                    LOADING: "Yükleniyor...",
-                    REFRESH: "🔄 YENİLE",
-                    MATCH_STATS: "Maç İstatistikleri",
-                    MAX_SPEED: "Maksimum Hız:",
-                    TOTAL_HITS: "Toplam Vuruş:",
-                    YOUR_HITS: "Sizin Vuruşlarınız:",
-                    REMATCH: "🔄 YENİDEN OYNA",
-                    SEND: "İLET",
-                    GLOBAL_ARENA: "Küresel Siber Arena v2.0",
-                    WARRIOR: "SAVAŞÇI",
-                    LEVEL: "SEVİYE",
-                    TOTAL_XP: "TOPLAM XP"
+                    RARITY_MYTHIC: "Gizemli"
                 }
             },
             init() {
@@ -1199,13 +1045,9 @@
                     const key = el.getAttribute('data-i18n');
                     if (dict[key]) el.innerText = dict[key];
                 });
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                    const key = el.getAttribute('data-i18n-placeholder');
-                    if (dict[key]) el.placeholder = dict[key];
-                });
                 if (user && user.level) {
                     const levelLabel = document.getElementById('profLevel');
-                    if (levelLabel) levelLabel.innerText = `${LocalizationManager.t('PROFILE_LEVEL')} ${user.level}`;
+                    if (levelLabel) levelLabel.innerText = `Seviye ${user.level} ${getTitle(user.level)}`;
                 }
             },
             t(key) { return this.translations[this.currentLang]?.[key] || key; }
@@ -1215,7 +1057,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             LocalizationManager.init();
         });
-
+        
         // Initialize immediately if already loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => LocalizationManager.init());
@@ -1276,7 +1118,7 @@
                 const direction = Math.sign(this.targetY - this.y);
                 const currentSpeed = this.settings[this.difficulty].speed;
                 if (dist > 5) this.y += direction * currentSpeed * deltaTime;
-                this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y));
+                this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y)); // 100 is paddle height
             }
         }
 
@@ -1364,8 +1206,8 @@
 
         function updateProfileUI() {
             document.getElementById('profName').innerText = `${user.name} [${getTitle(user.level)}]`;
-            document.getElementById('profLevel').innerText = `${LocalizationManager.t('PROFILE_LEVEL')} ${user.level}`;
-            document.getElementById('profCredits').innerText = `💰 ${user.credits || 0} ${LocalizationManager.t('CYBER_COINS')}`;
+            document.getElementById('profLevel').innerText = `Seviye ${user.level}`;
+            document.getElementById('profCredits').innerText = `💰 ${user.credits || 0} Siber Jeton`;
             const xpForCurrentLvl = (user.level - 1) * XP_PER_LEVEL;
             const xpInLevel = user.xp - xpForCurrentLvl;
             const pct = Math.min((xpInLevel / XP_PER_LEVEL) * 100, 100);
@@ -1379,7 +1221,7 @@
             if (user.level > oldLevel) {
                 playSoundEffect('levelUp');
                 const overlay = document.getElementById('levelUpOverlay');
-                document.getElementById('lvlUpText').innerText = `${LocalizationManager.t('LEVEL_UP')} ${user.level}!`;
+                document.getElementById('lvlUpText').innerText = `SEVİYE ${user.level} OLDUN!`;
                 overlay.classList.remove('hidden');
                 setTimeout(() => overlay.classList.add('hidden'), 3000);
             }
@@ -1412,7 +1254,7 @@
 
         // BAŞLANGIÇ — Kayıtlı kullanıcı varsa login ekranını atla
         if (user) {
-            showMainMenu();
+            showMainMenu(); // Doğrudan ana menüye — login ekranı gösterme
         } else {
             showScreen('loginScreen');
         }
@@ -1420,7 +1262,8 @@
         document.getElementById('btnLogin').addEventListener('click', () => {
             initAudio();
             const name = document.getElementById('usernameInput').value.trim();
-            if (!name) return alert(LocalizationManager.t('ALERT_NO_USERNAME'));
+            if (!name) return alert("Lütfen bir kullanıcı adı girin.");
+            // BUG #3 FIX: Aynı isimle giriş yapılırsa mevcut veriyi koru, sıfırlama
             const saved = JSON.parse(localStorage.getItem('pongUser'));
             if (saved && saved.name === name) {
                 user = saved;
@@ -1446,6 +1289,9 @@
         function showMainMenu() {
             showScreen('mainMenu');
             updateProfileUI();
+            // moved daily reward check out of automatic main-menu display to avoid
+            // overlays blocking interaction. Call `checkDailyReward()` manually
+            // after login or when you explicitly want to show the daily reward.
             reportStats();
             socket.emit('getChatHistory');
         }
@@ -1497,7 +1343,7 @@
         }
         function promptDailyReward(todayTs, streak) {
             const xpReward = streak * 100;
-            document.getElementById('streakText').innerText = `${streak}. ${LocalizationManager.t('DAY_STREAK')}`;
+            document.getElementById('streakText').innerText = `${streak}. GÜN ARDIŞIK GİRİŞ`;
             document.getElementById('dailyXpText').innerText = `+${xpReward} XP`;
             document.getElementById('dailyRewardOverlay').classList.remove('hidden');
             document.getElementById('btnClaimDaily').onclick = () => {
@@ -1510,15 +1356,17 @@
 
         // EŞLEŞME BUL
         document.getElementById('btnFindMatch').addEventListener('click', () => {
+
             initAudio();
             showScreen('gameScreen');
             ui.classList.remove('hidden');
-            messageEl.innerText = LocalizationManager.t('CONNECTING');
+            messageEl.innerText = "Siber Arena İçin Rakip Aranıyor...";
             socket.emit('joinMatchmaking', getProfile());
         });
 
         // TEK OYUNCULU SEÇİM EKRANI AÇ
         document.getElementById('btnSingleplayer').addEventListener('click', () => {
+
             initAudio();
             showScreen('singleplayerScreen');
         });
@@ -1528,6 +1376,7 @@
             showMainMenu();
         });
 
+        // Completely refactored difficulty button listener
         document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
             const btn = e.target.closest('.btn-difficulty');
             if (btn) {
@@ -1572,7 +1421,7 @@
             initAudio();
             const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             if (code.length !== 4) {
-                document.getElementById('joinRoomError').innerText = LocalizationManager.t('ALERT_INVALID_ROOM_CODE');
+                document.getElementById('joinRoomError').innerText = 'Lütfen 4 haneli bir kod gir!';
                 return;
             }
             document.getElementById('joinRoomError').innerText = '';
@@ -1611,7 +1460,7 @@
             const tbody = document.getElementById('leaderboardBody');
             tbody.innerHTML = '';
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#555;">${LocalizationManager.t('LOADING')}</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#555;">Henüz veri yok. Maç oynayarak liderlik tablosuna gir!</td></tr>';
                 return;
             }
             const rankIcons = ['👑', '🥈', '🥉'];
@@ -1703,12 +1552,12 @@
         // MAĞAZA
         document.getElementById('btnBuyCase').addEventListener('click', () => {
             initAudio();
-            if ((user.credits || 0) < CASE_PRICE) return alert(LocalizationManager.t('ALERT_INSUFFICIENT_CREDITS').replace('{price}', CASE_PRICE));
+            if ((user.credits || 0) < CASE_PRICE) return alert(`Yetersiz jeton! ${CASE_PRICE} gerekiyor.\nMevcut: ${user.credits || 0}`);
             user.credits -= CASE_PRICE;
             user.cases = (user.cases || 0) + 1;
             saveUser(); updateInventoryUI(); playSoundEffect('purchase');
         });
-
+        
         // GAME LOGIC FUNCTIONS
         function getSkinIdByRoll() {
             const r = Math.random();
@@ -1717,12 +1566,12 @@
             if (r < 0.30) return 'purple';
             return 'blue';
         }
-
+        
         function getSkinStyle(skinId) {
             if (!skinId || !SKINS[skinId]) return SKINS['default'];
             return SKINS[skinId];
         }
-
+        
         function spawnParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
@@ -1733,7 +1582,7 @@
             }
             if (particles.length > 150) particles.splice(0, particles.length - 150);
         }
-
+        
         function updateAndDrawParticles(dt) {
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
@@ -1747,7 +1596,7 @@
             }
             ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
         }
-
+        
         function drawGrid() {
             if (!gridImageCache) {
                 const offscreen = document.createElement('canvas');
@@ -1765,34 +1614,15 @@
                 gridImageCache = offscreen;
             }
             ctx.drawImage(gridImageCache, 0, 0);
-
-            // Dinamik renk: top hızına göre grid parlaklığı
-            if (serverBall) {
-                const speed = serverBall.speed || BASE_SPEED_CLIENT;
-                const intensity = Math.min((speed - BASE_SPEED_CLIENT) / (MAX_SPEED_CLIENT - BASE_SPEED_CLIENT), 1);
-                const r = Math.floor(50 + intensity * 205);
-                const g = Math.floor(200);
-                const b = Math.floor(255 - intensity * 200);
-                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.05)`;
-                ctx.lineWidth = 1;
-                ctx.setLineDash([]);
-                ctx.beginPath();
-                for (let x = 0; x <= 800; x += 40) {
-                    ctx.moveTo(x, 0); ctx.lineTo(x, 600);
-                }
-                for (let y = 0; y <= 600; y += 40) {
-                    ctx.moveTo(0, y); ctx.lineTo(800, y);
-                }
-                ctx.stroke();
-            }
         }
-
+        
         function lerp(a, b, t) { return a + (b - a) * t; }
 
         // RULET
+
         document.getElementById('btnOpenCase').addEventListener('click', () => {
             if (isSpinning) return;
-            if ((user.cases || 0) <= 0) return alert(LocalizationManager.t('ALERT_NO_CASES'));
+            if ((user.cases || 0) <= 0) return alert("Açacak kasan yok!\nMaç oynayarak düşürebilir veya mağazadan satın alabilirsin.");
             initAudio();
             user.cases--; saveUser(); updateInventoryUI();
             playSoundEffect('caseOpen');
@@ -1875,7 +1705,6 @@
             });
         });
 
-        // SINGLEPLAYER
         function startSingleplayerMatch(difficulty) {
             isSingleplayer = true;
             singleplayerDifficulty = difficulty;
@@ -1896,21 +1725,23 @@
             lastFrameTime = performance.now();
             isGameRunning = true;
 
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(renderLoop);
+            requestAnimationFrame(renderLoop);
         }
 
         function updateLocalPhysics(dt) {
             if (!isSingleplayer || !isGameRunning || !singleplayerBot) return;
 
+            // Update Bot
             singleplayerBot.update(dt);
             serverPlayers.right.y = singleplayerBot.y;
 
+            // Sub-step physics to avoid passing through paddles at high speed
             const steps = 3;
             const subDt = dt / steps;
 
             for (let i = 0; i < steps; i++) {
-                serverBall.x += serverBall.dx * 60 * subDt;
+                // Ball physics (scaled by step)
+                serverBall.x += serverBall.dx * 60 * subDt; // dx is units per frame at 60hz roughly, so scale by dt
                 serverBall.y += serverBall.dy * 60 * subDt;
 
                 if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) {
@@ -1947,6 +1778,7 @@
                     }
                 }
 
+                // Scoring
                 let scored = false;
                 if (serverBall.x < 0) { serverPlayers.right.score++; scored = true; }
                 else if (serverBall.x > 800) { serverPlayers.left.score++; scored = true; }
@@ -1955,15 +1787,12 @@
                     playSoundEffect('score');
                     if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
                         isGameRunning = false;
+
                         const isWin = serverPlayers.left.score >= 5;
                         playSoundEffect(isWin ? 'win' : 'lose');
-                        // Döngüyü durdur ve ödülü bekle
-                        if (animationFrameId) {
-                            cancelAnimationFrame(animationFrameId);
-                            animationFrameId = null;
-                        }
+
                         socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
-                        return;
+                        break;
                     } else {
                         serverBall.x = 400; serverBall.y = 300;
                         serverBall.speed = 5;
@@ -1999,102 +1828,98 @@
             overlay.classList.remove('hidden');
 
             if (serverPlayers.left.score >= 5) {
-                endText.innerText = LocalizationManager.t('YOU_WON');
-                endText.className = "neon-text win-text";
+                endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text";
             } else {
-                endText.innerText = LocalizationManager.t('YOU_LOST');
-                endText.className = "neon-text lose-text";
+                endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text";
             }
 
-            document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP`;
-            document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} ${LocalizationManager.t('CYBER_COINS')}`;
+            document.getElementById('endGameXpText').innerText = `+${data.xp_granted} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
             document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-            document.getElementById('statsContainer').style.display = 'none';
-            // Döngü zaten durduruldu, butonlara tıklanabilir.
         });
 
-        document.getElementById('btnReturnMenu').addEventListener('click', () => {
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            isGameRunning = false;
-            showMainMenu();
-        });
+        document.getElementById('btnReturnMenu').addEventListener('click', () => { location.reload(); });
 
-        // Rematch
-        document.getElementById('btnRematch').addEventListener('click', () => {
-            initAudio();
-            socket.emit('requestRematch');
-        });
+        canvas.addEventListener('mousemove', (event) => {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            let y = event.clientY - rect.top - 50;
+            if (y < 0) y = 0;
+            if (y > canvas.height - 100) y = canvas.height - 100;
 
-        socket.on('rematchStarted', () => {
-            document.getElementById('endGameOverlay').classList.add('hidden');
-            // Countdown overlay'ı gizle, sonra countdownUpdate ile gösterilecek
-            document.getElementById('countdownOverlay').style.display = 'none';
-            isGameRunning = true;
-            serverPlayers.left.score = 0;
-            serverPlayers.right.score = 0;
-            serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
-            renderPlayers.left.y = 250; renderPlayers.right.y = 250;
-            // Döngüyü yeniden başlat
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            lastFrameTime = performance.now();
-            animationFrameId = requestAnimationFrame(renderLoop);
-        });
-
-        socket.on('opponentRequestedRematch', () => {
-            if (confirm(LocalizationManager.t('REMATCH') + '?')) {
-                socket.emit('requestRematch');
-            }
-        });
-
-        // Countdown from server
-        socket.on('countdownUpdate', (count) => {
-            countdownValue = count;
-            const overlay = document.getElementById('countdownOverlay');
-            const numEl = document.getElementById('countdownNumber');
-            if (count > 0) {
-                overlay.style.display = 'flex';
-                numEl.innerText = count;
-                playSoundEffect('tick');
-            } else if (count === 0) {
-                numEl.innerText = 'GO!';
-                overlay.style.display = 'flex';
-                setTimeout(() => { overlay.style.display = 'none'; }, 800);
+            if (isSingleplayer) {
+                serverPlayers.left.y = y;
             } else {
-                overlay.style.display = 'none';
+                socket.emit('move', { y: y });
             }
         });
 
-        // Emote system
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'e' || e.key === 'E') {
-                const panel = document.getElementById('emotePanel');
-                panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+        socket.on('waiting', (msg) => { messageEl.innerText = msg; });
+        socket.on('init', (data) => {
+            mySide = data.side;
+            opponentProfile = data.opponent;
+            showScreen('gameScreen');
+            ui.classList.add('hidden');
+        });
+        socket.on('startGame', () => {
+            isSingleplayer = false;
+            isGameRunning = true;
+            ui.classList.add('hidden');
+            canvas.style.display = 'block';
+            lastFrameTime = performance.now();
+            requestAnimationFrame(renderLoop);
+        });
+
+        socket.on('opponentLeft', () => {
+            isGameRunning = false; canvas.style.display = 'none';
+            const overlay = document.getElementById('endGameOverlay');
+            document.getElementById('endGameText').innerText = "RAKİP KAÇTI!";
+            document.getElementById('endGameText').className = "neon-text win-text";
+            document.getElementById('endGameXpText').innerText = "+0 XP";
+            document.getElementById('endGameCreditText').innerText = "";
+            document.getElementById('endGameCaseText').classList.add('hidden');
+            overlay.classList.remove('hidden');
+        });
+
+        socket.on('playSound', (data) => {
+            playSoundEffect(data.type);
+            if (data.shake) {
+                canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
             }
         });
 
-        document.querySelectorAll('.emote-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const emote = btn.dataset.emote;
-                if (socket && socket.connected) {
-                    socket.emit('sendEmote', emote);
-                }
-                document.getElementById('emotePanel').style.display = 'none';
-            });
+        socket.on('gs', (s) => {
+            if (!isGameRunning) return;
+            const lastHitMap = ['left', 'right', null];
+
+            const newX = s.b[0];
+            const newY = s.b[1];
+
+            if (!isSingleplayer) {
+                renderOffset.x += (predictedBall.x - newX);
+                renderOffset.y += (predictedBall.y - newY);
+
+                predictedBall.x = newX;
+                predictedBall.y = newY;
+                predictedBall.dx = s.b[2];
+                predictedBall.dy = s.b[3];
+            }
+
+            serverBall.x = newX;
+            serverBall.y = newY;
+            serverBall.dx = s.b[2];
+            serverBall.dy = s.b[3];
+            serverBall.speed = s.b[4];
+            serverBall.lastHit = lastHitMap[s.b[5]] || null;
+
+            serverPlayers.left.y = s.p[0];
+            serverPlayers.left.score = s.p[1];
+            serverPlayers.right.y = s.p[2];
+            serverPlayers.right.score = s.p[3];
+
+            lastServerTime = s.t;
         });
 
-        socket.on('receiveEmote', (data) => {
-            emoteDisplayText = data.emote;
-            emoteDisplayTimer = 1.5;
-        });
-
-        // Dynamic Power-up message
-        socket.on('powerupActivated', (data) => {
-            const msg = data.type === 0 ? '🚀 PADDLE GROW!' : '⚡ SPEED BOOST!';
-            powerupMessage = msg;
-            powerupMessageTimer = 2.0;
-        });
-
-        // Multiplayer Game Over with stats
         socket.on('gameOver', (data) => {
             isGameRunning = false;
             const isWin = (data.winner === mySide);
@@ -2118,126 +1943,19 @@
             const overlay = document.getElementById('endGameOverlay');
             const endText = document.getElementById('endGameText');
             overlay.classList.remove('hidden');
-            if (isWin) {
-                endText.innerText = LocalizationManager.t('YOU_WON');
-                endText.className = "neon-text win-text";
-            } else {
-                endText.innerText = LocalizationManager.t('YOU_LOST');
-                endText.className = "neon-text lose-text";
-            }
-            document.getElementById('endGameXpText').innerText = `+${xpGained} XP`;
-            document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} ${LocalizationManager.t('CYBER_COINS')}`;
+            if (isWin) { endText.innerText = "KAZANDIN!"; endText.className = "neon-text win-text"; }
+            else { endText.innerText = "KAYBETTİN!"; endText.className = "neon-text lose-text"; }
+            document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
+            document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
             document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
-
-            if (data.stats) {
-                document.getElementById('statMaxSpeed').innerText = data.stats.maxSpeed || '0';
-                document.getElementById('statTotalHits').innerText = data.stats.totalHits || '0';
-                document.getElementById('statYourHits').innerText = data.stats.yourHits || '0';
-                document.getElementById('statsContainer').style.display = 'block';
-            } else {
-                document.getElementById('statsContainer').style.display = 'none';
-            }
-            // Döngüyü durdur
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
         });
 
-        // Mouse move for multiplayer
-        canvas.addEventListener('mousemove', (event) => {
-            if (!isGameRunning) return;
-            const rect = canvas.getBoundingClientRect();
-            let y = event.clientY - rect.top - 50;
-            if (y < 0) y = 0;
-            if (y > canvas.height - 100) y = canvas.height - 100;
-
-            if (isSingleplayer) {
-                serverPlayers.left.y = y;
-            } else {
-                socket.emit('move', { y: y });
-            }
-        });
-
-        // Socket events
-        socket.on('waiting', (msg) => { messageEl.innerText = msg; });
-        socket.on('init', (data) => {
-            mySide = data.side;
-            opponentProfile = data.opponent;
-            showScreen('gameScreen');
-            ui.classList.add('hidden');
-        });
-        socket.on('startGame', () => {
-            isSingleplayer = false;
-            isGameRunning = true;
-            ui.classList.add('hidden');
-            canvas.style.display = 'block';
-            // Countdown overlay'ı gizle (güvenlik)
-            document.getElementById('countdownOverlay').style.display = 'none';
-            lastFrameTime = performance.now();
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(renderLoop);
-        });
-
-        socket.on('opponentLeft', () => {
-            isGameRunning = false;
-            canvas.style.display = 'none';
-            const overlay = document.getElementById('endGameOverlay');
-            document.getElementById('endGameText').innerText = "Rakip Ayrıldı!";
-            document.getElementById('endGameText').className = "neon-text win-text";
-            document.getElementById('endGameXpText').innerText = "+0 XP";
-            document.getElementById('endGameCreditText').innerText = "";
-            document.getElementById('endGameCaseText').classList.add('hidden');
-            document.getElementById('statsContainer').style.display = 'none';
-            overlay.classList.remove('hidden');
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        });
-
-        socket.on('playSound', (data) => {
-            playSoundEffect(data.type);
-            if (data.shake) {
-                canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake');
-            }
-        });
-
-        socket.on('gs', (s) => {
-            if (!isGameRunning) return;
-            const newX = s.b[0];
-            const newY = s.b[1];
-
-            if (!isSingleplayer) {
-                renderOffset.x += (predictedBall.x - newX);
-                renderOffset.y += (predictedBall.y - newY);
-                predictedBall.x = newX;
-                predictedBall.y = newY;
-                predictedBall.dx = s.b[2];
-                predictedBall.dy = s.b[3];
-            }
-
-            serverBall.x = newX;
-            serverBall.y = newY;
-            serverBall.dx = s.b[2];
-            serverBall.dy = s.b[3];
-            serverBall.speed = s.b[4];
-            serverBall.lastHit = s.b[5] === 0 ? 'left' : s.b[5] === 1 ? 'right' : null;
-
-            serverPlayers.left.y = s.p[0];
-            serverPlayers.left.score = s.p[1];
-            serverPlayers.right.y = s.p[3];
-            serverPlayers.right.score = s.p[4];
-
-            lastServerTime = s.t;
-        });
-
-        // RENDER LOOP
-        function renderLoop(timestamp) {
-            if (!isGameRunning || !ctx) {
-                if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                return;
-            }
+    function renderLoop(timestamp) {
+            if (!isGameRunning || !ctx) return;
 
             const now = performance.now();
             if (!lastFrameTime) lastFrameTime = now;
+
             const dtMs = now - lastFrameTime;
             lastFrameTime = now;
             const dtFactor = Math.min(dtMs / 16.67, 3);
@@ -2245,11 +1963,6 @@
 
             if (isSingleplayer) {
                 updateLocalPhysics(dtSec);
-                // Eğer updateLocalPhysics içinde isGameRunning false yapıldıysa döngüden çık
-                if (!isGameRunning) {
-                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-                    return;
-                }
             }
 
             const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
@@ -2296,28 +2009,15 @@
             const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
             const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
 
-            // Neon Ball Trail (optimize edilmiş, 5 adet, hafif)
-            ctx.save();
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = rg(ballSkinStyle);
-            for (let i = 1; i <= 5; i++) {
-                const trailX = renderBall.x - (serverBall.dx || 0.01) * i * 2;
-                const trailY = renderBall.y - (serverBall.dy || 0.01) * i * 2;
-                const alpha = 0.2 / (i * 0.5);
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = rc(ballSkinStyle);
-                ctx.beginPath();
-                ctx.arc(trailX, trailY, 8 - i * 1.2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
+            if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
+            prevBallX = renderBall.x;
+            spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
+            updateAndDrawParticles(dtFactor);
 
-            // Ball
             ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
             ctx.fillStyle = rc(ballSkinStyle);
             ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI * 2); ctx.fill();
 
-            // Paddles
             ctx.shadowBlur = 15;
             ctx.shadowColor = rg(leftSkinStyle); ctx.fillStyle = rc(leftSkinStyle);
             ctx.beginPath(); ctx.roundRect(20, renderPlayers.left.y, 10, 100, 3); ctx.fill();
@@ -2325,7 +2025,6 @@
             ctx.shadowColor = rg(rightSkinStyle); ctx.fillStyle = rc(rightSkinStyle);
             ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 10, 100, 3); ctx.fill();
 
-            // Scores
             ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillStyle = rc(leftSkinStyle); ctx.shadowColor = ctx.fillStyle;
@@ -2348,53 +2047,7 @@
             ctx.fillText(lt, 200, 30);
             ctx.fillText(rt, 600, 30);
 
-            // Powerup message
-            if (powerupMessageTimer > 0) {
-                powerupMessageTimer -= dtSec;
-                ctx.font = '28px Orbitron';
-                ctx.fillStyle = '#ff0';
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff0';
-                ctx.textAlign = 'center';
-                ctx.fillText(powerupMessage, 400, 550);
-                ctx.shadowBlur = 0;
-            }
-
-            // Emote display
-            if (emoteDisplayTimer > 0) {
-                emoteDisplayTimer -= dtSec;
-                ctx.font = '60px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#fff';
-                ctx.shadowBlur = 30;
-                ctx.shadowColor = '#fff';
-                ctx.fillText(emoteDisplayText, 400, 300);
-                ctx.shadowBlur = 0;
-            }
-
-            // Particles
-            if (Math.abs(renderBall.x - prevBallX) > 30) spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 4);
-            prevBallX = renderBall.x;
-            spawnParticles(renderBall.x, renderBall.y, rc(ballSkinStyle), 1);
-            updateAndDrawParticles(dtFactor);
-
-            if (isGameRunning) {
-                animationFrameId = requestAnimationFrame(renderLoop);
-            }
-        }
-
-        // roundRect polyfill for canvas
-        if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-                if (r > w / 2) r = w / 2;
-                if (r > h / 2) r = h / 2;
-                this.moveTo(x + r, y);
-                this.arcTo(x + w, y, x + w, y + h, r);
-                this.arcTo(x + w, y + h, x, y + h, r);
-                this.arcTo(x, y + h, x, y, r);
-                this.arcTo(x, y, x + w, y, r);
-                return this;
-            };
+            requestAnimationFrame(renderLoop);
         }
 
     </script>
