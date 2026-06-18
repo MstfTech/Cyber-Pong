@@ -364,7 +364,7 @@
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
         }
 
         .shop-card {
@@ -1957,8 +1957,13 @@
                         isGameRunning = false;
                         const isWin = serverPlayers.left.score >= 5;
                         playSoundEffect(isWin ? 'win' : 'lose');
+                        // Döngüyü durdur ve ödülü bekle
+                        if (animationFrameId) {
+                            cancelAnimationFrame(animationFrameId);
+                            animationFrameId = null;
+                        }
                         socket.emit('singleplayerResult', { win: isWin, difficulty: singleplayerDifficulty });
-                        break;
+                        return;
                     } else {
                         serverBall.x = 400; serverBall.y = 300;
                         serverBall.speed = 5;
@@ -2005,6 +2010,7 @@
             document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} ${LocalizationManager.t('CYBER_COINS')}`;
             document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
             document.getElementById('statsContainer').style.display = 'none';
+            // Döngü zaten durduruldu, butonlara tıklanabilir.
         });
 
         document.getElementById('btnReturnMenu').addEventListener('click', () => {
@@ -2021,12 +2027,16 @@
 
         socket.on('rematchStarted', () => {
             document.getElementById('endGameOverlay').classList.add('hidden');
+            // Countdown overlay'ı gizle, sonra countdownUpdate ile gösterilecek
+            document.getElementById('countdownOverlay').style.display = 'none';
             isGameRunning = true;
             serverPlayers.left.score = 0;
             serverPlayers.right.score = 0;
             serverBall = { x: 400, y: 300, dx: 5, dy: 5, speed: 5, lastHit: null };
             renderPlayers.left.y = 250; renderPlayers.right.y = 250;
+            // Döngüyü yeniden başlat
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            lastFrameTime = performance.now();
             animationFrameId = requestAnimationFrame(renderLoop);
         });
 
@@ -2073,7 +2083,6 @@
         });
 
         socket.on('receiveEmote', (data) => {
-            // Show emote on screen briefly
             emoteDisplayText = data.emote;
             emoteDisplayTimer = 1.5;
         });
@@ -2120,7 +2129,6 @@
             document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} ${LocalizationManager.t('CYBER_COINS')}`;
             document.getElementById('endGameCaseText').classList[droppedCase ? 'remove' : 'add']('hidden');
 
-            // Stats
             if (data.stats) {
                 document.getElementById('statMaxSpeed').innerText = data.stats.maxSpeed || '0';
                 document.getElementById('statTotalHits').innerText = data.stats.totalHits || '0';
@@ -2128,6 +2136,11 @@
                 document.getElementById('statsContainer').style.display = 'block';
             } else {
                 document.getElementById('statsContainer').style.display = 'none';
+            }
+            // Döngüyü durdur
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
             }
         });
 
@@ -2159,6 +2172,8 @@
             isGameRunning = true;
             ui.classList.add('hidden');
             canvas.style.display = 'block';
+            // Countdown overlay'ı gizle (güvenlik)
+            document.getElementById('countdownOverlay').style.display = 'none';
             lastFrameTime = performance.now();
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             animationFrameId = requestAnimationFrame(renderLoop);
@@ -2230,6 +2245,11 @@
 
             if (isSingleplayer) {
                 updateLocalPhysics(dtSec);
+                // Eğer updateLocalPhysics içinde isGameRunning false yapıldıysa döngüden çık
+                if (!isGameRunning) {
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    return;
+                }
             }
 
             const speedMul = serverBall.speed / BASE_SPEED_CLIENT;
@@ -2276,20 +2296,21 @@
             const rc = (ss) => ss.color === 'rgb' ? dynamicRGB : ss.color;
             const rg = (ss) => ss.glow === 'rgb' ? dynamicRGB : ss.glow;
 
-            // Neon Ball Trail (10 adet kuyruk)
-            for (let i = 1; i <= 10; i++) {
-                const trailX = renderBall.x - (serverBall.dx || 0.01) * i * 1.5;
-                const trailY = renderBall.y - (serverBall.dy || 0.01) * i * 1.5;
-                const alpha = 0.08 / (i * 0.1);
+            // Neon Ball Trail (optimize edilmiş, 5 adet, hafif)
+            ctx.save();
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = rg(ballSkinStyle);
+            for (let i = 1; i <= 5; i++) {
+                const trailX = renderBall.x - (serverBall.dx || 0.01) * i * 2;
+                const trailY = renderBall.y - (serverBall.dy || 0.01) * i * 2;
+                const alpha = 0.2 / (i * 0.5);
                 ctx.globalAlpha = alpha;
                 ctx.fillStyle = rc(ballSkinStyle);
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = rg(ballSkinStyle);
                 ctx.beginPath();
-                ctx.arc(trailX, trailY, 8 - i * 0.5, 0, Math.PI * 2);
+                ctx.arc(trailX, trailY, 8 - i * 1.2, 0, Math.PI * 2);
                 ctx.fill();
             }
-            ctx.globalAlpha = 1.0;
+            ctx.restore();
 
             // Ball
             ctx.shadowBlur = 20; ctx.shadowColor = rg(ballSkinStyle);
@@ -2375,9 +2396,6 @@
                 return this;
             };
         }
-
-        // Günlük ödülü manuel kontrol (örnek olarak mainMenu açılışında çağır)
-        // checkDailyReward(); // İstersen aç, ama ilk girişte popup gelir.
 
     </script>
 </body>
