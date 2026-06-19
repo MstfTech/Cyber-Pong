@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // CYBER PONG — server.js  (Discord Webhook Entegreli Tam Sürüm)
 // ═══════════════════════════════════════════════════════════════════════════
-require('dotenv').config();
-const fetch = require('node-fetch'); // Bu satırı ekle
+
 const express = require('express');
-const http    = require('http');
+const http = require('http');
+// ... gerisi aynı
 const fs      = require('fs');
 const path    = require('path');
 const { Server } = require('socket.io');
@@ -19,24 +19,45 @@ const io     = new Server(server, {
 
 app.use(express.static(__dirname));
 
-// ─── Discord Webhook Entegrasyonu ─────────────────────────────────────────────
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const https = require('https');
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1517560647674499133/27Hu13fCJc9but-U11750f-WbqLq1MXArWBGp6jt9KFS2bMs5MRVT4gXN7hH06tXFAfN";
 
 async function sendDiscordLog(title, message, color = 0x00ff00) {
     if (!DISCORD_WEBHOOK_URL) return;
+
     try {
-        await fetch(DISCORD_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                embeds: [{
-                    title: title,
-                    description: message,
-                    color: color,
-                    timestamp: new Date().toISOString()
-                }]
-            })
+        const payload = JSON.stringify({
+            embeds: [{
+                title: title,
+                description: message,
+                color: color,
+                timestamp: new Date().toISOString()
+            }]
         });
+
+        const url = new URL(DISCORD_WEBHOOK_URL);
+        const options = {
+            hostname: url.hostname,
+            path: url.pathname + url.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                console.log("Discord webhook başarısız oldu:", res.statusCode);
+            }
+        });
+
+        req.on('error', (err) => {
+            console.log("Discord webhook ağ hatası:", err.message);
+        });
+
+        req.write(payload);
+        req.end();
     } catch (err) {
         console.log("Discord webhook hatası:", err.message);
     }
