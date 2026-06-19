@@ -2,6 +2,7 @@
 // CYBER PONG — server.js  (Discord Webhook Entegreli Tam Sürüm)
 // ═══════════════════════════════════════════════════════════════════════════
 require('dotenv').config();
+const fetch = require('node-fetch'); // Bu satırı ekle
 const express = require('express');
 const http    = require('http');
 const fs      = require('fs');
