@@ -522,8 +522,9 @@
             <!-- Rövanş Bölümü -->
             <div id="rematchSection">
                 <div style="display:flex; gap:12px; margin-top:20px;">
-                    <button id="btnRematch"     class="neon-button cyan" style="font-size:1rem; padding:12px 25px;">🔄 RÖVANŞ İSTE</button>
-                    <button id="btnReturnMenu"  class="neon-button"      style="font-size:1rem; padding:12px 25px;">🏠 ANA MENÜ</button>
+                    <button id="btnRematch"        class="neon-button cyan" style="font-size:1rem; padding:12px 25px;">🔄 RÖVANŞ İSTE</button>
+                    <button id="btnDeclineRematch" class="neon-button red hidden"  style="font-size:1rem; padding:12px 25px;">❌ REDDET</button>
+                    <button id="btnReturnMenu"     class="neon-button"      style="font-size:1rem; padding:12px 25px;">🏠 ANA MENÜ</button>
                 </div>
                 <div id="rematchStatus"></div>
             </div>
@@ -614,9 +615,15 @@ let scoreFlashes   = { left: null, right: null }; // {time, side}
 let prevLeftScore  = 0;
 let prevRightScore = 0;
 
-// Ping
+// Ping (adaptive: oyun sırasında 3s, menüde 10s)
 let pingMs = 0;
-setInterval(() => { socket.emit('ping_check', Date.now()); }, 3000);
+let pingIntervalId = null;
+function startPingInterval() {
+    if (pingIntervalId) clearInterval(pingIntervalId);
+    const rate = (gamePhase === 'playing' || gamePhase === 'countdown') ? 3000 : 10000;
+    pingIntervalId = setInterval(() => { socket.emit('ping_check', Date.now()); }, rate);
+}
+startPingInterval();
 socket.on('pong_check', (ts) => {
     pingMs = Date.now() - ts;
     const el  = document.getElementById('pingDisplay');
@@ -626,6 +633,10 @@ socket.on('pong_check', (ts) => {
     el.style.textShadow = `0 0 5px ${color}`;
     el.innerText = `⬤ ${pingMs}ms`;
 });
+
+// Move throttle (16ms = ~60fps cap)
+let lastMoveEmitTime = 0;
+const MOVE_THROTTLE_MS = 16;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Çok Dilli Sistem
@@ -1344,6 +1355,7 @@ socket.on('startGame', () => {
         canvas.style.display = 'block';
         startRenderLoop();
     }
+    startPingInterval(); // Oyun ping hızına geç
 });
 
 // FIX #8: gs paketi artık doğru indekslerle okunuyor
@@ -1382,6 +1394,20 @@ socket.on('gs', (s) => {
 
     // Arena olayı
     if (s.ae !== undefined) currentArenaEvent = s.ae;
+
+    // Bug 2 Fix: gs paketinden countdown/status senkronizasyonu (yedek mekanizma)
+    if (s.st === 'countdown' && gamePhase !== 'countdown' && gamePhase !== 'playing') {
+        gamePhase = 'countdown';
+        gameAlreadyOver = false;
+        if (!isRenderRunning) startRenderLoop();
+    }
+    if (s.c !== undefined && gamePhase === 'countdown') {
+        currentCountdown = s.c;
+    }
+    if (s.st === 'playing' && gamePhase === 'countdown') {
+        gamePhase = 'playing';
+        playSoundEffect('go');
+    }
 
     lastServerTime = s.t;
 });
@@ -1485,14 +1511,22 @@ socket.on('gameOver', (data) => {
     document.getElementById('rematchStatus').innerText     = '';
     document.getElementById('btnRematch').disabled         = false;
     document.getElementById('btnRematch').innerText        = '🔄 RÖVANŞ İSTE';
+    document.getElementById('btnRematch').classList.remove('hidden');
+    document.getElementById('btnRematch').style.borderColor = '';  // Reset style
+    document.getElementById('btnRematch').style.color = '';
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
     overlay.classList.remove('hidden');
+    startPingInterval(); // Oyun bitti, menü ping hızına geç
 });
 
-// FIX #9: Rakip rövanş istedi
+// FIX #9: Rakip rövanş istedi — reddet butonu göster
 socket.on('opponentRequestedRematch', () => {
-    document.getElementById('rematchStatus').innerText = '⚡ Rakip rövanş istiyor! Kabul et!';
+    document.getElementById('rematchStatus').innerText = '⚡ Rakip rövanş istiyor! Kabul et veya reddet!';
     const btn = document.getElementById('btnRematch');
     btn.style.borderColor = '#0f0'; btn.style.color = '#0f0';
+    btn.innerText = '✅ KABUL ET';
+    btn.disabled = false;
+    document.getElementById('btnDeclineRematch').classList.remove('hidden');
 });
 
 // FIX #10: Rövanş başladı — TÜM DONMA SORUNUNU ÇÖZEN OLAY
@@ -1512,7 +1546,15 @@ socket.on('rematchUnavailable', () => {
     if (gameAlreadyOver) {
         document.getElementById('rematchStatus').innerText = '❌ Rakip ayrıldı, rövanş mümkün değil.';
         document.getElementById('btnRematch').disabled     = true;
+        document.getElementById('btnDeclineRematch').classList.add('hidden');
     }
+});
+
+// Bug 3 Fix: Rakip rövanşı aktif olarak reddetti
+socket.on('rematchDeclined', () => {
+    document.getElementById('rematchStatus').innerText = '❌ Rakip rövanşı reddetti.';
+    document.getElementById('btnRematch').disabled     = true;
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
 });
 
 // FIX #12: Rakip aktif maç sırasında ayrıldı
@@ -1527,7 +1569,8 @@ socket.on('opponentLeft', () => {
     document.getElementById('endGameCreditText').innerText  = '';
     document.getElementById('matchStatsBox').innerHTML      = '';
     document.getElementById('endGameCaseText').classList.add('hidden');
-    document.getElementById('rematchSection').classList.add('hidden');
+    document.getElementById('rematchSection').classList.remove('hidden');
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
     overlay.classList.remove('hidden');
 });
 
@@ -1540,14 +1583,32 @@ document.getElementById('btnRematch').addEventListener('click', () => {
     socket.emit('requestRematch');
 });
 
+// Bug 3 Fix: Rövanş Reddet Butonu
+document.getElementById('btnDeclineRematch').addEventListener('click', () => {
+    initAudio(); playSoundEffect('wallHit');
+    socket.emit('declineRematch');
+    document.getElementById('rematchStatus').innerText = 'Rövanşı reddettin.';
+    document.getElementById('btnRematch').disabled     = true;
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
+});
+
 // ─── Ana Menüye Dön Butonu ────────────────────────────────────────────────
 document.getElementById('btnReturnMenu').addEventListener('click', () => {
+    // Bug 3 Fix: Menüye dönünce karşı tarafa bildir
+    if (!isSingleplayer && gamePhase === 'gameover') {
+        socket.emit('declineRematch');
+    }
     isRenderRunning  = false;
     gamePhase        = 'idle';
+    isSingleplayer   = false;
+    singleplayerBot  = null;
     canvas.style.display = 'none';
     document.getElementById('emotePanel').classList.add('hidden');
+    document.getElementById('btnRematch').classList.remove('hidden'); // MP için reset
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
     showMainMenu();
     resetGameState();
+    startPingInterval(); // Menü ping hızına geç
 });
 
 // ─── Singleplayer Ödülü ───────────────────────────────────────────────────
@@ -1569,7 +1630,11 @@ socket.on('singleplayerReward', (data) => {
     document.getElementById('endGameCreditText').innerText = `💰 +${data.coins_granted} Siber Jeton`;
     document.getElementById('matchStatsBox').innerHTML     = '';
     document.getElementById('endGameCaseText').classList[data.case_dropped ? 'remove' : 'add']('hidden');
-    document.getElementById('rematchSection').classList.add('hidden'); // SP'de rövanş yok
+    // Bug 1 Fix: SP'de rövanş butonu gizle ama menü butonu göster
+    document.getElementById('rematchSection').classList.remove('hidden');
+    document.getElementById('btnRematch').classList.add('hidden');
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
+    document.getElementById('rematchStatus').innerText = '';
     overlay.classList.remove('hidden');
 });
 
@@ -1638,7 +1703,12 @@ canvas.addEventListener('mousemove', (event) => {
     if (isSingleplayer) {
         serverPlayers.left.y = y;
     } else {
-        socket.emit('move', { y });
+        // Performance: 16ms throttle — ~60 emit/s yerine max 62.5 emit/s cap
+        const now = performance.now();
+        if (now - lastMoveEmitTime >= MOVE_THROTTLE_MS) {
+            lastMoveEmitTime = now;
+            socket.emit('move', { y });
+        }
     }
 });
 
@@ -1651,7 +1721,13 @@ canvas.addEventListener('touchmove', (e) => {
     let y = touch.clientY - rect.top - 50;
     y = Math.max(0, Math.min(canvas.height - 100, y));
     if (isSingleplayer) { serverPlayers.left.y = y; }
-    else { socket.emit('move', { y }); }
+    else {
+        const now = performance.now();
+        if (now - lastMoveEmitTime >= MOVE_THROTTLE_MS) {
+            lastMoveEmitTime = now;
+            socket.emit('move', { y });
+        }
+    }
 }, { passive: false });
 
 // ═══════════════════════════════════════════════════════════════════════════
