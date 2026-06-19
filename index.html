@@ -606,6 +606,7 @@ const LERP_SPEED        = 0.3;
 let lastFrameTime = 0;
 let lastServerTime = 0;
 let prevBallX = 400;
+let renderFrameCounter = 0;
 let particles = [];
 let gridImageCache = null;
 
@@ -751,11 +752,11 @@ class SingleplayerBot {
 // Skinler & Kullanıcı
 // ═══════════════════════════════════════════════════════════════════════════
 const SKINS = {
-    'default': { name: 'Klasik',         rarityKey: 'RARITY_COMMON',    color: '#fff',    glow: '#fff',    rarityColor: '#888' },
-    'blue':    { name: 'Neon Safir',     rarityKey: 'RARITY_RARE',      color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff' },
-    'purple':  { name: 'Hiper Pembe',    rarityKey: 'RARITY_EPIC',      color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff' },
-    'orange':  { name: 'Asit Yıldırımı',rarityKey: 'RARITY_LEGENDARY', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00' },
-    'red':     { name: 'MATRIX RGB',     rarityKey: 'RARITY_MYTHIC',    color: 'rgb',     glow: 'rgb',     rarityColor: '#ff3333' }
+    'default': { name: 'Klasik',         rarityKey: 'RARITY_COMMON',    color: '#fff',    glow: '#fff',    rarityColor: '#888', sellPrice: 0 },
+    'blue':    { name: 'Neon Safir',     rarityKey: 'RARITY_RARE',      color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff', sellPrice: 125 },
+    'purple':  { name: 'Hiper Pembe',    rarityKey: 'RARITY_EPIC',      color: '#ff00ff', glow: '#ff00ff', rarityColor: '#cc00ff', sellPrice: 200 },
+    'orange':  { name: 'Asit Yıldırımı',rarityKey: 'RARITY_LEGENDARY', color: '#ffff00', glow: '#ffff00', rarityColor: '#ffaa00', sellPrice: 350 },
+    'red':     { name: 'MATRIX RGB',     rarityKey: 'RARITY_MYTHIC',    color: 'rgb',     glow: 'rgb',     rarityColor: '#ff3333', sellPrice: 600 }
 };
 const CASE_PRICE = 500;
 
@@ -1241,7 +1242,8 @@ function renderLoop(timestamp) {
     if (gamePhase === 'playing') {
         if (Math.abs(renderBall.x - prevBallX) > 25) spawnParticles(renderBall.x, renderBall.y, bc, 5);
         prevBallX = renderBall.x;
-        spawnParticles(renderBall.x, renderBall.y, bc, 1);
+        renderFrameCounter++;
+        if (renderFrameCounter % 2 === 0) spawnParticles(renderBall.x, renderBall.y, bc, 1);
     }
     updateAndDrawParticles(dtFactor);
 
@@ -1848,6 +1850,26 @@ function updateInventoryUI() {
         if (count > 1) {
             const cb = document.createElement('span'); cb.style.cssText = 'font-size:10px; color:#aaa; margin-top:3px;';
             cb.innerText = `x${count}`; card.appendChild(cb);
+            
+            if (skin.sellPrice > 0) {
+                const sellBtn = document.createElement('button');
+                sellBtn.innerText = `SAT (+${skin.sellPrice} 💰)`;
+                sellBtn.className = 'neon-button';
+                sellBtn.style.cssText = 'font-size:10px; padding:4px 8px; margin-top:5px; z-index:10; border-color:#ff0; color:#ff0; text-shadow:none;';
+                sellBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if(confirm(`${skin.name} skininin bir kopyasını ${skin.sellPrice} jetona satmak istiyor musun?`)) {
+                        initAudio(); playSoundEffect('purchase');
+                        const index = user.skins.indexOf(skinId);
+                        if (index > -1) {
+                            user.skins.splice(index, 1);
+                            addCredits(skin.sellPrice);
+                            updateInventoryUI();
+                        }
+                    }
+                };
+                card.appendChild(sellBtn);
+            }
         }
         card.onclick = () => { initAudio(); playSoundEffect('paddleHit'); user.equippedSkin=skinId; saveUser(); updateInventoryUI(); };
         sec.appendChild(card);

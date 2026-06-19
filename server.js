@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// CYBER PONG — server.js  (Tam Yeniden Yazım — Tüm Bug Düzeltmeleri + Yeni Özellikler)
+// CYBER PONG — server.js  (Discord Webhook Entegreli Tam Sürüm)
 // ═══════════════════════════════════════════════════════════════════════════
+require('dotenv').config();
 const express = require('express');
 const http    = require('http');
 const fs      = require('fs');
@@ -17,6 +18,29 @@ const io     = new Server(server, {
 
 app.use(express.static(__dirname));
 
+// ─── Discord Webhook Entegrasyonu ─────────────────────────────────────────────
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+
+async function sendDiscordLog(title, message, color = 0x00ff00) {
+    if (!DISCORD_WEBHOOK_URL) return;
+    try {
+        await fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: title,
+                    description: message,
+                    color: color,
+                    timestamp: new Date().toISOString()
+                }]
+            })
+        });
+    } catch (err) {
+        console.log("Discord webhook hatası:", err.message);
+    }
+}
+
 // ─── Sabitler ────────────────────────────────────────────────────────────────
 const CANVAS_WIDTH    = 800;
 const CANVAS_HEIGHT   = 600;
@@ -29,7 +53,7 @@ const PADDLE_WIDTH    = 12;
 const BALL_RADIUS     = 8;
 const SERVER_TICK_RATE = 30;
 const TICK_INTERVAL    = 1000 / SERVER_TICK_RATE;
-const REMATCH_WINDOW   = 45000; // Oyun bitişinden sonra rövanş için 45 saniye
+const REMATCH_WINDOW   = 45000;
 
 // ─── Sunucu Durumu ────────────────────────────────────────────────────────────
 let waitingPlayer = null;
@@ -37,6 +61,7 @@ let rooms         = {};
 let roomCounter   = 0;
 let privateRooms  = {};
 let singleplayerSessions = {};
+let socketRoomMap = {}; 
 
 // ─── Liderlik Tablosu ─────────────────────────────────────────────────────────
 const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
@@ -84,13 +109,9 @@ function generateRoomCode() {
 }
 
 function findRoomBySocketId(socketId) {
-    for (const rn in rooms) {
-        if (rooms[rn].players && rooms[rn].players[socketId]) return rn;
-    }
-    return null;
+    return socketRoomMap[socketId] || null;
 }
 
-// FIX: _rematchTimeout'u da temizle
 function cleanupRoom(roomName) {
     const room = rooms[roomName];
     if (!room) return;
@@ -99,6 +120,9 @@ function cleanupRoom(roomName) {
     if (room._arenaEventTimeout) { clearTimeout(room._arenaEventTimeout); room._arenaEventTimeout = null; }
     for (const code in privateRooms) {
         if (privateRooms[code] === roomName) { delete privateRooms[code]; break; }
+    }
+    for (const pid in room.players) {
+        delete socketRoomMap[pid];
     }
     delete rooms[roomName];
 }
@@ -120,7 +144,7 @@ function createRoomState() {
         _arenaEventTimeout: null,
         status: 'waiting',
         frameCount: 0,
-        arenaEvent: null   // Aktif arena olayı: null | 'speedSurge' | 'ballFrenzy'
+        arenaEvent: null   
     };
 }
 
@@ -142,9 +166,10 @@ function resetBall(room) {
 // ─── Maç Başlatma ─────────────────────────────────────────────────────────────
 function initMatch(roomName, socket1, profile1, socket2, profile2) {
     const room = rooms[roomName];
+    // Profilleri odaya ekledik ki maç sonunda Discord loguna isimleri düşsün
     room.players = {
-        [socket1.id]: { y: 250, side: 'left',  score: 0, lastY: 250, paddleGrowUntil: 0 },
-        [socket2.id]: { y: 250, side: 'right', score: 0, lastY: 250, paddleGrowUntil: 0 }
+        [socket1.id]: { y: 250, side: 'left',  score: 0, lastY: 250, paddleGrowUntil: 0, profile: profile1 },
+        [socket2.id]: { y: 250, side: 'right', score: 0, lastY: 250, paddleGrowUntil: 0, profile: profile2 }
     };
     room.status    = 'countdown';
     room.countdown = 3;
@@ -158,10 +183,15 @@ function initMatch(roomName, socket1, profile1, socket2, profile2) {
 
     socket1.join(roomName);
     socket2.join(roomName);
+    socketRoomMap[socket1.id] = roomName;
+    socketRoomMap[socket2.id] = roomName;
 
     io.to(socket1.id).emit('init', { side: 'left',  opponent: profile2 });
     io.to(socket2.id).emit('init', { side: 'right', opponent: profile1 });
     io.to(roomName).emit('countdownUpdate', room.countdown);
+
+    // Discord Log: Maç başladı
+    sendDiscordLog("⚔️ Siber Arena Eşleşmesi!", `**${profile1.name}** ve **${profile2.name}** karşı karşıya geliyor. Maç başlıyor!`, 0x00ffff);
 
     startGameLoop(roomName);
 }
@@ -171,7 +201,6 @@ function startGameLoop(roomName) {
     const room = rooms[roomName];
     if (!room) return;
 
-    // FIX #1: Mevcut interval'ı temizle — çift döngü oluşmasını engelle
     if (room.interval) {
         clearInterval(room.interval);
         room.interval = null;
@@ -182,19 +211,16 @@ function startGameLoop(roomName) {
 
         room.frameCount++;
 
-        // ── Geri Sayım ────────────────────────────────────────────────────────
         if (room.status === 'countdown') {
-            // Her 1 saniyede bir (SERVER_TICK_RATE kare) azalt
             if (room.frameCount % SERVER_TICK_RATE === 0) {
                 room.countdown--;
                 io.to(roomName).emit('countdownUpdate', room.countdown);
                 if (room.countdown <= 0) {
                     room.status  = 'playing';
-                    room.frameCount = 0; // Oyun başlayınca sıfırla
+                    room.frameCount = 0; 
                     io.to(roomName).emit('startGame');
                 }
             }
-            // Sayım sırasında da oyuncular görünsün diye state gönder
             sendRoomState(roomName);
             return;
         }
@@ -208,28 +234,26 @@ function startGameLoop(roomName) {
         const p1 = room.players[playerIds[0]]; // left
         const p2 = room.players[playerIds[1]]; // right
 
-        // Aktif raket yüksekliği (Power-up etkisi)
         const now = Date.now();
         const p1Height = (p1.paddleGrowUntil && p1.paddleGrowUntil > now) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
         const p2Height = (p2.paddleGrowUntil && p2.paddleGrowUntil > now) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
 
-        // ── Power-up Üretimi (Her 12 saniyede bir %70 ihtimalle) ──────────────
+        // Power-up Üretimi
         if (!room.powerup.active && room.frameCount % 360 === 0 && Math.random() < 0.7) {
             room.powerup.x    = Math.random() * (CANVAS_WIDTH - 300) + 150;
             room.powerup.y    = Math.random() * (CANVAS_HEIGHT - 150) + 75;
-            room.powerup.type = Math.random() < 0.5 ? 0 : 1; // 0: Genişlet, 1: Hızlandır
+            room.powerup.type = Math.random() < 0.5 ? 0 : 1; 
             room.powerup.active = true;
             io.to(roomName).emit('powerupSpawned', { x: room.powerup.x, y: room.powerup.y, type: room.powerup.type });
         }
 
-        // ── Arena Olayları (Her 20 saniyede bir %40 ihtimalle) ─────────────────
+        // Arena Olayları
         if (room.frameCount % 600 === 0 && !room.arenaEvent && Math.random() < 0.4) {
             const events = ['speedSurge', 'mirrorBall', 'gravityFlip'];
             const evt    = events[Math.floor(Math.random() * events.length)];
             room.arenaEvent = evt;
             io.to(roomName).emit('arenaEvent', { type: evt });
 
-            // Olay 5 saniye sonra biter
             room._arenaEventTimeout = setTimeout(() => {
                 if (rooms[roomName]) {
                     rooms[roomName].arenaEvent = null;
@@ -238,7 +262,7 @@ function startGameLoop(roomName) {
             }, 5000);
         }
 
-        // ── Top Hareketi ──────────────────────────────────────────────────────
+        // Top Hareketi
         const arenaSpeedMul = room.arenaEvent === 'speedSurge' ? 1.5 : 1.0;
         const speedMul      = (ball.currentSpeed / BASE_SPEED) * arenaSpeedMul;
         const stepsPerTick  = 60 / SERVER_TICK_RATE;
@@ -247,27 +271,25 @@ function startGameLoop(roomName) {
             ball.x += ball.dx * speedMul;
             ball.y += ball.dy * speedMul;
 
-            // GravityFlip olayında top yukarı çekilir
             if (room.arenaEvent === 'gravityFlip') {
                 ball.y -= 0.15;
             }
         }
 
-        // ── Duvar Çarpışması ──────────────────────────────────────────────────
+        // Duvar Çarpışması
         if (ball.y - BALL_RADIUS <= 0 || ball.y + BALL_RADIUS >= CANVAS_HEIGHT) {
             ball.dy *= -1;
             ball.y   = (ball.y - BALL_RADIUS <= 0) ? BALL_RADIUS : CANVAS_HEIGHT - BALL_RADIUS;
             io.to(roomName).emit('playSound', { type: 'wallHit', shake: false });
         }
 
-        // ── MirrorBall: Sağ/sol duvar da çarpar (top arenada döner) ──────────
         if (room.arenaEvent === 'mirrorBall') {
             if (ball.x - BALL_RADIUS <= 30 || ball.x + BALL_RADIUS >= CANVAS_WIDTH - 30) {
                 ball.dx *= -1;
             }
         }
 
-        // ── Sol Raket Çarpışması ──────────────────────────────────────────────
+        // Sol Raket
         const leftEdge = 20 + PADDLE_WIDTH;
         if (ball.x - BALL_RADIUS <= leftEdge && ball.x + BALL_RADIUS >= 20 &&
             ball.y >= p1.y && ball.y <= p1.y + p1Height) {
@@ -285,7 +307,7 @@ function startGameLoop(roomName) {
             }
         }
 
-        // ── Sağ Raket Çarpışması ──────────────────────────────────────────────
+        // Sağ Raket
         const rightEdge = CANVAS_WIDTH - 30;
         if (ball.x + BALL_RADIUS >= rightEdge && ball.x - BALL_RADIUS <= rightEdge + PADDLE_WIDTH &&
             ball.y >= p2.y && ball.y <= p2.y + p2Height) {
@@ -303,7 +325,7 @@ function startGameLoop(roomName) {
             }
         }
 
-        // ── Power-up Çarpışması ───────────────────────────────────────────────
+        // Power-up
         if (room.powerup.active) {
             const dx = ball.x - room.powerup.x;
             const dy = ball.y - room.powerup.y;
@@ -312,11 +334,9 @@ function startGameLoop(roomName) {
                 const targetSide    = ball.lastHit || (ball.dx > 0 ? 'left' : 'right');
 
                 if (room.powerup.type === 0) {
-                    // Raket Genişletme (8 sn)
                     if (targetSide === 'left')  p1.paddleGrowUntil = now + 8000;
                     else                        p2.paddleGrowUntil = now + 8000;
                 } else {
-                    // Hız artışı
                     ball.currentSpeed = Math.min(ball.currentSpeed + 3.5, MAX_SPEED);
                 }
                 io.to(roomName).emit('powerupActivated', { type: room.powerup.type, side: targetSide });
@@ -324,10 +344,10 @@ function startGameLoop(roomName) {
             }
         }
 
-        // ── Skor Kontrolü ─────────────────────────────────────────────────────
+        // Skor
         let scored    = false;
         let scoringSide = null;
-        if (ball.x < 0)              { p2.score++; scored = true; scoringSide = 'right'; }
+        if (ball.x < 0)                 { p2.score++; scored = true; scoringSide = 'right'; }
         else if (ball.x > CANVAS_WIDTH) { p1.score++; scored = true; scoringSide = 'left'; }
 
         if (scored) {
@@ -335,9 +355,23 @@ function startGameLoop(roomName) {
             io.to(roomName).emit('scored', { side: scoringSide, left: p1.score, right: p2.score });
 
             if (p1.score >= MAX_SCORE || p2.score >= MAX_SCORE) {
-                // ── Oyun Bitti ────────────────────────────────────────────────
+                // Oyun Bitti
                 room.status = 'gameOver';
                 const winnerSide = p1.score >= MAX_SCORE ? 'left' : 'right';
+
+                // Discord Log: Maç Bitişi
+                const p1Profile = room.players[playerIds[0]].profile || {name: "Sol Oyuncu"};
+                const p2Profile = room.players[playerIds[1]].profile || {name: "Sağ Oyuncu"};
+                const winnerName = winnerSide === 'left' ? p1Profile.name : p2Profile.name;
+                const loserName = winnerSide === 'left' ? p2Profile.name : p1Profile.name;
+                const winScore = winnerSide === 'left' ? p1.score : p2.score;
+                const loseScore = winnerSide === 'left' ? p2.score : p1.score;
+
+                sendDiscordLog(
+                    "🏆 Maç Sona Erdi!", 
+                    `**${winnerName}** (${winScore}) rakibi **${loserName}** (${loseScore}) oyuncusunu mağlup etti!`, 
+                    0x00ff00
+                );
 
                 playerIds.forEach(pid => {
                     const player = room.players[pid];
@@ -357,17 +391,15 @@ function startGameLoop(roomName) {
                 clearInterval(room.interval);
                 room.interval = null;
 
-                // FIX #2: Oda otomatik temizleme için REMATCH_WINDOW sonra sil
                 room._rematchTimeout = setTimeout(() => {
                     if (rooms[roomName] && rooms[roomName].status === 'gameOver') {
-                        console.log(`Rövanş bekleme süresi doldu, oda temizleniyor: ${roomName}`);
                         cleanupRoom(roomName);
                     }
                 }, REMATCH_WINDOW);
 
                 return;
             } else {
-                room.arenaEvent = null; // Skorda arena olayını sıfırla
+                room.arenaEvent = null; 
                 resetBall(room);
             }
         }
@@ -376,7 +408,6 @@ function startGameLoop(roomName) {
     }, TICK_INTERVAL);
 }
 
-// State broadcast yardımcı fonksiyonu (döngüyü temiz tutar)
 function sendRoomState(roomName) {
     const room = rooms[roomName];
     if (!room) return;
@@ -396,7 +427,6 @@ function sendRoomState(roomName) {
             Math.round(ball.currentSpeed * 100) / 100,
             ball.lastHit === 'left' ? 0 : ball.lastHit === 'right' ? 1 : 2
         ],
-        // FIX #3: p1=[y, score, grow], p2=[y, score, grow] — 6 element
         p: [
             Math.round(p1.y), p1.score, (p1.paddleGrowUntil > now ? 1 : 0),
             Math.round(p2.y), p2.score, (p2.paddleGrowUntil > now ? 1 : 0)
@@ -416,9 +446,7 @@ function sendRoomState(roomName) {
 
 // ─── Socket.io Bağlantıları ───────────────────────────────────────────────────
 io.on('connection', (socket) => {
-    console.log('Bağlandı:', socket.id);
-
-    // ── Eşleşme Kuyruğu ──────────────────────────────────────────────────────
+    
     socket.on('joinMatchmaking', (profile) => {
         if (!profile || !profile.name) return;
         if (findRoomBySocketId(socket.id)) return;
@@ -439,7 +467,6 @@ io.on('connection', (socket) => {
         if (waitingPlayer && waitingPlayer.socket.id === socket.id) waitingPlayer = null;
     });
 
-    // ── Özel Oda ─────────────────────────────────────────────────────────────
     socket.on('createPrivateRoom', (profile) => {
         if (!profile || !profile.name) return;
         if (findRoomBySocketId(socket.id)) return;
@@ -480,7 +507,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Hareket ──────────────────────────────────────────────────────────────
     socket.on('move', (data) => {
         if (typeof data.y !== 'number' || isNaN(data.y)) return;
         const roomName = findRoomBySocketId(socket.id);
@@ -491,7 +517,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Emote ─────────────────────────────────────────────────────────────────
     socket.on('sendEmote', (emote) => {
         const ALLOWED_EMOTES = ['🔥','😎','💀','⚡','👍','😂','🎯','💥'];
         if (!ALLOWED_EMOTES.includes(emote)) return;
@@ -505,13 +530,11 @@ io.on('connection', (socket) => {
         }
     });
 
-    // ── Rövanş ────────────────────────────────────────────────────────────────
     socket.on('requestRematch', () => {
         const roomName = findRoomBySocketId(socket.id);
         if (!roomName || !rooms[roomName]) return;
         const room = rooms[roomName];
 
-        // FIX #4: Yalnızca 'gameOver' durumunda rövanş kabul et
         if (room.status !== 'gameOver') return;
 
         room.rematchRequests[socket.id] = true;
@@ -519,9 +542,6 @@ io.on('connection', (socket) => {
         const opponentId = playerIds.find(id => id !== socket.id);
 
         if (opponentId && room.rematchRequests[opponentId]) {
-            // İki oyuncu da kabul etti
-
-            // Bekleme timeout'unu temizle
             if (room._rematchTimeout) { clearTimeout(room._rematchTimeout); room._rematchTimeout = null; }
 
             room.rematchRequests = {};
@@ -542,15 +562,29 @@ io.on('connection', (socket) => {
             io.to(roomName).emit('rematchStarted');
             io.to(roomName).emit('countdownUpdate', room.countdown);
 
-            // FIX #5: startGameLoop çağırılmıyordu — donmanın asıl sebebi BU
             startGameLoop(roomName);
-
         } else if (opponentId) {
             io.to(opponentId).emit('opponentRequestedRematch');
         }
     });
 
-    // ── Singleplayer ─────────────────────────────────────────────────────────
+    socket.on('declineRematch', () => {
+        const roomName = findRoomBySocketId(socket.id);
+        if (!roomName) return;
+        const room = rooms[roomName];
+        if (!room || room.status !== 'gameOver') return;
+
+        let opponentId = null;
+        for (const pid in room.players) {
+            if (pid !== socket.id) opponentId = pid;
+        }
+
+        if (opponentId) {
+            io.to(opponentId).emit('rematchDeclined');
+        }
+        cleanupRoom(roomName);
+    });
+
     socket.on('startSingleplayer', (difficulty) => {
         singleplayerSessions[socket.id] = { startTime: Date.now(), difficulty };
     });
@@ -575,7 +609,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // ── Leaderboard & Chat ────────────────────────────────────────────────────
     socket.on('reportStats', (data) => {
         if (!data || !data.name || typeof data.xp !== 'number') return;
         updateLeaderboard(data.name, data.xp, data.level || 1);
@@ -591,21 +624,19 @@ io.on('connection', (socket) => {
         chatHistory.push(msgObj);
         if (chatHistory.length > 50) chatHistory.shift();
         io.emit('receiveGlobalMessage', msgObj);
+
+        // Discord Log: Global Chat mesajları
+        sendDiscordLog("💬 Global Chat", `**[${data.title || 'Oyuncu'}] ${data.name}:** ${msgStr}`, 0x888888);
     });
 
     socket.on('getChatHistory', () => socket.emit('chatHistory', chatHistory));
 
-    // ── Ping Ölçümü ──────────────────────────────────────────────────────────
     socket.on('ping_check', (ts) => { socket.emit('pong_check', ts); });
 
-    // ── Bağlantı Koptu ────────────────────────────────────────────────────────
     socket.on('disconnect', () => {
-        console.log('Ayrıldı:', socket.id);
-
         if (waitingPlayer && waitingPlayer.socket.id === socket.id) waitingPlayer = null;
         delete singleplayerSessions[socket.id];
 
-        // Özel oda ev sahibi ayrıldıysa odayı temizle
         for (const code in privateRooms) {
             const rn   = privateRooms[code];
             const room = rooms[rn];
@@ -617,11 +648,9 @@ io.on('connection', (socket) => {
         const roomName = findRoomBySocketId(socket.id);
         if (roomName && rooms[roomName]) {
             const room = rooms[roomName];
-            // FIX #6: Oyun bitmiş durumdaysa 'opponentLeft' yerine 'rematchUnavailable' gönder
             if (room.status === 'gameOver') {
                 io.to(roomName).emit('rematchUnavailable');
             } else {
-                // Aktif maçta ayrılma
                 io.to(roomName).emit('opponentLeft');
             }
             cleanupRoom(roomName);
@@ -633,4 +662,6 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`⚡ Cyber Pong Sunucusu Aktif: http://localhost:${PORT}`);
+    // Discord Log: Sunucu Başlatıldı
+    sendDiscordLog("🚀 Sunucu Başlatıldı", `Cyber Pong sunucusu port ${PORT} üzerinde aktif hale geldi. Sistem çevrimiçi!`, 0xffaa00);
 });
