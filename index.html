@@ -344,6 +344,125 @@
             100% { transform: scale(1) rotate(0deg); }
         }
         .case-spin-anim { animation: caseSpin 0.8s cubic-bezier(0.25,1,0.5,1); }
+
+        /* ─── Yetenek HUD ──────────────────────────────────────────────── */
+        #abilityHUD {
+            position: absolute;
+            bottom: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            z-index: 20;
+            pointer-events: auto;
+        }
+        .ab-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .ab-key {
+            font-size: 0.55rem;
+            color: #555;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        .ab-btn {
+            width: 64px; height: 64px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.75);
+            border: 2px solid #333;
+            color: #666;
+            font-size: 0.58rem;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 3px;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .ab-btn .ab-icon  { font-size: 1.4rem; line-height: 1; }
+        .ab-btn .ab-label { font-size: 0.5rem; color: #888; text-align: center; line-height: 1.2; }
+        .ab-btn .ab-cost  { font-size: 0.6rem; font-weight: 700; }
+
+        .ab-btn.ab-shield { border-color: #0ff; color: #0ff; box-shadow: 0 0 10px rgba(0,255,255,0.25); }
+        .ab-btn.ab-shield:hover { box-shadow: 0 0 22px rgba(0,255,255,0.5); transform: scale(1.06); }
+        .ab-btn.ab-chrono { border-color: #a0f; color: #a0f; box-shadow: 0 0 10px rgba(170,0,255,0.25); }
+        .ab-btn.ab-chrono:hover { box-shadow: 0 0 22px rgba(170,0,255,0.5); transform: scale(1.06); }
+        .ab-btn.ab-glitch { border-color: #f50; color: #f50; box-shadow: 0 0 10px rgba(255,80,0,0.25); }
+        .ab-btn.ab-glitch:hover { box-shadow: 0 0 22px rgba(255,80,0,0.5); transform: scale(1.06); }
+
+        .ab-btn.ab-active.ab-shield { animation: abilityPulse 0.4s ease-in-out infinite alternate; border-color: #0ff; box-shadow: 0 0 30px #0ff; }
+        .ab-btn.ab-active.ab-chrono { animation: abilityPulse 0.4s ease-in-out infinite alternate; border-color: #a0f; box-shadow: 0 0 30px #a0f; }
+        .ab-btn.ab-active.ab-glitch { animation: abilityPulse 0.4s ease-in-out infinite alternate; border-color: #f50; box-shadow: 0 0 30px #f50; }
+
+        .ab-btn.ab-cooldown { border-color: #333 !important; color: #444 !important; box-shadow: none !important; cursor: not-allowed; }
+        .ab-btn.ab-insufficient { opacity: 0.45; cursor: not-allowed; }
+
+        /* Cooldown sweep overlay */
+        .ab-cd-sweep {
+            position: absolute; inset: 0;
+            background: conic-gradient(rgba(0,0,0,0.7) var(--pct), transparent var(--pct));
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        .ab-cd-label {
+            position: absolute; bottom: 4px; right: 5px;
+            font-size: 0.55rem; color: #aaa;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Maç Kredisi */
+        #matchCreditDisplay {
+            position: absolute;
+            top: 8px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #ff0;
+            text-shadow: 0 0 6px #ff0;
+            font-family: 'Orbitron', sans-serif;
+            z-index: 20;
+            pointer-events: none;
+            letter-spacing: 1px;
+        }
+
+        /* Yetenek Banner */
+        #abilityBanner {
+            position: absolute;
+            top: 48px; left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 18px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            z-index: 18;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s;
+            white-space: nowrap;
+        }
+        #abilityBanner.show { opacity: 1; }
+
+        @keyframes abilityPulse {
+            from { transform: scale(1);    filter: brightness(1); }
+            to   { transform: scale(1.04); filter: brightness(1.3); }
+        }
+        @keyframes glitchScan {
+            0%   { transform: translateY(-100%); opacity: 0.15; }
+            100% { transform: translateY(100vh); opacity: 0.05; }
+        }
+        @keyframes glitchShift {
+            0%,100% { clip-path: inset(0 0 98% 0); transform: translateX(0); }
+            10%  { clip-path: inset(10% 0 85% 0); transform: translateX(-4px); }
+            30%  { clip-path: inset(40% 0 50% 0); transform: translateX(4px); }
+            50%  { clip-path: inset(70% 0 20% 0); transform: translateX(-3px); }
+            70%  { clip-path: inset(90% 0 5%  0); transform: translateX(2px); }
+        }
     </style>
 </head>
 
@@ -490,7 +609,13 @@
         <canvas id="gameCanvas" width="800" height="600"></canvas>
 
         <!-- Ping Göstergesi -->
-        <div id="pingDisplay">⬤ --ms</div>
+        <div id="pingDisplay">⧤ --ms</div>
+
+        <!-- Maç Kredisi (oyun sırasında görünür) -->
+        <div id="matchCreditDisplay" class="hidden">⚡ 0 KREDİ</div>
+
+        <!-- Yetenek Banner (kısa bildirim) -->
+        <div id="abilityBanner"></div>
 
         <!-- Emote Paneli -->
         <div id="emotePanel" class="hidden">
@@ -502,6 +627,40 @@
             <button class="emote-btn" data-emote="😂" title="Gülüş">😂</button>
             <button class="emote-btn" data-emote="🎯" title="Hedef">🎯</button>
             <button class="emote-btn" data-emote="💥" title="Patlama">💥</button>
+        </div>
+
+        <!-- Yetenek HUD (oyun sırasında görünür) -->
+        <div id="abilityHUD" class="hidden">
+            <div class="ab-slot">
+                <div class="ab-key">[ 1 ]</div>
+                <button id="abBtn1" class="ab-btn ab-shield" data-ability="cyber_shield">
+                    <span class="ab-icon">🛡️</span>
+                    <span class="ab-label">CYBER SHIELD</span>
+                    <span class="ab-cost" style="color:#0ff;">40 ⚡</span>
+                    <div class="ab-cd-sweep" id="abSweep1" style="--pct:0%"></div>
+                    <span class="ab-cd-label" id="abCdLabel1"></span>
+                </button>
+            </div>
+            <div class="ab-slot">
+                <div class="ab-key">[ 2 ]</div>
+                <button id="abBtn2" class="ab-btn ab-chrono" data-ability="chrono_pulse">
+                    <span class="ab-icon">⏱️</span>
+                    <span class="ab-label">CHRONO PULSE</span>
+                    <span class="ab-cost" style="color:#a0f;">60 ⚡</span>
+                    <div class="ab-cd-sweep" id="abSweep2" style="--pct:0%"></div>
+                    <span class="ab-cd-label" id="abCdLabel2"></span>
+                </button>
+            </div>
+            <div class="ab-slot">
+                <div class="ab-key">[ 3 ]</div>
+                <button id="abBtn3" class="ab-btn ab-glitch" data-ability="data_glitch">
+                    <span class="ab-icon">🌀</span>
+                    <span class="ab-label">DATA GLITCH</span>
+                    <span class="ab-cost" style="color:#f50;">35 ⚡</span>
+                    <div class="ab-cd-sweep" id="abSweep3" style="--pct:0%"></div>
+                    <span class="ab-cd-label" id="abCdLabel3"></span>
+                </button>
+            </div>
         </div>
 
         <!-- Bağlantı Mesajı -->
@@ -610,7 +769,21 @@ let renderFrameCounter = 0;
 let particles = [];
 let gridImageCache = null;
 
-// Görsel efektler
+// ─── Yetenek / Ekonomi State ────────────────────────────────────────────────
+let matchCredits = 0;
+let myAbilities  = {
+    cyber_shield: { active: false, cd: 0 },
+    chrono_pulse: { active: false, cd: 0 },
+    data_glitch:  { active: false, cd: 0 }
+};
+let oppAbilities = {
+    cyber_shield: { active: false },
+    chrono_pulse: { active: false }
+};
+let activeChronoSide = null;
+let dataGlitchEffectUntil = 0; // Kendi ekranımızda glitch varsa bitiş zamanı
+
+// ─── Visual Effects & Ping ────────────────────────────────────────────────
 let floatingEmotes = [];   // [{text, x, y, startTime}]
 let scoreFlashes   = { left: null, right: null }; // {time, side}
 let prevLeftScore  = 0;
@@ -977,24 +1150,80 @@ function drawGrid() {
     ctx.drawImage(gridImageCache, 0, 0);
 }
 
-// ─── Power-up Çizimi ──────────────────────────────────────────────────────
-function drawPowerup() {
-    if (!clientPowerup.active) return;
-    const now    = Date.now();
-    const pulse  = Math.sin(now / 200) * 0.3 + 0.7; // 0.4 – 1.0
-    const radius = 20 * pulse;
-    const color  = clientPowerup.type === 0 ? '#0f0' : '#0ff';
-    const icon   = clientPowerup.type === 0 ? '🛡' : '⚡';
+// ─── Yetenek Çizimleri ────────────────────────────────────────────────────
 
+function drawChronoPulseZone() {
+    if (!activeChronoSide) return;
+    const now = Date.now();
     ctx.save();
-    ctx.shadowBlur  = 25 * pulse; ctx.shadowColor = color;
-    ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.globalAlpha = pulse;
-    ctx.beginPath(); ctx.arc(clientPowerup.x, clientPowerup.y, radius, 0, Math.PI*2); ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.font        = '20px serif';
-    ctx.textAlign   = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(icon, clientPowerup.x, clientPowerup.y);
+    // Dalgalanan saydamlık
+    const alpha = 0.08 + Math.sin(now / 150) * 0.04;
+    ctx.fillStyle = `rgba(170, 0, 255, ${alpha})`;
+    if (activeChronoSide === 'left') {
+        ctx.fillRect(0, 0, 400, 600);
+        // Sınır çizgisi
+        ctx.strokeStyle = 'rgba(170, 0, 255, 0.4)';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(400, 0); ctx.lineTo(400, 600); ctx.stroke();
+    } else {
+        ctx.fillRect(400, 0, 400, 600);
+        // Sınır çizgisi
+        ctx.strokeStyle = 'rgba(170, 0, 255, 0.4)';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(400, 0); ctx.lineTo(400, 600); ctx.stroke();
+    }
+    // Hex arka plan deseni (hafif)
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = `rgba(170, 0, 255, ${alpha * 1.5})`;
+    ctx.font = '80px Orbitron';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('⏱', activeChronoSide === 'left' ? 200 : 600, 300);
+    ctx.restore();
+}
+
+function drawAbilityAura(x, y, height, colorGlow) {
+    const now = Date.now();
+    const pulse = Math.abs(Math.sin(now / 100));
+    ctx.save();
+    ctx.shadowBlur = 20 + (10 * pulse);
+    ctx.shadowColor = colorGlow;
+    ctx.strokeStyle = colorGlow;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(x - 4, y - 4, 20, height + 8, 5);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawDataGlitch() {
+    if (Date.now() > dataGlitchEffectUntil) return;
+    
+    // Canvas üzerine glitch efekti çizimi
+    ctx.save();
+    // Renk kanalı kaydırma simülasyonu
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillRect(Math.random() * 10 - 5, 0, 800, 600);
+    
+    ctx.fillStyle = 'rgba(0, 255, 255, 0.15)';
+    ctx.fillRect(Math.random() * -10 + 5, 0, 800, 600);
+    
+    // Tarama çizgileri (scanlines)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.globalCompositeOperation = 'source-over';
+    for(let i = 0; i < 600; i += 4) {
+        if(Math.random() > 0.3) ctx.fillRect(0, i, 800, 2);
+    }
+    
+    // Rastgele bloklar
+    if(Math.random() > 0.5) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        const bx = Math.random() * 800;
+        const by = Math.random() * 600;
+        const bw = Math.random() * 150 + 50;
+        const bh = Math.random() * 30 + 10;
+        ctx.fillRect(bx, by, bw, bh);
+    }
     ctx.restore();
 }
 
@@ -1247,8 +1476,26 @@ function renderLoop(timestamp) {
     }
     updateAndDrawParticles(dtFactor);
 
-    // Power-up
-    drawPowerup();
+    // Chrono Pulse Alanı
+    drawChronoPulseZone();
+
+    // Raketler
+    const p1H = (serverPlayers.left.grow  === 1) ? 125 : 100; // Cyber shield = 125
+    const p2H = (serverPlayers.right.grow === 1) ? 125 : 100;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = lg; ctx.fillStyle = lc;
+    ctx.beginPath(); ctx.roundRect(20,  renderPlayers.left.y,  12, p1H, 3); ctx.fill();
+    ctx.shadowColor = rg; ctx.fillStyle = rc;
+    ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 12, p2H, 3); ctx.fill();
+
+    // Yetenek Auraları
+    if (mySide === 'left') {
+        if (myAbilities.cyber_shield.active) drawAbilityAura(20, renderPlayers.left.y, p1H, '#0ff');
+        if (oppAbilities.cyber_shield.active) drawAbilityAura(770, renderPlayers.right.y, p2H, '#0ff');
+    } else {
+        if (oppAbilities.cyber_shield.active) drawAbilityAura(20, renderPlayers.left.y, p1H, '#0ff');
+        if (myAbilities.cyber_shield.active) drawAbilityAura(770, renderPlayers.right.y, p2H, '#0ff');
+    }
 
     // Top
     if (gamePhase === 'playing') {
@@ -1257,14 +1504,8 @@ function renderLoop(timestamp) {
         ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI*2); ctx.fill();
     }
 
-    // Raketler
-    const p1H = (serverPlayers.left.grow  === 1) ? 150 : 100;
-    const p2H = (serverPlayers.right.grow === 1) ? 150 : 100;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = lg; ctx.fillStyle = lc;
-    ctx.beginPath(); ctx.roundRect(20,  renderPlayers.left.y,  12, p1H, 3); ctx.fill();
-    ctx.shadowColor = rg; ctx.fillStyle = rc;
-    ctx.beginPath(); ctx.roundRect(770, renderPlayers.right.y, 12, p2H, 3); ctx.fill();
+    // Data Glitch Efekti (En üstte çizilir)
+    drawDataGlitch();
 
     // Skorlar
     ctx.shadowBlur = 10; ctx.font = '60px Orbitron';
@@ -1288,12 +1529,56 @@ function renderLoop(timestamp) {
     // Sayım (countdown fazında büyük rakam)
     if (gamePhase === 'countdown') drawCountdown();
 
-    // Skor flash + emote + HUD
+    // Skor flash + emote + HUD + Yetenek UI
     drawScoreFlashes();
     drawFloatingEmotes(dtFactor);
     drawHUD();
+    updateAbilityUI();
 
     requestAnimationFrame(renderLoop);
+}
+
+// ─── Yetenek UI Güncellemesi ──────────────────────────────────────────────
+function updateAbilityUI() {
+    if (gamePhase !== 'playing' || isSingleplayer) return;
+    
+    // Kredi
+    document.getElementById('matchCreditDisplay').innerText = `⚡ ${matchCredits} KREDİ`;
+    
+    const defs = [
+        { id: 'cyber_shield', btn: 'abBtn1', cdMax: 8000, cdId: 'abSweep1', lblId: 'abCdLabel1', cost: 40 },
+        { id: 'chrono_pulse', btn: 'abBtn2', cdMax: 10000, cdId: 'abSweep2', lblId: 'abCdLabel2', cost: 60 },
+        { id: 'data_glitch',  btn: 'abBtn3', cdMax: 6000, cdId: 'abSweep3', lblId: 'abCdLabel3', cost: 35 }
+    ];
+
+    defs.forEach(def => {
+        const btn = document.getElementById(def.btn);
+        const sweep = document.getElementById(def.cdId);
+        const lbl = document.getElementById(def.lblId);
+        
+        const state = myAbilities[def.id];
+        
+        // Active durum class'ı
+        if (state.active) btn.classList.add('ab-active');
+        else btn.classList.remove('ab-active');
+        
+        // Cooldown durum
+        if (state.cd > 0) {
+            btn.classList.add('ab-cooldown');
+            btn.classList.remove('ab-insufficient');
+            const pct = (state.cd / def.cdMax) * 100;
+            sweep.style.setProperty('--pct', `${pct}%`);
+            lbl.innerText = (state.cd / 1000).toFixed(1) + 's';
+        } else {
+            btn.classList.remove('ab-cooldown');
+            sweep.style.setProperty('--pct', `0%`);
+            lbl.innerText = '';
+            
+            // Kredi yetersizse soluk yap
+            if (matchCredits < def.cost) btn.classList.add('ab-insufficient');
+            else btn.classList.remove('ab-insufficient');
+        }
+    });
 }
 
 // ─── Render döngüsünü başlat ──────────────────────────────────────────────
@@ -1312,7 +1597,13 @@ function resetGameState() {
     predictedBall = { x:400, y:300, dx:0, dy:0 };
     renderOffset  = { x:0, y:0 };
     renderPlayers = { left: { y:250 }, right: { y:250 } };
-    clientPowerup = { active:false, x:0, y:0, type:0 };
+    
+    matchCredits = 0;
+    myAbilities  = { cyber_shield: { active: false, cd: 0 }, chrono_pulse: { active: false, cd: 0 }, data_glitch:  { active: false, cd: 0 } };
+    oppAbilities = { cyber_shield: { active: false }, chrono_pulse: { active: false } };
+    activeChronoSide = null;
+    dataGlitchEffectUntil = 0;
+
     particles     = [];
     floatingEmotes = [];
     scoreFlashes  = { left:null, right:null };
@@ -1337,7 +1628,13 @@ socket.on('init', (data) => {
     showScreen('gameScreen');
     ui.classList.add('hidden');
     canvas.style.display = 'block';
-    document.getElementById('emotePanel').classList.remove('hidden');
+    
+    if (!isSingleplayer) {
+        document.getElementById('emotePanel').classList.remove('hidden');
+        document.getElementById('abilityHUD').classList.remove('hidden');
+        document.getElementById('matchCreditDisplay').classList.remove('hidden');
+    }
+    
     document.getElementById('endGameOverlay').classList.add('hidden');
     startRenderLoop();
 });
@@ -1388,11 +1685,20 @@ socket.on('gs', (s) => {
     serverPlayers.right.score= s.p[4];  // ← ÖNCEDEN s.p[3] YANLIŞTI
     serverPlayers.right.grow = s.p[5];
 
-    // Power-up durumu
-    clientPowerup.active = s.pw[0] === 1;
-    clientPowerup.x      = s.pw[1];
-    clientPowerup.y      = s.pw[2];
-    clientPowerup.type   = s.pw[3];
+    // Yetenek durumu
+    if (s.ab) {
+        myAbilities.cyber_shield.active = s.ab.my.shield_active;
+        myAbilities.chrono_pulse.active = s.ab.my.chrono_active;
+        myAbilities.data_glitch.active  = s.ab.my.glitch_active;
+        myAbilities.cyber_shield.cd     = s.ab.my.shield_cd;
+        myAbilities.chrono_pulse.cd     = s.ab.my.chrono_cd;
+        myAbilities.data_glitch.cd      = s.ab.my.glitch_cd;
+        
+        oppAbilities.cyber_shield.active= s.ab.opp.shield_active;
+        oppAbilities.chrono_pulse.active= s.ab.opp.chrono_active;
+        
+        activeChronoSide = s.ab.chrono_side;
+    }
 
     // Arena olayı
     if (s.ae !== undefined) currentArenaEvent = s.ae;
@@ -1426,12 +1732,28 @@ socket.on('playSound', (data) => {
     if (data.shake) { canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake'); }
 });
 
-socket.on('powerupSpawned', (data) => {
-    clientPowerup = { active: true, x: data.x, y: data.y, type: data.type };
+// ─── Yetenek Socket Olayları ──────────────────────────────────────────────
+socket.on('credits_update', (data) => {
+    matchCredits = data.credits;
 });
-socket.on('powerupActivated', (data) => {
-    clientPowerup.active = false;
-    playSoundEffect('powerup');
+
+socket.on('ability_activated', (data) => {
+    playSoundEffect('powerup'); // Veya yeni ses: playSoundEffect('abilityActivated');
+    
+    // Sadece opponent tarafındaki Data Glitch ekranı etkiler
+    if (data.type === 'data_glitch' && data.side !== mySide) {
+        dataGlitchEffectUntil = Date.now() + data.duration;
+    }
+});
+
+socket.on('ability_error', (data) => {
+    // Sadece konsola veya kısa uyarı
+    console.log("Ability Error:", data.msg);
+    const banner = document.getElementById('abilityBanner');
+    banner.innerText = data.msg;
+    banner.style.color = '#f44';
+    banner.classList.add('show');
+    setTimeout(() => { banner.classList.remove('show'); banner.style.color = ''; }, 1500);
 });
 
 // Arena olayı bildirimi
@@ -1733,8 +2055,17 @@ canvas.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Oda Sistemi
+// Oda Sistemi & Tuşlar
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Yetenek Tuşları ──────────────────────────────────────────────────────
+window.addEventListener('keydown', (e) => {
+    if (gamePhase !== 'playing' || isSingleplayer) return;
+    
+    if (e.key === '1') socket.emit('use_ability', { type: 'cyber_shield' });
+    if (e.key === '2') socket.emit('use_ability', { type: 'chrono_pulse' });
+    if (e.key === '3') socket.emit('use_ability', { type: 'data_glitch' });
+});
 
 document.getElementById('btnCreateRoom').addEventListener('click', () => {
     initAudio();

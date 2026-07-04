@@ -77,6 +77,15 @@ const SERVER_TICK_RATE = 30;
 const TICK_INTERVAL    = 1000 / SERVER_TICK_RATE;
 const REMATCH_WINDOW   = 45000;
 
+// ─── Yetenek Sabitleri ────────────────────────────────────────────────────────
+const ABILITY_DEFS = {
+    cyber_shield: { cost: 40, duration: 2500, cooldown: 8000 },
+    chrono_pulse: { cost: 60, duration: 2000, cooldown: 10000 },
+    data_glitch:  { cost: 35, duration: 1500, cooldown: 6000  }
+};
+const CREDIT_PER_HIT        = 10;
+const MIN_SPEED_FOR_CREDITS = BASE_SPEED * 0.6;
+
 // ─── Sunucu Durumu ────────────────────────────────────────────────────────────
 let waitingPlayer = null;
 let rooms         = {};
@@ -157,7 +166,6 @@ function createRoomState() {
             dx: 0, dy: 0,
             currentSpeed: BASE_SPEED, lastHit: null
         },
-        powerup: { x: 0, y: 0, type: 0, active: false },
         stats: { maxSpeed: BASE_SPEED, leftHits: 0, rightHits: 0 },
         countdown: 3,
         rematchRequests: {},
@@ -166,7 +174,11 @@ function createRoomState() {
         _arenaEventTimeout: null,
         status: 'waiting',
         frameCount: 0,
-        arenaEvent: null   
+        arenaEvent: null,
+        // Yetenek & Ekonomi
+        matchCredits: {},       // { socketId: number }
+        abilities: {},          // { socketId: { shield, chrono, glitch } each: { activeUntil, cooldownUntil } }
+        chronoZone: null        // { side: 'left'|'right', until: timestamp }
     };
 }
 
@@ -186,9 +198,16 @@ function resetBall(room) {
 }
 
 // ─── Maç Başlatma ─────────────────────────────────────────────────────────────
+function createAbilityState() {
+    return {
+        cyber_shield: { activeUntil: 0, cooldownUntil: 0 },
+        chrono_pulse: { activeUntil: 0, cooldownUntil: 0 },
+        data_glitch:  { activeUntil: 0, cooldownUntil: 0 }
+    };
+}
+
 function initMatch(roomName, socket1, profile1, socket2, profile2) {
     const room = rooms[roomName];
-    // Profilleri odaya ekledik ki maç sonunda Discord loguna isimleri düşsün
     room.players = {
         [socket1.id]: { y: 250, side: 'left',  score: 0, lastY: 250, paddleGrowUntil: 0, profile: profile1 },
         [socket2.id]: { y: 250, side: 'right', score: 0, lastY: 250, paddleGrowUntil: 0, profile: profile2 }
@@ -200,6 +219,10 @@ function initMatch(roomName, socket1, profile1, socket2, profile2) {
     room.rematchRequests = {};
     room.frameCount = 0;
     room.arenaEvent = null;
+    // Reset match economy & abilities
+    room.matchCredits = { [socket1.id]: 0, [socket2.id]: 0 };
+    room.abilities    = { [socket1.id]: createAbilityState(), [socket2.id]: createAbilityState() };
+    room.chronoZone   = null;
 
     resetBall(room);
 
@@ -260,14 +283,22 @@ function startGameLoop(roomName) {
         const p1Height = (p1.paddleGrowUntil && p1.paddleGrowUntil > now) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
         const p2Height = (p2.paddleGrowUntil && p2.paddleGrowUntil > now) ? PADDLE_HEIGHT * 1.5 : PADDLE_HEIGHT;
 
-        // Power-up Üretimi
-        if (!room.powerup.active && room.frameCount % 360 === 0 && Math.random() < 0.7) {
-            room.powerup.x    = Math.random() * (CANVAS_WIDTH - 300) + 150;
-            room.powerup.y    = Math.random() * (CANVAS_HEIGHT - 150) + 75;
-            room.powerup.type = Math.random() < 0.5 ? 0 : 1; 
-            room.powerup.active = true;
-            io.to(roomName).emit('powerupSpawned', { x: room.powerup.x, y: room.powerup.y, type: room.powerup.type });
-        }
+        // ── Yetenek Süresi Kontrolü ──────────────────────────────────────────────
+        playerIds.forEach(pid => {
+            const ab = room.abilities[pid];
+            if (!ab) return;
+            if (ab.cyber_shield.activeUntil && now > ab.cyber_shield.activeUntil) {
+                ab.cyber_shield.activeUntil = 0;
+                room.players[pid].paddleGrowUntil = 0;
+            }
+            if (ab.chrono_pulse.activeUntil && now > ab.chrono_pulse.activeUntil) {
+                ab.chrono_pulse.activeUntil = 0;
+                if (room.chronoZone && room.chronoZone.owner === pid) room.chronoZone = null;
+            }
+            if (ab.data_glitch.activeUntil && now > ab.data_glitch.activeUntil) {
+                ab.data_glitch.activeUntil = 0;
+            }
+        });
 
         // Arena Olayları
         if (room.frameCount % 600 === 0 && !room.arenaEvent && Math.random() < 0.4) {
@@ -286,7 +317,14 @@ function startGameLoop(roomName) {
 
         // Top Hareketi
         const arenaSpeedMul = room.arenaEvent === 'speedSurge' ? 1.5 : 1.0;
-        const speedMul      = (ball.currentSpeed / BASE_SPEED) * arenaSpeedMul;
+        let   chronoMul     = 1.0;
+        if (room.chronoZone && now < room.chronoZone.until) {
+            const cz    = room.chronoZone;
+            const ballX = ball.x;
+            if (cz.side === 'left'  && ballX < CANVAS_WIDTH / 2) chronoMul = 0.7;
+            if (cz.side === 'right' && ballX > CANVAS_WIDTH / 2) chronoMul = 0.7;
+        }
+        const speedMul  = (ball.currentSpeed / BASE_SPEED) * arenaSpeedMul * chronoMul;
         const stepsPerTick  = 60 / SERVER_TICK_RATE;
 
         for (let step = 0; step < stepsPerTick; step++) {
@@ -325,6 +363,11 @@ function startGameLoop(roomName) {
                 ball.lastHit = 'left';
                 room.stats.leftHits++;
                 if (ball.currentSpeed > room.stats.maxSpeed) room.stats.maxSpeed = ball.currentSpeed;
+                // +10 Maç kredisi (anti-farming: minimum hız kontrolü)
+                if (ball.currentSpeed >= MIN_SPEED_FOR_CREDITS) {
+                    room.matchCredits[playerIds[0]] = (room.matchCredits[playerIds[0]] || 0) + CREDIT_PER_HIT;
+                    io.to(playerIds[0]).emit('credits_update', { credits: room.matchCredits[playerIds[0]] });
+                }
                 io.to(roomName).emit('playSound', { type: 'paddleHit', shake: true });
             }
         }
@@ -343,28 +386,16 @@ function startGameLoop(roomName) {
                 ball.lastHit = 'right';
                 room.stats.rightHits++;
                 if (ball.currentSpeed > room.stats.maxSpeed) room.stats.maxSpeed = ball.currentSpeed;
+                // +10 Maç kredisi (anti-farming: minimum hız kontrolü)
+                if (ball.currentSpeed >= MIN_SPEED_FOR_CREDITS) {
+                    room.matchCredits[playerIds[1]] = (room.matchCredits[playerIds[1]] || 0) + CREDIT_PER_HIT;
+                    io.to(playerIds[1]).emit('credits_update', { credits: room.matchCredits[playerIds[1]] });
+                }
                 io.to(roomName).emit('playSound', { type: 'paddleHit', shake: true });
             }
         }
 
-        // Power-up
-        if (room.powerup.active) {
-            const dx = ball.x - room.powerup.x;
-            const dy = ball.y - room.powerup.y;
-            if (Math.sqrt(dx*dx + dy*dy) < BALL_RADIUS + 20) {
-                room.powerup.active = false;
-                const targetSide    = ball.lastHit || (ball.dx > 0 ? 'left' : 'right');
-
-                if (room.powerup.type === 0) {
-                    if (targetSide === 'left')  p1.paddleGrowUntil = now + 8000;
-                    else                        p2.paddleGrowUntil = now + 8000;
-                } else {
-                    ball.currentSpeed = Math.min(ball.currentSpeed + 3.5, MAX_SPEED);
-                }
-                io.to(roomName).emit('powerupActivated', { type: room.powerup.type, side: targetSide });
-                io.to(roomName).emit('playSound', { type: 'powerup', shake: true });
-            }
-        }
+        // [Power-up sistemi kaldırıldı — Yetenek Mağazası ile değiştirildi]
 
         // Skor
         let scored    = false;
@@ -440,29 +471,46 @@ function sendRoomState(roomName) {
     const p2  = room.players[playerIds[1]];
     const now = Date.now();
 
-    io.to(roomName).emit('gs', {
-        b: [
-            Math.round(ball.x * 10) / 10,
-            Math.round(ball.y * 10) / 10,
-            Math.round(ball.dx * 100) / 100,
-            Math.round(ball.dy * 100) / 100,
-            Math.round(ball.currentSpeed * 100) / 100,
-            ball.lastHit === 'left' ? 0 : ball.lastHit === 'right' ? 1 : 2
-        ],
-        p: [
-            Math.round(p1.y), p1.score, (p1.paddleGrowUntil > now ? 1 : 0),
-            Math.round(p2.y), p2.score, (p2.paddleGrowUntil > now ? 1 : 0)
-        ],
-        pw: [
-            room.powerup.active ? 1 : 0,
-            Math.round(room.powerup.x), Math.round(room.powerup.y),
-            room.powerup.type
-        ],
-        ae: room.arenaEvent || null,
-        st: room.status,
-        c : room.countdown,
-        f : room.frameCount,
-        t : now
+    // Yetenek durumlarını her oyuncuya ayrı gönder
+    playerIds.forEach(pid => {
+        const ab  = room.abilities[pid] || {};
+        const opp = playerIds.find(id => id !== pid);
+        const oppAb = room.abilities[opp] || {};
+        io.to(pid).emit('gs', {
+            b: [
+                Math.round(ball.x * 10) / 10,
+                Math.round(ball.y * 10) / 10,
+                Math.round(ball.dx * 100) / 100,
+                Math.round(ball.dy * 100) / 100,
+                Math.round(ball.currentSpeed * 100) / 100,
+                ball.lastHit === 'left' ? 0 : ball.lastHit === 'right' ? 1 : 2
+            ],
+            p: [
+                Math.round(p1.y), p1.score, (p1.paddleGrowUntil > now ? 1 : 0),
+                Math.round(p2.y), p2.score, (p2.paddleGrowUntil > now ? 1 : 0)
+            ],
+            ae: room.arenaEvent || null,
+            st: room.status,
+            c : room.countdown,
+            f : room.frameCount,
+            t : now,
+            // Yetenek durumları (my side + opponent side)
+            ab: {
+                my:  {
+                    shield_active: (ab.cyber_shield?.activeUntil  || 0) > now,
+                    chrono_active: (ab.chrono_pulse?.activeUntil  || 0) > now,
+                    glitch_active: (ab.data_glitch?.activeUntil   || 0) > now,
+                    shield_cd:  Math.max(0, (ab.cyber_shield?.cooldownUntil || 0) - now),
+                    chrono_cd:  Math.max(0, (ab.chrono_pulse?.cooldownUntil || 0) - now),
+                    glitch_cd:  Math.max(0, (ab.data_glitch?.cooldownUntil  || 0) - now)
+                },
+                opp: {
+                    shield_active: (oppAb.cyber_shield?.activeUntil || 0) > now,
+                    chrono_active: (oppAb.chrono_pulse?.activeUntil || 0) > now
+                },
+                chrono_side: room.chronoZone ? room.chronoZone.side : null
+            }
+        });
     });
 }
 
@@ -539,6 +587,60 @@ io.on('connection', (socket) => {
         }
     });
 
+    // ─── Yetenek Kullanımı ────────────────────────────────────────────────────
+    socket.on('use_ability', (data) => {
+        if (!data || !data.type) return;
+        const roomName = findRoomBySocketId(socket.id);
+        if (!roomName || !rooms[roomName]) return;
+        const room = rooms[roomName];
+        if (room.status !== 'playing') return;
+
+        const def = ABILITY_DEFS[data.type];
+        if (!def) return;
+
+        const playerCredits = room.matchCredits[socket.id] || 0;
+        if (playerCredits < def.cost) {
+            io.to(socket.id).emit('ability_error', { msg: 'Yetersiz Siber Kredi!' });
+            return;
+        }
+
+        const ab  = room.abilities[socket.id];
+        const now = Date.now();
+        if (!ab || (ab[data.type].cooldownUntil || 0) > now) {
+            io.to(socket.id).emit('ability_error', { msg: 'Bekleme süresi dolmadı!' });
+            return;
+        }
+
+        // Krediyi düş
+        room.matchCredits[socket.id] -= def.cost;
+        io.to(socket.id).emit('credits_update', { credits: room.matchCredits[socket.id] });
+
+        // Yeteneği etkinleştir
+        ab[data.type].activeUntil  = now + def.duration;
+        ab[data.type].cooldownUntil = now + def.cooldown;
+
+        const player   = room.players[socket.id];
+        const playerIds = Object.keys(room.players);
+        const opponentId = playerIds.find(id => id !== socket.id);
+
+        if (data.type === 'cyber_shield') {
+            player.paddleGrowUntil = now + def.duration;
+        }
+        if (data.type === 'chrono_pulse') {
+            room.chronoZone = { side: player.side, owner: socket.id, until: now + def.duration };
+        }
+        if (data.type === 'data_glitch' && opponentId) {
+            io.to(opponentId).emit('ability_activated', {
+                type: 'data_glitch', side: player.side, duration: def.duration
+            });
+        }
+
+        // Tüm odaya telegraph bildir (rakip de görür)
+        io.to(roomName).emit('ability_activated', {
+            type: data.type, side: player.side, duration: def.duration
+        });
+    });
+
     socket.on('sendEmote', (emote) => {
         const ALLOWED_EMOTES = ['🔥','😎','💀','⚡','👍','😂','🎯','💥'];
         if (!ALLOWED_EMOTES.includes(emote)) return;
@@ -570,10 +672,18 @@ io.on('connection', (socket) => {
             room.status          = 'countdown';
             room.countdown       = 3;
             room.frameCount      = 0;
-            room.powerup.active  = false;
             room.arenaEvent      = null;
             room.stats           = { maxSpeed: BASE_SPEED, leftHits: 0, rightHits: 0 };
             room.ball            = { x: CANVAS_WIDTH/2, y: CANVAS_HEIGHT/2, dx:0, dy:0, currentSpeed: BASE_SPEED, lastHit: null };
+            // Rövanşta yetenek & kredi resetle
+            room.matchCredits = {};
+            room.abilities    = {};
+            room.chronoZone   = null;
+            playerIds.forEach(pid => {
+                room.matchCredits[pid] = 0;
+                room.abilities[pid]    = createAbilityState();
+                io.to(pid).emit('credits_update', { credits: 0 });
+            });
 
             playerIds.forEach(pid => {
                 room.players[pid].score          = 0;
