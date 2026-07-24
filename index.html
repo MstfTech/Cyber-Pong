@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Pong v4.0 — Siber Arena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -15,9 +15,9 @@
             --neon-gold: #ffd700;
             --neon-purple: #9900ff;
             --neon-red: #ff3366;
-            --bg-dark: #060814;
-            --glass-bg: rgba(12, 16, 38, 0.75);
-            --glass-border: rgba(0, 255, 255, 0.25);
+            --bg-dark: #050508;
+            --card-bg: rgba(10, 14, 28, 0.92);
+            --card-border: rgba(0, 255, 255, 0.3);
         }
 
         body {
@@ -29,7 +29,7 @@
             user-select: none;
         }
 
-        /* Ambient Animated Grid Background */
+        /* Optimized Background Canvas */
         #bgCanvas {
             position: absolute;
             top: 0; left: 0;
@@ -46,19 +46,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: var(--bg-dark);
             z-index: 1;
-            backdrop-filter: blur(8px);
         }
 
         .hidden { display: none !important; pointer-events: none !important; }
 
-        /* ─── Glassmorphism Cards & Kit ───────────────────── */
-        .glass-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+        /* ─── Neon UI Kit ──────────────────────────────────── */
+        .neon-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
             border-radius: 12px;
-            box-shadow: 0 8px 32px 0 rgba(0, 255, 255, 0.15), inset 0 0 15px rgba(0, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
         }
 
         .neon-title {
@@ -71,293 +70,213 @@
             font-weight: 900;
         }
 
-        .glitch-text {
-            position: relative;
-            animation: glitch 3s infinite;
-        }
-
-        @keyframes glitch {
-            0%, 100% { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); }
-            33% { text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-blue); }
-            66% { text-shadow: 2px 0 var(--neon-green), -2px 0 var(--neon-pink); }
-        }
-
         .neon-input {
-            background: rgba(0, 255, 255, 0.06);
+            background: rgba(0,255,255,0.05);
             border: 2px solid var(--neon-blue);
             color: #fff;
             padding: 14px 22px;
             font-size: 1.3rem;
             font-family: 'Orbitron', sans-serif;
-            border-radius: 10px;
+            border-radius: 8px;
             outline: none;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.25);
-            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+            transition: box-shadow 0.2s;
         }
-        .neon-input:focus {
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
-            border-color: #fff;
-        }
+        .neon-input:focus { box-shadow: 0 0 25px rgba(0,255,255,0.7); }
 
         .neon-button {
-            background: rgba(255, 0, 255, 0.08);
+            background: transparent;
             border: 2px solid var(--neon-pink);
             color: var(--neon-pink);
             padding: 14px 32px;
             font-size: 1.2rem;
             font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.25s ease;
-            text-shadow: 0 0 8px var(--neon-pink);
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.25);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            transition: all 0.15s ease;
+            text-shadow: 0 0 5px var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255,0,255,0.3), inset 0 0 10px rgba(255,0,255,0.1);
+            user-select: none;
         }
-        .neon-button:hover {
-            background: var(--neon-pink);
-            color: #000;
-            box-shadow: 0 0 35px var(--neon-pink);
-            text-shadow: none;
-            transform: translateY(-2px);
-        }
-        .neon-button:active { transform: translateY(1px) scale(0.98); }
+        .neon-button:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 30px var(--neon-pink); text-shadow: none; }
+        .neon-button:active { transform: scale(0.96); }
 
         .neon-button.cyan {
-            background: rgba(0, 255, 255, 0.08);
-            border-color: var(--neon-blue); color: var(--neon-blue);
-            text-shadow: 0 0 8px var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.25);
+            border-color: var(--neon-blue); color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0,255,255,0.3), inset 0 0 10px rgba(0,255,255,0.1);
         }
-        .neon-button.cyan:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 35px var(--neon-blue); }
+        .neon-button.cyan:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); text-shadow: none; }
 
         .neon-button.gold {
-            background: rgba(255, 215, 0, 0.08);
-            border-color: var(--neon-gold); color: var(--neon-gold);
-            text-shadow: 0 0 8px var(--neon-gold);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.25);
+            border-color: var(--neon-gold); color: var(--neon-gold); text-shadow: 0 0 5px var(--neon-gold);
+            box-shadow: 0 0 10px rgba(255,215,0,0.3), inset 0 0 10px rgba(255,215,0,0.1);
         }
-        .neon-button.gold:hover { background: var(--neon-gold); color: #000; box-shadow: 0 0 35px var(--neon-gold); }
+        .neon-button.gold:hover { background: var(--neon-gold); color: #000; box-shadow: 0 0 30px var(--neon-gold); text-shadow: none; }
 
         .neon-button.green {
-            background: rgba(0, 255, 102, 0.08);
-            border-color: var(--neon-green); color: var(--neon-green);
-            text-shadow: 0 0 8px var(--neon-green);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.25);
+            border-color: var(--neon-green); color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green);
+            box-shadow: 0 0 10px rgba(0,255,102,0.3), inset 0 0 10px rgba(0,255,102,0.1);
         }
-        .neon-button.green:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 35px var(--neon-green); }
+        .neon-button.green:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 30px var(--neon-green); text-shadow: none; }
 
         .neon-button.red {
-            background: rgba(255, 51, 102, 0.08);
-            border-color: var(--neon-red); color: var(--neon-red);
-            text-shadow: 0 0 8px var(--neon-red);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.25);
+            border-color: var(--neon-red); color: var(--neon-red); text-shadow: 0 0 5px var(--neon-red);
+            box-shadow: 0 0 10px rgba(255,51,102,0.3);
         }
-        .neon-button.red:hover { background: var(--neon-red); color: #000; box-shadow: 0 0 35px var(--neon-red); }
+        .neon-button.red:hover { background: var(--neon-red); color: #000; box-shadow: 0 0 30px var(--neon-red); }
 
         /* ─── Profile Bar ────────────────────────────────── */
         #profileBar {
             position: absolute;
             top: 20px; left: 20px;
-            padding: 15px 22px;
-            min-width: 290px;
-            z-index: 10;
+            background: rgba(0,0,0,0.88);
+            border: 2px solid var(--neon-blue);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,255,255,0.4);
+            min-width: 280px;
+            z-index: 5;
         }
-        .prof-name { font-size: 1.15rem; color: #fff; margin-bottom: 4px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+        .prof-name { font-size: 1.1rem; color: #fff; margin-bottom: 4px; }
         .prof-level { font-size: 0.9rem; color: var(--neon-blue); margin-bottom: 4px; }
-        .prof-credits { font-size: 0.9rem; color: var(--neon-gold); margin-bottom: 10px; font-weight: 700; text-shadow: 0 0 8px rgba(255,215,0,0.5); }
-        .xp-bar-container { width: 100%; height: 10px; background: rgba(0,0,0,0.6); border-radius: 5px; overflow: hidden; border: 1px solid rgba(0,255,255,0.3); }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); width: 0%; box-shadow: 0 0 10px var(--neon-green); transition: width 0.5s ease-out; }
-        .xp-text { font-size: 0.75rem; color: #aaa; margin-top: 5px; text-align: right; }
+        .prof-credits { font-size: 0.85rem; color: var(--neon-gold); margin-bottom: 10px; text-shadow: 0 0 5px rgba(255,215,0,0.4); }
+        .xp-bar-container { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; border: 1px solid #333; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); width: 0%; box-shadow: 0 0 8px var(--neon-green); transition: width 0.5s ease-out; }
+        .xp-text { font-size: 0.75rem; color: #777; margin-top: 4px; text-align: right; }
 
-        /* ─── Top Online & Telegram Status Bar ───────────── */
+        /* Status Bar */
         #topStatusBar {
-            position: absolute;
-            top: 20px; right: 120px;
-            display: flex; gap: 15px;
-            z-index: 10;
+            position: absolute; top: 20px; right: 120px;
+            display: flex; gap: 15px; z-index: 5;
         }
         .status-pill {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            display: flex; align-items: center; gap: 8px;
-            border-radius: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--glass-border);
-            color: #ccc;
+            padding: 8px 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
+            border-radius: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); color: #ccc;
         }
         .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
 
         /* ─── Menu Grid ─────────────────────────────────── */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 15px;
-            width: 720px;
-        }
-        .menu-grid .neon-button { font-size: 1.15rem; padding: 16px 20px; }
-        .back-btn { margin-top: 25px; font-size: 0.95rem !important; padding: 10px 25px !important; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; max-width: 720px; }
+        .menu-grid .neon-button { font-size: 1.1rem; padding: 18px 20px; }
+        .back-btn { margin-top: 30px; font-size: 1rem !important; padding: 10px 25px !important; }
 
-        /* ─── Game Screen & Canvas ─────────────────────── */
+        /* ─── Canvas & Game Screen ───────────────────────── */
         #gameContainer { position: relative; }
         canvas#gameCanvas {
-            background: #080b1e;
+            background: #0a0a12;
             border: 2px solid var(--neon-blue);
-            border-radius: 12px;
-            box-shadow: 0 0 35px rgba(0, 255, 255, 0.4), inset 0 0 25px rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 20px rgba(0,255,255,0.05);
             display: none;
             cursor: none;
         }
 
-        /* ─── Speedometer & Rally Display ────────────── */
-        #speedometerHUD {
-            position: absolute;
-            top: 12px; left: 20px;
-            font-size: 0.75rem;
-            color: var(--neon-blue);
-            text-shadow: 0 0 8px var(--neon-blue);
-            z-index: 20;
-            pointer-events: none;
+        #pingDisplay {
+            position: absolute; top: 8px; right: 12px;
+            font-size: 0.65rem; color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green); z-index: 20; pointer-events: none;
         }
-        #rallyHUD {
-            position: absolute;
-            top: 12px; right: 120px;
-            font-size: 0.75rem;
-            color: var(--neon-gold);
-            text-shadow: 0 0 8px var(--neon-gold);
-            z-index: 20;
-            pointer-events: none;
+
+        #matchCreditDisplay {
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            font-size: 0.75rem; color: var(--neon-gold); text-shadow: 0 0 6px var(--neon-gold);
+            z-index: 20; pointer-events: none; letter-spacing: 1px;
         }
+
+        #speedometerHUD { position: absolute; top: 8px; left: 15px; font-size: 0.65rem; color: var(--neon-blue); z-index: 20; pointer-events: none; }
+        #rallyHUD { position: absolute; top: 8px; right: 100px; font-size: 0.65rem; color: var(--neon-gold); z-index: 20; pointer-events: none; }
 
         /* ─── Emote Panel ───────────────────────────────── */
         #emotePanel {
-            position: absolute;
-            bottom: -55px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; gap: 8px;
-            background: rgba(6, 8, 20, 0.85);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 8px 18px;
-            z-index: 20;
+            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; background: rgba(0,0,0,0.85);
+            border: 1px solid rgba(0,255,255,0.3); border-radius: 30px; padding: 8px 16px; z-index: 20;
         }
         .emote-btn {
             background: none; border: none; font-size: 1.6rem; cursor: pointer; padding: 4px;
-            border-radius: 50%; transition: transform 0.15s, background 0.15s;
+            border-radius: 50%; transition: transform 0.15s, background 0.15s; user-select: none;
         }
-        .emote-btn:hover { transform: scale(1.35); background: rgba(255,255,255,0.15); }
+        .emote-btn:hover { transform: scale(1.35); background: rgba(255,255,255,0.1); }
 
         /* ─── Overlay Boxes ─────────────────────────────── */
         .overlay-box {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: rgba(6, 8, 20, 0.92);
-            border-radius: 12px;
-            z-index: 10;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(5,5,8,0.92); border-radius: 8px; z-index: 10;
         }
 
+        #message { font-size: 1.4rem; color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); animation: pulse 1.5s infinite; }
+        .win-text  { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green), 0 0 30px var(--neon-green); }
+        .lose-text { color: var(--neon-red); text-shadow: 0 0 10px var(--neon-red), 0 0 30px var(--neon-red); }
+
+        /* ─── AI Commentary Box ─────────────────────────── */
         #aiCommentaryBox {
-            margin-top: 15px;
-            padding: 12px 20px;
-            max-width: 600px;
-            background: rgba(0, 255, 255, 0.05);
-            border: 1px dashed var(--neon-blue);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #00ffff;
-            text-align: center;
-            line-height: 1.5;
-            box-shadow: 0 0 15px rgba(0,255,255,0.1);
+            margin-top: 14px; padding: 12px 20px; max-width: 620px;
+            background: rgba(0,255,255,0.05); border: 1px dashed var(--neon-blue);
+            border-radius: 8px; font-size: 0.8rem; color: #0ff; text-align: center; line-height: 1.6;
         }
 
         /* ─── Inventory & Tabs ───────────────────────────── */
-        #inventoryScreen { overflow-y: auto; justify-content: flex-start; padding-top: 30px; }
-        .tab-bar { display: flex; gap: 0; margin-bottom: 20px; }
+        #inventoryScreen { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+        .tab-bar { display: flex; gap: 0; margin-bottom: 25px; }
         .tab-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #888;
-            padding: 12px 28px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif;
-            cursor: pointer; transition: all 0.2s;
+            background: rgba(255,255,255,0.05); border: 2px solid #333; color: #888;
+            padding: 12px 30px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif;
+            cursor: pointer; transition: all 0.2s; user-select: none;
         }
         .tab-btn:first-child { border-radius: 8px 0 0 8px; }
         .tab-btn:last-child  { border-radius: 0 8px 8px 0; }
-        .tab-btn.active { background: rgba(0,255,255,0.15); border-color: var(--neon-blue); color: var(--neon-blue); text-shadow: 0 0 6px var(--neon-blue); }
-        .tab-content { display: none; width: 880px; }
+        .tab-btn.active { background: rgba(0,255,255,0.1); border-color: var(--neon-blue); color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
+        .tab-content { display: none; width: 850px; }
         .tab-content.active { display: block; }
 
         .skin-card {
-            width: 155px; height: 170px; border: 2px solid #333; border-radius: 10px;
+            width: 150px; height: 160px; border: 2px solid #444; border-radius: 10px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; background: rgba(0,0,0,0.6); transition: all 0.2s; position: relative;
+            cursor: pointer; background: rgba(0,0,0,0.6); transition: all 0.2s; user-select: none; position: relative;
         }
         .skin-card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .skin-card.equipped { border-color: var(--neon-green); box-shadow: 0 0 20px rgba(0,255,102,0.5); }
-        .skin-card .skin-paddle { width: 16px; height: 62px; border-radius: 4px; }
-        .skin-card .skin-name   { margin-top: 10px; font-size: 13px; text-align: center; font-weight: 700; }
+        .skin-card.equipped { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(0,255,102,0.5); }
+        .skin-card .skin-paddle { width: 15px; height: 60px; border-radius: 3px; }
+        .skin-card .skin-name   { margin-top: 10px; font-size: 12px; text-align: center; font-weight: bold; }
         .skin-card .skin-equipped { color: var(--neon-green); font-size: 10px; margin-top: 4px; }
-        .skin-card .skin-rarity-badge { font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 4px; }
+        .skin-card .skin-rarity-badge { font-size: 9px; margin-top: 4px; padding: 2px 6px; border-radius: 4px; }
 
-        /* ─── Shop & Cases ──────────────────────────────── */
-        .shop-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        /* Shop Cards */
         .shop-card {
-            background: rgba(12, 16, 38, 0.8); border: 2px solid var(--neon-gold); border-radius: 14px; padding: 25px;
-            text-align: center; box-shadow: 0 0 25px rgba(255,215,0,0.15); transition: all 0.3s; width: 260px;
+            background: rgba(0,0,0,0.7); border: 2px solid var(--neon-gold); border-radius: 12px;
+            padding: 25px; text-align: center; box-shadow: 0 0 20px rgba(255,215,0,0.15); width: 250px;
         }
-        .shop-card:hover { box-shadow: 0 0 45px rgba(255,215,0,0.35); transform: translateY(-4px); }
-        .shop-card.premium { border-color: var(--neon-pink); box-shadow: 0 0 25px rgba(255,0,255,0.15); }
-        .shop-card.premium:hover { box-shadow: 0 0 45px rgba(255,0,255,0.35); }
-        .shop-card.mega { border-color: var(--neon-blue); box-shadow: 0 0 25px rgba(0,255,255,0.15); }
-        .shop-card.mega:hover { box-shadow: 0 0 45px rgba(0,255,255,0.35); }
+        .shop-card.premium { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255,0,255,0.15); }
+        .shop-card.mega { border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(0,255,255,0.15); }
 
-        /* ─── Achievements Grid ─────────────────────────── */
-        .achievements-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-height: 440px; overflow-y: auto; padding-right: 5px; }
-        .ach-card {
-            display: flex; align-items: center; gap: 15px; padding: 12px 16px;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-        }
+        /* Achievements & Missions */
+        .achievements-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-height: 420px; overflow-y: auto; }
+        .ach-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 8px; }
         .ach-card.unlocked { background: rgba(0,255,102,0.06); border-color: var(--neon-green); }
-        .ach-icon { font-size: 2rem; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border-radius: 8px; }
-        .ach-info { flex-grow: 1; }
-        .ach-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
-        .ach-desc { font-size: 0.75rem; color: #888; margin-top: 2px; }
-        .ach-reward { font-size: 0.75rem; color: var(--neon-gold); margin-top: 4px; }
+        .ach-icon { font-size: 1.8rem; min-width: 40px; text-align: center; }
 
-        /* ─── Missions List ─────────────────────────────── */
-        .missions-list { display: flex; flex-direction: column; gap: 14px; }
-        .mission-card {
-            display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;
-            background: rgba(0,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 10px;
-        }
-        .mission-info { display: flex; align-items: center; gap: 15px; }
-        .mission-progress { width: 140px; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; border: 1px solid #444; }
-        .mission-progress-fill { height: 100%; background: var(--neon-blue); width: 0%; }
-
-        /* ─── Global Chat ────────────────────────────────── */
+        /* ─── Global Chat ──────────────────────────────────── */
         #globalChat {
             position: absolute; bottom: 20px; right: 20px;
-            width: 360px; height: 260px;
-            display: flex; flex-direction: column; z-index: 10;
+            width: 350px; height: 250px;
+            background: rgba(0,0,0,0.85); border: 2px solid var(--neon-blue); border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,255,255,0.4); display: flex; flex-direction: column; z-index: 5;
         }
-        #chatMessages { flex-grow: 1; padding: 10px; overflow-y: auto; font-size: 0.78rem; color: #ccc; display: flex; flex-direction: column; gap: 6px; }
-        #chatMessages .chat-msg { background: rgba(0,255,255,0.04); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--neon-blue); }
-        #chatMessages .chat-name  { color: var(--neon-blue); font-weight: 700; margin-right: 4px; }
-        #chatMessages .chat-title { color: var(--neon-gold); font-size: 0.7rem; margin-right: 4px; }
-        #chatInputContainer { display: flex; border-top: 1px solid var(--glass-border); }
-        #chatInput { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 10px; font-family: 'Orbitron', sans-serif; outline: none; font-size: 0.8rem; }
-        #btnSendChat { background: rgba(0,255,255,0.15); border: none; color: var(--neon-blue); padding: 0 16px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-weight: 700; transition: all 0.2s; }
-        #btnSendChat:hover { background: var(--neon-blue); color: #000; }
+        #chatMessages { flex-grow:1; padding:10px; overflow-y:auto; font-size:0.78rem; color:#ccc; display:flex; flex-direction:column; gap:4px; }
+        #chatMessages .chat-msg { background:rgba(0,255,255,0.04); padding:5px 8px; border-radius:4px; border-left:2px solid var(--neon-blue); }
+        #chatMessages .chat-name  { color:var(--neon-blue); font-weight:bold; margin-right:4px; }
+        #chatMessages .chat-title { color:var(--neon-gold); font-size:0.7rem; margin-right:4px; }
+        #chatInputContainer { display:flex; border-top:1px solid rgba(0,255,255,0.25); }
+        #chatInput { flex-grow:1; background:transparent; border:none; color:#fff; padding:10px; font-family:'Orbitron',sans-serif; outline:none; font-size:0.8rem; }
+        #btnSendChat { background:rgba(0,255,255,0.1); border:none; color:var(--neon-blue); padding:0 15px; cursor:pointer; font-family:'Orbitron',sans-serif; font-weight:bold; }
 
-        /* ─── Roulette ─────────────────────────────────── */
+        /* ─── Roulette ────────────────────────────────────────── */
         #rouletteContainer {
             width: 800px; height: 150px; border: 2px solid #fff; position: relative; overflow: hidden;
-            margin: 20px auto; background: rgba(0,0,0,0.6); box-shadow: 0 0 25px rgba(255,255,255,0.2); border-radius: 10px;
+            margin: 20px auto; background: rgba(0,0,0,0.5); box-shadow: 0 0 20px rgba(255,255,255,0.2); border-radius: 8px;
         }
         .center-line { position: absolute; top:0; bottom:0; left:50%; width:4px; background:#f00; z-index:10; box-shadow:0 0 15px #f00; transform:translateX(-50%); }
         .center-arrow-top { position:absolute; top:-2px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-top:16px solid #f00; z-index:11; }
@@ -366,63 +285,57 @@
         .roulette-item { width:150px; height:100%; border-right:1px solid rgba(255,255,255,0.15); display:flex; flex-direction:column; justify-content:center; align-items:center; flex-shrink:0; font-size:14px; font-weight:bold; text-align:center; padding:10px; }
         .roulette-item .skin-preview { width:14px; height:55px; border-radius:3px; margin-bottom:8px; }
 
-        /* ─── Ability HUD ──────────────────────────────── */
+        /* ─── Yetenek HUD ──────────────────────────────────────────────── */
         #abilityHUD {
             position: absolute; bottom: 58px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 10px; align-items: flex-end; z-index: 20;
         }
         .ab-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .ab-key { font-size: 0.55rem; color: #666; letter-spacing: 1px; }
+        .ab-key { font-size: 0.55rem; color: #555; letter-spacing: 1px; }
         .ab-btn {
-            width: 64px; height: 64px; border-radius: 10px; background: rgba(0,0,0,0.8);
+            width: 64px; height: 64px; border-radius: 10px; background: rgba(0,0,0,0.75);
             border: 2px solid #333; color: #666; font-size: 0.58rem; font-family: 'Orbitron', sans-serif;
             cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-            transition: all 0.2s; position: relative; overflow: hidden;
+            transition: all 0.1s; position: relative; overflow: hidden;
         }
-        .ab-btn .ab-icon { font-size: 1.4rem; line-height: 1; }
+        .ab-btn .ab-icon  { font-size: 1.4rem; line-height: 1; }
         .ab-btn .ab-label { font-size: 0.5rem; color: #888; text-align: center; }
-        .ab-btn .ab-cost { font-size: 0.6rem; font-weight: 700; }
+        .ab-btn .ab-cost  { font-size: 0.6rem; font-weight: 700; }
         .ab-btn.ab-shield { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,255,255,0.25); }
         .ab-btn.ab-chrono { border-color: var(--neon-purple); color: var(--neon-purple); box-shadow: 0 0 10px rgba(153,0,255,0.25); }
-        .ab-btn.ab-glitch { border-color: var(--neon-red); color: var(--neon-red); box-shadow: 0 0 10px rgba(255,51,102,0.25); }
+        .ab-btn.ab-glitch { border-color: #f50; color: #f50; box-shadow: 0 0 10px rgba(255,80,0,0.25); }
         .ab-btn.ab-active { animation: abilityPulse 0.4s ease-in-out infinite alternate; }
 
         .ab-cd-sweep { position: absolute; inset: 0; background: conic-gradient(rgba(0,0,0,0.7) var(--pct), transparent var(--pct)); pointer-events: none; }
         .ab-cd-label { position: absolute; bottom: 4px; right: 5px; font-size: 0.55rem; color: #aaa; }
 
+        @keyframes pulse { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; transform: scale(1.03); } }
         @keyframes abilityPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-        #matchCreditDisplay { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: var(--neon-gold); text-shadow: 0 0 8px var(--neon-gold); z-index: 20; }
-        #abilityBanner { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); padding: 6px 20px; border-radius: 6px; font-size: 0.8rem; z-index: 18; opacity: 0; transition: opacity 0.25s; }
-        #abilityBanner.show { opacity: 1; }
-
-        /* Ping Display */
-        #pingDisplay { position: absolute; top: 12px; right: 15px; font-size: 0.7rem; color: var(--neon-green); z-index: 20; }
     </style>
 </head>
 
 <body>
 
-<!-- Background Canvas for Ambient Cyber Grid -->
+<!-- Optimized Canvas Background -->
 <canvas id="bgCanvas"></canvas>
 
 <!-- Language Selector -->
 <div id="languageSelector" style="position:absolute; top:20px; right:20px; z-index:100; display:flex; gap:10px;">
-    <button class="lang-selector neon-button cyan" style="padding:5px 15px; font-size:0.85rem;" data-lang="tr">TR</button>
-    <button class="lang-selector neon-button cyan" style="padding:5px 15px; font-size:0.85rem;" data-lang="en">EN</button>
+    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.85rem;" data-lang="tr">TR</button>
+    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.85rem;" data-lang="en">EN</button>
 </div>
 
 <!-- Login Screen -->
 <div id="loginScreen" class="screen">
-    <h1 class="neon-title glitch-text" data-i18n="LOGIN_TITLE">CYBER PONG v4.0</h1>
-    <h3 style="color:#888; margin-bottom:30px; font-family:'Rajdhani',sans-serif; font-size:1.3rem;" data-i18n="LOGIN_SUBTITLE">Lütfen Savaşçı Adınızı Belirleyin</h3>
+    <h1 class="neon-title" data-i18n="LOGIN_TITLE">SİBER ARENA'YA GİRİŞ</h1>
+    <h3 style="color:#888; margin-bottom:30px;" data-i18n="LOGIN_SUBTITLE">Lütfen Bir Savaşçı Adı Belirleyin</h3>
     <input type="text" id="usernameInput" class="neon-input" placeholder="Kullanıcı Adı" maxlength="12">
-    <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">⚡ SİSTEME BAĞLAN</button>
+    <button id="btnLogin" class="neon-button" data-i18n="BTN_LOGIN">SİSTEME BAĞLAN</button>
 </div>
 
 <!-- Main Menu -->
 <div id="mainMenu" class="screen hidden">
-    <!-- Profile Bar -->
-    <div id="profileBar" class="glass-card">
+    <div id="profileBar">
         <div id="profName" class="prof-name"></div>
         <div id="profLevel" class="prof-level"></div>
         <div id="profCredits" class="prof-credits"></div>
@@ -430,13 +343,12 @@
         <div id="xpText" class="xp-text"></div>
     </div>
 
-    <!-- Top Status Bar -->
     <div id="topStatusBar">
         <div class="status-pill"><div class="dot-green"></div> Online: <span id="onlineCountText" style="color:#fff; font-weight:bold;">1</span></div>
     </div>
 
-    <h1 class="neon-title glitch-text" style="font-size:4.5rem; margin-bottom:5px;">CYBER PONG</h1>
-    <p style="color:#666; font-size:0.75rem; letter-spacing:4px; margin-bottom:25px;">KÜRESEL SİBER ARENA v4.0</p>
+    <h1 class="neon-title" style="font-size:4.5rem; margin-bottom:10px;">NEON PONG</h1>
+    <p style="color:#666; font-size:0.7rem; margin-bottom:25px;">Küresel Siber Arena v4.0</p>
 
     <div class="menu-grid">
         <button id="btnFindMatch" class="neon-button" style="font-size:1.3rem;" data-i18n="BTN_FIND_MATCH">⚔️ EŞLEŞME BUL</button>
@@ -446,16 +358,15 @@
         <button id="btnInventory" class="neon-button cyan" style="font-size:1.3rem; grid-column:span 2;" data-i18n="BTN_INVENTORY">🎒 ENVANTER & MAĞAZA</button>
     </div>
 
-    <div style="display:flex; gap:15px; margin-top:18px;">
-        <button id="btnLeaderboard" class="neon-button gold" style="font-size:0.95rem; padding:12px 25px;" data-i18n="BTN_LEADERBOARD">🏆 LİDERLİK</button>
-        <button id="btnStats" class="neon-button cyan" style="font-size:0.95rem; padding:12px 25px;">📊 İSTATİSTİKLER</button>
+    <div style="display:flex; gap:15px; margin-top:20px;">
+        <button id="btnLeaderboard" class="neon-button gold" style="font-size:0.9rem; padding:10px 25px;" data-i18n="BTN_LEADERBOARD">🏆 LİDERLİK TABLOSU</button>
+        <button id="btnStats" class="neon-button cyan" style="font-size:0.9rem; padding:10px 25px;">📊 İSTATİSTİKLER</button>
     </div>
 
-    <!-- Global Chat -->
-    <div id="globalChat" class="glass-card">
+    <div id="globalChat">
         <div id="chatMessages"></div>
         <div id="chatInputContainer">
-            <input type="text" id="chatInput" placeholder="Mesaj yaz... (@bot ile AI cevap verir)" maxlength="100">
+            <input type="text" id="chatInput" placeholder="Siber Ağa Mesaj Gönder..." maxlength="100">
             <button id="btnSendChat">İLET</button>
         </div>
     </div>
@@ -465,10 +376,10 @@
 <div id="singleplayerScreen" class="screen hidden">
     <h1 class="neon-title" data-i18n="TITLE_DIFFICULTY">ZORLUK SEÇİNİZ</h1>
     <p style="color:#aaa; margin-bottom:30px;" data-i18n="DESC_DIFFICULTY">Bot zorluğuna göre kazanılan ödüller artar.</p>
-    <div class="menu-grid" style="width:500px;">
-        <button class="neon-button green btn-difficulty" data-diff="easy" style="grid-column:span 2; font-size:1.4rem;">🤖 Kolay Bot</button>
-        <button class="neon-button gold btn-difficulty" data-diff="medium" style="grid-column:span 2; font-size:1.4rem;">⚙️ Orta Bot</button>
-        <button class="neon-button cyan btn-difficulty" data-diff="hard" style="grid-column:span 2; font-size:1.4rem;">💀 Zor Bot</button>
+    <div class="menu-grid">
+        <button class="neon-button green btn-difficulty" data-diff="easy" style="grid-column:span 2; font-size:1.5rem;">🤖 Kolay Bot</button>
+        <button class="neon-button gold btn-difficulty" data-diff="medium" style="grid-column:span 2; font-size:1.5rem;">⚙️ Orta Bot</button>
+        <button class="neon-button cyan btn-difficulty" data-diff="hard" style="grid-column:span 2; font-size:1.5rem;">💀 Zor Bot</button>
     </div>
     <button id="btnCancelSingleplayer" class="neon-button back-btn">ANA MENÜYE DÖN</button>
 </div>
@@ -476,22 +387,22 @@
 <!-- Stats Screen -->
 <div id="statsScreen" class="screen hidden">
     <h1 class="neon-title" style="color:var(--neon-blue);">📊 OYUNCU İSTATİSTİKLERİ</h1>
-    <div class="glass-card" style="width:650px; padding:30px; display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:15px;">
-        <div style="text-align:center; padding:15px; background:rgba(0,255,255,0.04); border-radius:8px;">
-            <div style="color:#888; font-size:0.8rem;">TOPLAM MAÇ</div>
-            <div id="statTotalGames" style="font-size:2.2rem; font-weight:bold; color:#fff;">0</div>
+    <div class="neon-card" style="width:600px; padding:25px; display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
+        <div style="text-align:center; padding:12px; background:rgba(0,255,255,0.04); border-radius:8px;">
+            <div style="color:#888; font-size:0.75rem;">TOPLAM MAÇ</div>
+            <div id="statTotalGames" style="font-size:2rem; font-weight:bold; color:#fff;">0</div>
         </div>
-        <div style="text-align:center; padding:15px; background:rgba(0,255,102,0.04); border-radius:8px;">
-            <div style="color:#888; font-size:0.8rem;">GALİBİYET/MAĞLUBİYET</div>
-            <div id="statWinLoss" style="font-size:2.2rem; font-weight:bold; color:var(--neon-green);">0 / 0</div>
+        <div style="text-align:center; padding:12px; background:rgba(0,255,102,0.04); border-radius:8px;">
+            <div style="color:#888; font-size:0.75rem;">GALİBİYET / MAĞLUBİYET</div>
+            <div id="statWinLoss" style="font-size:2rem; font-weight:bold; color:var(--neon-green);">0 / 0</div>
         </div>
-        <div style="text-align:center; padding:15px; background:rgba(255,215,0,0.04); border-radius:8px;">
-            <div style="color:#888; font-size:0.8rem;">KAZANMA ORANI</div>
-            <div id="statWinRate" style="font-size:2.2rem; font-weight:bold; color:var(--neon-gold);">%0</div>
+        <div style="text-align:center; padding:12px; background:rgba(255,215,0,0.04); border-radius:8px;">
+            <div style="color:#888; font-size:0.75rem;">KAZANMA ORANI</div>
+            <div id="statWinRate" style="font-size:2rem; font-weight:bold; color:var(--neon-gold);">%0</div>
         </div>
-        <div style="text-align:center; padding:15px; background:rgba(255,0,255,0.04); border-radius:8px;">
-            <div style="color:#888; font-size:0.8rem;">EN İYİ GALİBİYET SERİSİ</div>
-            <div id="statBestStreak" style="font-size:2.2rem; font-weight:bold; color:var(--neon-pink);">0</div>
+        <div style="text-align:center; padding:12px; background:rgba(255,0,255,0.04); border-radius:8px;">
+            <div style="color:#888; font-size:0.75rem;">EN İYİ SERİ</div>
+            <div id="statBestStreak" style="font-size:2rem; font-weight:bold; color:var(--neon-pink);">0</div>
         </div>
     </div>
     <button id="btnStatsBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
@@ -510,23 +421,23 @@
 <div id="joinRoomScreen" class="screen hidden">
     <h1 class="neon-title">🚪 ODAYA KATIL</h1>
     <p style="color:#aaa; margin-bottom:20px;">4 haneli oda kodunu gir:</p>
-    <input type="text" id="roomCodeInput" class="neon-input" placeholder="XXXX" maxlength="4" style="font-size:2rem; letter-spacing:10px; width:260px; text-transform:uppercase;">
+    <input type="text" id="roomCodeInput" class="neon-input" placeholder="XXXX" maxlength="4" style="font-size:2rem; letter-spacing:10px; width:250px; text-transform:uppercase;">
     <div id="joinRoomError" style="color:var(--neon-red); font-size:0.85rem; margin-bottom:15px; min-height:20px;"></div>
     <button id="btnJoinRoomGo" class="neon-button green">ODAYA GİR</button>
     <button id="btnCancelJoin" class="neon-button back-btn">GERİ DÖN</button>
 </div>
 
 <!-- Leaderboard -->
-<div id="leaderboardScreen" class="screen hidden" style="justify-content:flex-start; padding-top:40px;">
-    <h1 class="neon-title" style="color:var(--neon-gold); text-shadow:0 0 20px var(--neon-gold);">🏆 GLOBAL LİDERLİK TABLOSU</h1>
-    <div class="glass-card" style="width:720px; padding:20px; margin-top:10px;">
-        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+<div id="leaderboardScreen" class="screen hidden" style="justify-content:flex-start; padding-top:50px;">
+    <h1 class="neon-title" style="color:var(--neon-gold); text-shadow:0 0 10px var(--neon-gold);">🏆 GLOBAL LİDERLİK TABLOSU</h1>
+    <div class="neon-card" style="width:700px; padding:20px; margin-top:10px;">
+        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.8rem;">
             <thead>
-                <tr style="border-bottom:1px solid var(--glass-border); color:var(--neon-blue);">
-                    <th style="padding:10px;">#</th>
+                <tr style="border-bottom:1px solid rgba(0,255,255,0.2); color:var(--neon-blue);">
+                    <th style="padding:8px;">#</th>
                     <th>SAVAŞÇI</th>
                     <th>SEVİYE</th>
-                    <th style="text-align:right; padding-right:10px;">XP</th>
+                    <th style="text-align:right;">XP</th>
                 </tr>
             </thead>
             <tbody id="leaderboardBody"></tbody>
@@ -535,21 +446,20 @@
     <button id="btnLbBack" class="neon-button back-btn">ANA MENÜYE DÖN</button>
 </div>
 
-<!-- Inventory & Shop & Achievements & Missions Screen -->
+<!-- Inventory Screen -->
 <div id="inventoryScreen" class="screen hidden">
-    <h1 class="neon-title" style="margin-bottom:15px;">SİBER MERKEZ</h1>
+    <h1 class="neon-title" style="margin-bottom:15px;">ENVANTER & MAĞAZA</h1>
     <div class="tab-bar">
-        <button class="tab-btn active" data-tab="tabInventory">SKİNLER & KASALAR</button>
+        <button class="tab-btn active" data-tab="tabInventory">KASALAR & SKİNLER</button>
         <button class="tab-btn" data-tab="tabShop">MAĞAZA</button>
         <button class="tab-btn" data-tab="tabAchievements">BAŞARIMLAR</button>
         <button class="tab-btn" data-tab="tabMissions">GÖREVLER</button>
     </div>
 
-    <!-- Inventory Tab -->
     <div id="tabInventory" class="tab-content active">
-        <div id="caseSection" style="text-align:center; margin-bottom:15px;">
-            <h3 style="color:var(--neon-blue); margin-bottom:10px;">Sahip Olunan Kasalar: <span id="caseCount" style="color:#fff; font-size:1.8rem;">0</span></h3>
-            <button id="btnOpenCase" class="neon-button gold" style="padding:10px 30px;">KASAYI AÇ</button>
+        <div id="caseSection" style="text-align:center; margin-bottom:20px;">
+            <h2 style="color:var(--neon-blue); margin-bottom:15px;">Sahip Olunan Siber Kasalar: <span id="caseCount" style="color:#fff; font-size:2rem;">0</span></h2>
+            <button id="btnOpenCase" class="neon-button gold">KASAYI AÇ</button>
         </div>
         <div id="rouletteContainer" class="hidden">
             <div class="center-arrow-top"></div>
@@ -558,45 +468,42 @@
             <div id="rouletteTrack"></div>
         </div>
         <div id="wonSkinBanner" class="hidden" style="text-align:center; margin:15px 0; padding:15px; border-radius:10px; background:rgba(0,0,0,0.6);"></div>
-        <h3 style="color:var(--neon-pink); margin-top:20px; margin-bottom:12px; text-align:center;">SAHİP OLDUĞUN SKİNLER</h3>
-        <div id="skinsSection" style="width:100%; display:flex; flex-wrap:wrap; gap:14px; justify-content:center; padding:15px; background:rgba(0,0,0,0.4); border-radius:10px; max-height:360px; overflow-y:auto;"></div>
+        <h2 style="color:var(--neon-pink); margin-top:25px; margin-bottom:10px; text-align:center;">SAHİP OLDUĞUN SKİNLER</h2>
+        <div id="skinsSection" style="width:820px; display:flex; flex-wrap:wrap; gap:15px; justify-content:center; padding:20px; background:rgba(0,0,0,0.5); border-radius:8px;"></div>
     </div>
 
-    <!-- Shop Tab -->
     <div id="tabShop" class="tab-content">
         <div style="text-align:center; margin-bottom:20px;">
-            <h3 style="color:var(--neon-gold);">Mevcut Jetonlar: <span id="shopCredits" style="color:#fff; font-size:1.8rem;">0</span> 💰</h3>
+            <h2 style="color:var(--neon-gold); margin-bottom:5px;">Mevcut Jetonların: <span id="shopCredits" style="color:#fff;">0</span> SİBER JETON</h2>
         </div>
-        <div class="shop-container">
+        <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
             <div class="shop-card">
                 <h3 style="color:var(--neon-gold); margin-bottom:10px;">🔒 SİBER KASA</h3>
                 <div style="font-size:3rem; margin:10px 0;">📦</div>
-                <p style="color:#aaa; font-size:0.72rem; margin-bottom:15px;">Sıradan, Nadir, Destansı veya Efsanevi skin şansı.</p>
-                <button class="neon-button gold btnBuyCaseTier" data-tier="standard" data-price="500" style="padding:10px 20px; font-size:0.9rem;">500 JETON</button>
+                <p style="color:#aaa; font-size:0.7rem; margin-bottom:15px;">Standart oranlarda skin şansı.</p>
+                <button class="neon-button gold btnBuyCaseTier" data-tier="standard" data-price="500">500 JETON</button>
             </div>
             <div class="shop-card premium">
                 <h3 style="color:var(--neon-pink); margin-bottom:10px;">⭐ PREMİUM KASA</h3>
                 <div style="font-size:3rem; margin:10px 0;">🎁</div>
-                <p style="color:#aaa; font-size:0.72rem; margin-bottom:15px;">Yüksek Destansı ve Efsanevi skin çıkarma şansı.</p>
-                <button class="neon-button cyan btnBuyCaseTier" data-tier="premium" data-price="1200" style="padding:10px 20px; font-size:0.9rem;">1200 JETON</button>
+                <p style="color:#aaa; font-size:0.7rem; margin-bottom:15px;">Yüksek Destansı ve Efsanevi skin çıkarma şansı.</p>
+                <button class="neon-button cyan btnBuyCaseTier" data-tier="premium" data-price="1200">1200 JETON</button>
             </div>
             <div class="shop-card mega">
                 <h3 style="color:var(--neon-blue); margin-bottom:10px;">🔥 MEGA KASA</h3>
                 <div style="font-size:3rem; margin:10px 0;">💎</div>
-                <p style="color:#aaa; font-size:0.72rem; margin-bottom:15px;">Garantili Efsanevi veya Gizemli (Mythic) skin!</p>
-                <button class="neon-button green btnBuyCaseTier" data-tier="mega" data-price="2500" style="padding:10px 20px; font-size:0.9rem;">2500 JETON</button>
+                <p style="color:#aaa; font-size:0.7rem; margin-bottom:15px;">Garantili Efsanevi veya Gizemli skin!</p>
+                <button class="neon-button green btnBuyCaseTier" data-tier="mega" data-price="2500">2500 JETON</button>
             </div>
         </div>
     </div>
 
-    <!-- Achievements Tab -->
     <div id="tabAchievements" class="tab-content">
         <div class="achievements-grid" id="achievementsGrid"></div>
     </div>
 
-    <!-- Missions Tab -->
     <div id="tabMissions" class="tab-content">
-        <div class="missions-list" id="missionsList"></div>
+        <div style="display:flex; flex-direction:column; gap:12px;" id="missionsList"></div>
     </div>
 
     <button id="btnBackToMenu" class="neon-button back-btn">ANA MENÜYE DÖN</button>
@@ -613,7 +520,6 @@
         <div id="matchCreditDisplay" class="hidden">⚡ 0 KREDİ</div>
         <div id="abilityBanner"></div>
 
-        <!-- Emotes -->
         <div id="emotePanel" class="hidden">
             <button class="emote-btn" data-emote="🔥">🔥</button>
             <button class="emote-btn" data-emote="😎">😎</button>
@@ -625,7 +531,6 @@
             <button class="emote-btn" data-emote="💥">💥</button>
         </div>
 
-        <!-- Ability HUD -->
         <div id="abilityHUD" class="hidden">
             <div class="ab-slot">
                 <div class="ab-key">[ 1 ]</div>
@@ -652,7 +557,7 @@
                 <button id="abBtn3" class="ab-btn ab-glitch" data-ability="data_glitch">
                     <span class="ab-icon">🌀</span>
                     <span class="ab-label">DATA GLITCH</span>
-                    <span class="ab-cost" style="color:var(--neon-red);">35 ⚡</span>
+                    <span class="ab-cost" style="color:#f50;">35 ⚡</span>
                     <div class="ab-cd-sweep" id="abSweep3" style="--pct:0%"></div>
                     <span class="ab-cd-label" id="abCdLabel3"></span>
                 </button>
@@ -660,17 +565,15 @@
         </div>
 
         <div id="ui" class="overlay-box hidden">
-            <h2 id="message" style="color:var(--neon-pink);">Sisteme Bağlanılıyor...</h2>
+            <h2 id="message">Sisteme Bağlanılıyor...</h2>
         </div>
 
-        <!-- End Game Overlay -->
         <div id="endGameOverlay" class="overlay-box hidden">
             <div id="endGameText" class="neon-title" style="font-size:3.5rem;"></div>
             <div id="endGameXpText" style="font-size:1.5rem; color:var(--neon-green);"></div>
             <div id="endGameCreditText" style="font-size:1.2rem; color:var(--neon-gold); margin-top:6px;"></div>
-            <div id="matchStatsBox" style="margin-top:10px; font-size:0.8rem; color:#aaa;"></div>
+            <div id="matchStatsBox" style="margin-top:10px; font-size:0.75rem; color:#888;"></div>
 
-            <!-- NVIDIA NIM AI Commentary -->
             <div id="aiCommentaryBox" class="hidden">
                 <div style="font-weight:bold; font-size:0.75rem; color:var(--neon-pink); margin-bottom:4px;">🤖 NEON AI MAÇ YORUMU</div>
                 <div id="aiCommentaryText"></div>
@@ -694,51 +597,57 @@
 <script>
 'use strict';
 
-// Ambient Background Animation
+// ═══════════════════════════════════════════════════════════════════════════
+// Performance-Optimized Background Grid
+// ═══════════════════════════════════════════════════════════════════════════
 const bgCanvas = document.getElementById('bgCanvas');
-const bgCtx = bgCanvas.getContext('2d');
-let bgParticles = [];
+const bgCtx    = bgCanvas.getContext('2d');
+let bgAnimActive = true;
+let bgParticles  = [];
 
 function resizeBgCanvas() {
-    bgCanvas.width = window.innerWidth;
+    bgCanvas.width  = window.innerWidth;
     bgCanvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resizeBgCanvas);
 resizeBgCanvas();
 
-for(let i=0; i<40; i++) {
+for (let i = 0; i < 25; i++) {
     bgParticles.push({
         x: Math.random() * bgCanvas.width,
         y: Math.random() * bgCanvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.5 + 0.2
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: Math.random() * 2 + 1
     });
 }
 
 function drawBgAnimation() {
+    if (!bgAnimActive) return;
     bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-    bgCtx.fillStyle = 'rgba(0, 255, 255, 0.3)';
-    bgParticles.forEach(p => {
+    bgCtx.fillStyle = 'rgba(0, 255, 255, 0.2)';
+    for (let i = 0; i < bgParticles.length; i++) {
+        const p = bgParticles[i];
         p.x += p.vx; p.y += p.vy;
-        if(p.x < 0) p.x = bgCanvas.width; if(p.x > bgCanvas.width) p.x = 0;
-        if(p.y < 0) p.y = bgCanvas.height; if(p.y > bgCanvas.height) p.y = 0;
-        bgCtx.globalAlpha = p.alpha;
-        bgCtx.beginPath();
-        bgCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-        bgCtx.fill();
-    });
+        if (p.x < 0) p.x = bgCanvas.width; if (p.x > bgCanvas.width) p.x = 0;
+        if (p.y < 0) p.y = bgCanvas.height; if (p.y > bgCanvas.height) p.y = 0;
+        bgCtx.fillRect(p.x, p.y, p.size, p.size);
+    }
     requestAnimationFrame(drawBgAnimation);
 }
 drawBgAnimation();
 
+// ═══════════════════════════════════════════════════════════════════════════
 // Socket Connection
+// ═══════════════════════════════════════════════════════════════════════════
 let socket;
 const _serverUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:3000' : window.location.origin;
-try { socket = io(_serverUrl, { transports: ['websocket'], upgrade: false }); } catch (e) { socket = { on() {}, emit() {} }; }
+try { socket = io(_serverUrl, { transports: ['websocket'], upgrade: false }); }
+catch (e) { socket = { on() {}, emit() {} }; }
 
-// 17 Skins Definition
+// ═══════════════════════════════════════════════════════════════════════════
+// 17 Skins Definitions
+// ═══════════════════════════════════════════════════════════════════════════
 const SKINS = {
     'default':   { name: 'Klasik',          rarityKey: 'RARITY_COMMON',    color: '#ffffff', glow: '#ffffff', rarityColor: '#888888', sellPrice: 0 },
     'blue':      { name: 'Neon Safir',      rarityKey: 'RARITY_RARE',      color: '#00ffff', glow: '#00ffff', rarityColor: '#00aaff', sellPrice: 125 },
@@ -759,7 +668,9 @@ const SKINS = {
     'hologram':  { name: 'Hologram',        rarityKey: 'RARITY_MYTHIC',    color: '#e0aaff', glow: '#c77dff', rarityColor: '#ff3333', sellPrice: 600 }
 };
 
-// User Profile Data & LocalStorage Setup
+// ═══════════════════════════════════════════════════════════════════════════
+// User Profile & LocalStorage State
+// ═══════════════════════════════════════════════════════════════════════════
 let user = JSON.parse(localStorage.getItem('pongUser'));
 if (!user) {
     user = { name: '', xp: 0, level: 1, cases: 0, credits: 50, skins: [], equippedSkin: 'default', achievements: [], totalGames: 0, totalWins: 0, totalLosses: 0, bestStreak: 0, currentStreak: 0 };
@@ -782,13 +693,14 @@ function getTitle(level) { return level >= 10 ? 'Efsane' : level >= 5 ? 'Usta' :
 
 function updateProfileUI() {
     if (!user.name) return;
-    document.getElementById('profName').innerText = `${user.name} [${getTitle(user.level)}]`;
-    document.getElementById('profLevel').innerText = `Seviye ${user.level}`;
+    document.getElementById('profName').innerText    = `${user.name} [${getTitle(user.level)}]`;
+    document.getElementById('profLevel').innerText   = `Seviye ${user.level}`;
     document.getElementById('profCredits').innerText = `💰 ${user.credits} Siber Jeton`;
     const xpForCurrentLvl = (user.level - 1) * XP_PER_LEVEL;
     const pct = Math.min(((user.xp - xpForCurrentLvl) / XP_PER_LEVEL) * 100, 100);
     document.getElementById('xpBarFill').style.width = pct + '%';
     document.getElementById('xpText').innerText = `${user.xp} / ${user.level * XP_PER_LEVEL} XP`;
+
     document.getElementById('statTotalGames').innerText = user.totalGames;
     document.getElementById('statWinLoss').innerText = `${user.totalWins} / ${user.totalLosses}`;
     const winRate = user.totalGames > 0 ? Math.round((user.totalWins / user.totalGames) * 100) : 0;
@@ -797,20 +709,28 @@ function updateProfileUI() {
 }
 
 function addXP(amount) {
-    const oldLevel = user.level;
     user.xp += amount;
     user.level = getLevel(user.xp);
     saveUser(); updateProfileUI();
 }
 function addCredits(amount) { user.credits += amount; saveUser(); updateProfileUI(); }
 
-// UI Screen Handlers
+// ═══════════════════════════════════════════════════════════════════════════
+// UI Screen Switcher
+// ═══════════════════════════════════════════════════════════════════════════
 function hideAllScreens() { document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden')); }
-function showScreen(id) { hideAllScreens(); document.getElementById(id).classList.remove('hidden'); }
+function showScreen(id) {
+    hideAllScreens();
+    document.getElementById(id).classList.remove('hidden');
+    // Pause bgAnim when in active match screen for performance
+    if (id === 'gameScreen') bgAnimActive = false;
+    else if (!bgAnimActive) { bgAnimActive = true; drawBgAnimation(); }
+}
 
 if (user.name) { showScreen('mainMenu'); updateProfileUI(); } else { showScreen('loginScreen'); }
 
 document.getElementById('btnLogin').addEventListener('click', () => {
+    initAudio();
     const name = document.getElementById('usernameInput').value.trim();
     if (!name) return alert('Lütfen bir kullanıcı adı girin.');
     user.name = name;
@@ -820,86 +740,280 @@ document.getElementById('btnLogin').addEventListener('click', () => {
     socket.emit('reportStats', { name: user.name, xp: user.xp, level: user.level });
 });
 
-document.getElementById('btnStats').addEventListener('click', () => { updateProfileUI(); showScreen('statsScreen'); });
-document.getElementById('btnStatsBack').addEventListener('click', () => { showScreen('mainMenu'); });
+document.getElementById('btnStats').addEventListener('click', () => { initAudio(); updateProfileUI(); showScreen('statsScreen'); });
+document.getElementById('btnStatsBack').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
 
-// Achievements & Missions Local Render
-let achievementsData = [];
-let missionsData = [];
+// ═══════════════════════════════════════════════════════════════════════════
+// Audio Synthesizer
+// ═══════════════════════════════════════════════════════════════════════════
+let audioCtx = null;
+let audioInit = false;
 
-fetch('/data/achievements.json').then(r => r.json()).then(data => { achievementsData = data; renderAchievements(); }).catch(() => {});
-fetch('/data/missions.json').then(r => r.json()).then(data => { missionsData = data; renderMissions(); }).catch(() => {});
-
-function renderAchievements() {
-    const grid = document.getElementById('achievementsGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    achievementsData.forEach(ach => {
-        const isUnlocked = user.achievements.includes(ach.id);
-        const card = document.createElement('div');
-        card.className = `ach-card ${isUnlocked ? 'unlocked' : ''}`;
-        card.innerHTML = `
-            <div class="ach-icon">${ach.icon}</div>
-            <div class="ach-info">
-                <div class="ach-title">${ach.name} ${isUnlocked ? '✓' : ''}</div>
-                <div class="ach-desc">${ach.desc}</div>
-                <div class="ach-reward">+${ach.reward.xp} XP | +${ach.reward.credits} 💰</div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
+function initAudio() {
+    if (!audioInit) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); audioInit = true; } catch (e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
 
-function renderMissions() {
-    const list = document.getElementById('missionsList');
-    if (!list) return;
-    list.innerHTML = '';
-    missionsData.forEach(m => {
-        const card = document.createElement('div');
-        card.className = 'mission-card';
-        card.innerHTML = `
-            <div class="mission-info">
-                <span style="font-size:1.8rem;">${m.icon}</span>
-                <div>
-                    <div style="font-weight:bold; font-size:0.95rem;">${m.name}</div>
-                    <div style="font-size:0.75rem; color:#888;">${m.desc}</div>
-                </div>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:0.8rem; color:var(--neon-gold); font-weight:bold;">+${m.reward.xp} XP | +${m.reward.credits} 💰</div>
-            </div>
-        `;
-        list.appendChild(card);
-    });
+function playTone(freq, type, duration, vol = 0.08) {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 
-// Case Opening Logic for 3 Tiers
-document.querySelectorAll('.btnBuyCaseTier').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const price = parseInt(e.target.dataset.price);
-        if (user.credits < price) return alert(`Yetersiz jeton! ${price} gerekiyor.`);
-        user.credits -= price;
-        user.cases++;
-        saveUser();
-        updateProfileUI();
-        alert('Kasa satın alındı! Envanter sekmesinden açabilirsin.');
-    });
-});
+function playSoundEffect(type) {
+    if (!audioInit) return;
+    if (type === 'paddleHit') playTone(600, 'square', 0.08, 0.04);
+    else if (type === 'wallHit') playTone(300, 'triangle', 0.08, 0.03);
+    else if (type === 'score') { playTone(400,'sawtooth',0.1,0.08); setTimeout(()=>playTone(600,'sawtooth',0.1,0.08),100); }
+    else if (type === 'win') { playTone(440,'square',0.15,0.08); setTimeout(()=>playTone(659,'square',0.3,0.08),150); }
+    else if (type === 'lose') { playTone(400,'sawtooth',0.2,0.08); setTimeout(()=>playTone(280,'sawtooth',0.3,0.08),200); }
+}
 
-// Canvas Game Renderer Logic
+// ═══════════════════════════════════════════════════════════════════════════
+// Singleplayer Bot Engine
+// ═══════════════════════════════════════════════════════════════════════════
+class SingleplayerBot {
+    constructor(canvasHeight, xPosition) {
+        this.canvasHeight = canvasHeight;
+        this.x = xPosition;
+        this.y = canvasHeight / 2;
+        this.targetY = this.y;
+        this.difficulty = 'medium';
+    }
+    setDifficulty(level) { this.difficulty = level; }
+    update(dt, ball) {
+        if (!ball) return;
+        this.targetY = ball.y - 50;
+        const spd = this.difficulty === 'hard' ? 600 : this.difficulty === 'medium' ? 380 : 220;
+        const dir = Math.sign(this.targetY - this.y);
+        if (Math.abs(this.targetY - this.y) > 4) this.y += dir * spd * dt;
+        this.y = Math.max(0, Math.min(this.canvasHeight - 100, this.y));
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Game Canvas & Render Loop
+// ═══════════════════════════════════════════════════════════════════════════
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
 
-let gamePhase = 'idle';
-let serverBall = { x: 400, y: 300, currentSpeed: 5 };
-let ballTrail = [];
+let gamePhase        = 'idle'; // 'idle' | 'countdown' | 'playing' | 'gameover'
+let isRenderRunning  = false;
+let mySide           = 'left';
+let opponentProfile  = null;
+let isSingleplayer   = false;
+let singleplayerBot  = null;
+let singleplayerDifficulty = 'medium';
+let gameAlreadyOver  = false;
+let currentCountdown = 3;
 
-socket.on('onlineCount', data => {
-    document.getElementById('onlineCountText').innerText = data.count;
+let serverBall    = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
+let serverPlayers = { left: { y: 250, score: 0, grow: 0 }, right: { y: 250, score: 0, grow: 0 } };
+let predictedBall = { x: 400, y: 300, dx: 0, dy: 0 };
+let renderOffset  = { x: 0, y: 0 };
+let renderBall    = { x: 400, y: 300 };
+let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
+
+let matchCredits = 0;
+let myAbilities  = { cyber_shield: { active: false, cd: 0 }, chrono_pulse: { active: false, cd: 0 }, data_glitch: { active: false, cd: 0 } };
+let oppAbilities = { cyber_shield: { active: false }, chrono_pulse: { active: false } };
+
+let lastFrameTime = 0;
+let floatingEmotes = [];
+let gridCache = null;
+
+function getSkinStyle(skinId) { return SKINS[skinId] || SKINS['default']; }
+function getSkinColor(ss) { return ss.color === 'rgb' ? `hsl(${(Date.now() / 5) % 360},100%,50%)` : ss.color; }
+
+function drawCachedGrid() {
+    if (!gridCache) {
+        const off = document.createElement('canvas');
+        off.width = 800; off.height = 600;
+        const octx = off.getContext('2d');
+        octx.strokeStyle = 'rgba(0,255,255,0.04)';
+        octx.lineWidth = 1;
+        for (let x = 0; x <= 800; x += 40) { octx.beginPath(); octx.moveTo(x,0); octx.lineTo(x,600); octx.stroke(); }
+        for (let y = 0; y <= 600; y += 40) { octx.beginPath(); octx.moveTo(0,y); octx.lineTo(800,y); octx.stroke(); }
+        octx.setLineDash([12,12]);
+        octx.strokeStyle = 'rgba(0,255,255,0.15)'; octx.lineWidth = 2;
+        octx.beginPath(); octx.moveTo(400,0); octx.lineTo(400,600); octx.stroke();
+        gridCache = off;
+    }
+    ctx.drawImage(gridCache, 0, 0);
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function renderLoop(timestamp) {
+    if (!isRenderRunning || !ctx) return;
+
+    const now = performance.now();
+    if (!lastFrameTime) lastFrameTime = now;
+    const dtMs = now - lastFrameTime;
+    lastFrameTime = now;
+    const dtFactor = Math.min(dtMs / 16.67, 3);
+    const dtSec = dtMs / 1000;
+
+    if (gamePhase === 'playing') {
+        if (isSingleplayer && singleplayerBot) {
+            singleplayerBot.update(dtSec, serverBall);
+            serverPlayers.right.y = singleplayerBot.y;
+            
+            // Fast SP Ball Step
+            serverBall.x += serverBall.dx * 60 * dtSec;
+            serverBall.y += serverBall.dy * 60 * dtSec;
+            if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) { serverBall.dy *= -1; playSoundEffect('wallHit'); }
+            
+            // Paddle collisions
+            if (serverBall.x - 8 <= 32 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100 && serverBall.dx < 0) {
+                serverBall.dx = Math.abs(serverBall.dx) + 0.3; playSoundEffect('paddleHit');
+            }
+            if (serverBall.x + 8 >= 768 && serverBall.y >= serverPlayers.right.y && serverBall.y <= serverPlayers.right.y + 100 && serverBall.dx > 0) {
+                serverBall.dx = -Math.abs(serverBall.dx) - 0.3; playSoundEffect('paddleHit');
+            }
+            if (serverBall.x < 0) { serverPlayers.right.score++; serverBall.x = 400; serverBall.y = 300; playSoundEffect('score'); }
+            if (serverBall.x > 800) { serverPlayers.left.score++; serverBall.x = 400; serverBall.y = 300; playSoundEffect('score'); }
+            
+            if (serverPlayers.left.score >= 5 || serverPlayers.right.score >= 5) {
+                const win = serverPlayers.left.score >= 5;
+                gamePhase = 'gameover'; isRenderRunning = false;
+                playSoundEffect(win ? 'win' : 'lose');
+                user.totalGames++; if (win) { user.totalWins++; user.currentStreak++; if (user.currentStreak > user.bestStreak) user.bestStreak = user.currentStreak; } else { user.totalLosses++; user.currentStreak = 0; }
+                saveUser(); updateProfileUI();
+                socket.emit('singleplayerResult', { win, difficulty: singleplayerDifficulty });
+            }
+            renderBall.x = serverBall.x; renderBall.y = serverBall.y;
+        } else {
+            const speedMul = serverBall.speed / 5;
+            predictedBall.x += predictedBall.dx * speedMul * dtFactor;
+            predictedBall.y += predictedBall.dy * speedMul * dtFactor;
+            renderOffset.x = lerp(renderOffset.x, 0, 0.3 * dtFactor);
+            renderOffset.y = lerp(renderOffset.y, 0, 0.3 * dtFactor);
+            renderBall.x = predictedBall.x + renderOffset.x;
+            renderBall.y = predictedBall.y + renderOffset.y;
+        }
+    }
+
+    renderPlayers.left.y  = lerp(renderPlayers.left.y,  serverPlayers.left.y,  0.3 * dtFactor);
+    renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, 0.3 * dtFactor);
+
+    // Draw frame
+    ctx.clearRect(0, 0, 800, 600);
+    drawCachedGrid();
+
+    const mySkin  = user.equippedSkin || 'default';
+    const oppSkin = opponentProfile?.equippedSkin || 'default';
+    const leftSkinStyle  = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
+    const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
+
+    // Draw paddles
+    const p1H = serverPlayers.left.grow === 1 ? 125 : 100;
+    const p2H = serverPlayers.right.grow === 1 ? 125 : 100;
+    ctx.fillStyle = getSkinColor(leftSkinStyle);
+    ctx.fillRect(20, renderPlayers.left.y, 12, p1H);
+    ctx.fillStyle = getSkinColor(rightSkinStyle);
+    ctx.fillRect(770, renderPlayers.right.y, 12, p2H);
+
+    // Draw ball
+    if (gamePhase === 'playing') {
+        ctx.fillStyle = getSkinColor(serverBall.lastHit === 'right' ? rightSkinStyle : leftSkinStyle);
+        ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI*2); ctx.fill();
+        document.getElementById('ballSpeedVal').innerText = (serverBall.speed || 5.0).toFixed(1);
+    }
+
+    // Scores
+    ctx.font = '55px Orbitron'; ctx.textAlign = 'center';
+    ctx.fillStyle = getSkinColor(leftSkinStyle); ctx.fillText(serverPlayers.left.score, 200, 75);
+    ctx.fillStyle = getSkinColor(rightSkinStyle); ctx.fillText(serverPlayers.right.score, 600, 75);
+
+    // Countdown Text
+    if (gamePhase === 'countdown') {
+        ctx.font = '900 160px Orbitron'; ctx.fillStyle = '#0ff'; ctx.textAlign = 'center';
+        ctx.fillText(currentCountdown > 0 ? currentCountdown : 'GO!', 400, 320);
+    }
+
+    if (isRenderRunning) requestAnimationFrame(renderLoop);
+}
+
+function startRenderLoop() {
+    if (isRenderRunning) return;
+    isRenderRunning = true; lastFrameTime = 0;
+    requestAnimationFrame(renderLoop);
+}
+
+function resetGameState() {
+    serverBall = { x: 400, y: 300, dx: 0, dy: 0, speed: 5, lastHit: null };
+    serverPlayers = { left: { y: 250, score: 0, grow: 0 }, right: { y: 250, score: 0, grow: 0 } };
+    renderBall = { x: 400, y: 300 }; predictedBall = { x: 400, y: 300, dx: 0, dy: 0 };
+    renderOffset = { x: 0, y: 0 }; renderPlayers = { left: { y: 250 }, right: { y: 250 } };
+    matchCredits = 0; gameAlreadyOver = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Socket Listeners
+// ═══════════════════════════════════════════════════════════════════════════
+socket.on('waiting', (msg) => { document.getElementById('message').innerText = msg; });
+socket.on('onlineCount', data => { document.getElementById('onlineCountText').innerText = data.count; });
+socket.on('rallyUpdate', data => { document.getElementById('rallyVal').innerText = data.count; });
+socket.on('countdownUpdate', (n) => { currentCountdown = n; });
+socket.on('startGame', () => { isSingleplayer = false; gamePhase = 'playing'; startRenderLoop(); });
+
+socket.on('init', (data) => {
+    mySide = data.side; opponentProfile = data.opponent;
+    currentCountdown = 3; gamePhase = 'countdown'; resetGameState();
+    showScreen('gameScreen');
+    document.getElementById('ui').classList.add('hidden');
+    canvas.style.display = 'block';
+    document.getElementById('emotePanel').classList.remove('hidden');
+    document.getElementById('abilityHUD').classList.remove('hidden');
+    document.getElementById('matchCreditDisplay').classList.remove('hidden');
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    startRenderLoop();
 });
 
-socket.on('rallyUpdate', data => {
-    document.getElementById('rallyVal').innerText = data.count;
+socket.on('gs', (s) => {
+    if (gamePhase === 'gameover') return;
+    const lastHitMap = ['left', 'right', null];
+    const newX = s.b[0], newY = s.b[1];
+    if (!isSingleplayer) {
+        renderOffset.x += (predictedBall.x - newX);
+        renderOffset.y += (predictedBall.y - newY);
+        predictedBall.x = newX; predictedBall.y = newY;
+        predictedBall.dx = s.b[2]; predictedBall.dy = s.b[3];
+    }
+    serverBall.x = newX; serverBall.y = newY; serverBall.dx = s.b[2]; serverBall.dy = s.b[3];
+    serverBall.speed = s.b[4]; serverBall.lastHit = lastHitMap[s.b[5]] ?? null;
+    serverPlayers.left.y = s.p[0]; serverPlayers.left.score = s.p[1]; serverPlayers.left.grow = s.p[2];
+    serverPlayers.right.y = s.p[3]; serverPlayers.right.score = s.p[4]; serverPlayers.right.grow = s.p[5];
+});
+
+socket.on('gameOver', (data) => {
+    gamePhase = 'gameover'; isRenderRunning = false; gameAlreadyOver = true;
+    const isWin = (data.winner === mySide);
+    playSoundEffect(isWin ? 'win' : 'lose');
+
+    user.totalGames++; if (isWin) { user.totalWins++; user.currentStreak++; if (user.currentStreak > user.bestStreak) user.bestStreak = user.currentStreak; } else { user.totalLosses++; user.currentStreak = 0; }
+    saveUser(); updateProfileUI();
+
+    const xpGained = isWin ? 150 : 50; const creditsGained = data.credits || (isWin ? 100 : 30);
+    addXP(xpGained); addCredits(creditsGained);
+
+    const overlay = document.getElementById('endGameOverlay');
+    const endText = document.getElementById('endGameText');
+    endText.innerText = isWin ? 'KAZANDIN!' : 'KAYBETTİN!';
+    endText.className = `neon-title ${isWin ? 'win-text' : 'lose-text'}`;
+    document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
+    document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
+    document.getElementById('matchStatsBox').innerHTML = `📊 Max Hız: ${data.stats?.maxSpeed || 0} | Toplam Vuruş: ${data.stats?.totalHits || 0}`;
+    overlay.classList.remove('hidden');
 });
 
 socket.on('aiCommentary', data => {
@@ -909,15 +1023,53 @@ socket.on('aiCommentary', data => {
     }
 });
 
-// Navigation buttons
-document.getElementById('btnInventory').addEventListener('click', () => { showScreen('inventoryScreen'); updateInventoryUI(); });
-document.getElementById('btnBackToMenu').addEventListener('click', () => { showScreen('mainMenu'); });
-document.getElementById('btnLeaderboard').addEventListener('click', () => { showScreen('leaderboardScreen'); socket.emit('getLeaderboard'); });
-document.getElementById('btnLbBack').addEventListener('click', () => { showScreen('mainMenu'); });
+// Controls
+canvas.addEventListener('mousemove', (e) => {
+    if (gamePhase !== 'playing' && gamePhase !== 'countdown') return;
+    const rect = canvas.getBoundingClientRect();
+    let y = Math.max(0, Math.min(500, e.clientY - rect.top - 50));
+    if (isSingleplayer) serverPlayers.left.y = y;
+    else socket.emit('move', { y });
+});
 
-// Tab Switching
+// Navigation Handlers
+document.getElementById('btnFindMatch').addEventListener('click', () => {
+    initAudio(); resetGameState(); gamePhase = 'countdown';
+    showScreen('gameScreen'); document.getElementById('ui').classList.remove('hidden');
+    document.getElementById('message').innerText = 'Siber Arena İçin Rakip Aranıyor...';
+    document.getElementById('endGameOverlay').classList.add('hidden'); canvas.style.display = 'none';
+    socket.emit('joinMatchmaking', { name: user.name, level: user.level, title: getTitle(user.level), equippedSkin: user.equippedSkin });
+});
+
+document.getElementById('btnSingleplayer').addEventListener('click', () => { initAudio(); showScreen('singleplayerScreen'); });
+document.getElementById('btnCancelSingleplayer').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
+
+document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-difficulty');
+    if (btn) {
+        initAudio(); isSingleplayer = true; singleplayerDifficulty = btn.dataset.diff;
+        mySide = 'left'; opponentProfile = { name: 'SİBER BOT', title: 'AI BOT', equippedSkin: 'red' };
+        resetGameState(); singleplayerBot = new SingleplayerBot(600, 770); singleplayerBot.setDifficulty(singleplayerDifficulty);
+        socket.emit('startSingleplayer', singleplayerDifficulty);
+        showScreen('gameScreen'); document.getElementById('ui').classList.add('hidden'); canvas.style.display = 'block';
+        document.getElementById('endGameOverlay').classList.add('hidden'); gamePhase = 'playing'; startRenderLoop();
+    }
+});
+
+document.getElementById('btnReturnMenu').addEventListener('click', () => {
+    isRenderRunning = false; gamePhase = 'idle'; isSingleplayer = false;
+    canvas.style.display = 'none'; showScreen('mainMenu'); resetGameState();
+});
+
+// Inventory, Shop, Achievements & Missions
+document.getElementById('btnInventory').addEventListener('click', () => { initAudio(); showScreen('inventoryScreen'); updateInventoryUI(); });
+document.getElementById('btnBackToMenu').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
+document.getElementById('btnLeaderboard').addEventListener('click', () => { initAudio(); showScreen('leaderboardScreen'); socket.emit('getLeaderboard'); });
+document.getElementById('btnLbBack').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+        initAudio();
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
@@ -928,13 +1080,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 function updateInventoryUI() {
     document.getElementById('caseCount').innerText = user.cases || 0;
     document.getElementById('shopCredits').innerText = user.credits || 0;
-    const sec = document.getElementById('skinsSection');
-    sec.innerHTML = '';
-    const all = ['default', ...(user.skins || [])];
-    const unique = [...new Set(all)];
+    const sec = document.getElementById('skinsSection'); sec.innerHTML = '';
+    const all = ['default', ...(user.skins || [])]; const unique = [...new Set(all)];
     unique.forEach(skinId => {
-        const skin = SKINS[skinId];
-        if (!skin) return;
+        const skin = SKINS[skinId]; if (!skin) return;
         const card = document.createElement('div');
         card.className = 'skin-card' + (user.equippedSkin === skinId ? ' equipped' : '');
         card.innerHTML = `
@@ -943,10 +1092,32 @@ function updateInventoryUI() {
             <div class="skin-rarity-badge" style="color:${skin.rarityColor}; border:1px solid ${skin.rarityColor}">${skin.rarityKey.replace('RARITY_','')}</div>
             ${user.equippedSkin === skinId ? '<div class="skin-equipped">✓ KUŞANILDI</div>' : ''}
         `;
-        card.onclick = () => { user.equippedSkin = skinId; saveUser(); updateInventoryUI(); };
+        card.onclick = () => { initAudio(); user.equippedSkin = skinId; saveUser(); updateInventoryUI(); };
         sec.appendChild(card);
     });
 }
+
+document.querySelectorAll('.btnBuyCaseTier').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        initAudio();
+        const price = parseInt(e.target.dataset.price);
+        if (user.credits < price) return alert(`Yetersiz jeton! ${price} gerekiyor.`);
+        user.credits -= price; user.cases++; saveUser(); updateInventoryUI();
+        alert('Kasa satın alındı! Envanter sekmesinden açabilirsin.');
+    });
+});
+
+// Chat
+document.getElementById('btnSendChat').addEventListener('click', () => {
+    const msg = document.getElementById('chatInput').value.trim();
+    if (msg && user.name) { socket.emit('sendGlobalMessage', { name: user.name, title: getTitle(user.level), message: msg }); document.getElementById('chatInput').value = ''; }
+});
+socket.on('receiveGlobalMessage', (d) => {
+    const div = document.createElement('div'); div.className = 'chat-msg';
+    div.innerHTML = `<span class="chat-name">${d.name}:</span><span>${d.message}</span>`;
+    document.getElementById('chatMessages').appendChild(div);
+    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+});
 </script>
 </body>
 </html>
