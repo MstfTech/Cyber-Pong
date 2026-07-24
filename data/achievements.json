@@ -1,0 +1,18 @@
+[
+  {"id":"first_blood","name":"İlk Kan","nameEn":"First Blood","desc":"İlk maçını kazan","descEn":"Win your first match","icon":"⚔️","requirement":{"type":"wins","value":1},"reward":{"xp":200,"credits":100}},
+  {"id":"streak_3","name":"Üçlü Seri","nameEn":"Triple Streak","desc":"3 maç üst üste kazan","descEn":"Win 3 matches in a row","icon":"🔥","requirement":{"type":"winStreak","value":3},"reward":{"xp":500,"credits":200}},
+  {"id":"streak_5","name":"Seri Ustası","nameEn":"Streak Master","desc":"5 maç üst üste kazan","descEn":"Win 5 matches in a row","icon":"💎","requirement":{"type":"winStreak","value":5},"reward":{"xp":1000,"credits":500}},
+  {"id":"speed_demon","name":"Hız Şeytanı","nameEn":"Speed Demon","desc":"Bir maçta top hızı 15'i geçsin","descEn":"Ball speed exceeds 15 in a match","icon":"⚡","requirement":{"type":"maxSpeed","value":15},"reward":{"xp":300,"credits":150}},
+  {"id":"untouchable","name":"Dokunulmaz","nameEn":"Untouchable","desc":"Bir maçı 5-0 kazan","descEn":"Win a match 5-0","icon":"🛡️","requirement":{"type":"perfectWin","value":1},"reward":{"xp":800,"credits":400}},
+  {"id":"veteran_10","name":"Tecrübeli","nameEn":"Veteran","desc":"10 maç oyna","descEn":"Play 10 matches","icon":"🎖️","requirement":{"type":"totalGames","value":10},"reward":{"xp":300,"credits":100}},
+  {"id":"veteran_50","name":"Savaş Gazisi","nameEn":"War Veteran","desc":"50 maç oyna","descEn":"Play 50 matches","icon":"🏅","requirement":{"type":"totalGames","value":50},"reward":{"xp":1500,"credits":750}},
+  {"id":"veteran_100","name":"Efsane Savaşçı","nameEn":"Legendary Warrior","desc":"100 maç oyna","descEn":"Play 100 matches","icon":"👑","requirement":{"type":"totalGames","value":100},"reward":{"xp":3000,"credits":1500}},
+  {"id":"case_opener","name":"Kasa Avcısı","nameEn":"Case Hunter","desc":"10 kasa aç","descEn":"Open 10 cases","icon":"📦","requirement":{"type":"casesOpened","value":10},"reward":{"xp":500,"credits":250}},
+  {"id":"case_master","name":"Kasa Ustası","nameEn":"Case Master","desc":"50 kasa aç","descEn":"Open 50 cases","icon":"🎁","requirement":{"type":"casesOpened","value":50},"reward":{"xp":2000,"credits":1000}},
+  {"id":"collector","name":"Koleksiyoncu","nameEn":"Collector","desc":"5 farklı skin topla","descEn":"Collect 5 different skins","icon":"🎨","requirement":{"type":"uniqueSkins","value":5},"reward":{"xp":600,"credits":300}},
+  {"id":"full_collection","name":"Tam Koleksiyon","nameEn":"Full Collection","desc":"12 farklı skin topla","descEn":"Collect 12 different skins","icon":"🌟","requirement":{"type":"uniqueSkins","value":12},"reward":{"xp":5000,"credits":2500}},
+  {"id":"rich","name":"Zengin","nameEn":"Rich","desc":"5000 jeton biriktir","descEn":"Accumulate 5000 credits","icon":"💰","requirement":{"type":"credits","value":5000},"reward":{"xp":1000,"credits":0}},
+  {"id":"sharpshooter","name":"Keskin Nişancı","nameEn":"Sharpshooter","desc":"Bir maçta 20 vuruş yap","descEn":"Make 20 hits in a match","icon":"🎯","requirement":{"type":"matchHits","value":20},"reward":{"xp":400,"credits":200}},
+  {"id":"level_10","name":"Siber Usta","nameEn":"Cyber Master","desc":"Seviye 10'a ulaş","descEn":"Reach level 10","icon":"🔮","requirement":{"type":"level","value":10},"reward":{"xp":0,"credits":2000}},
+  {"id":"chatty","name":"Sosyal Kelebek","nameEn":"Social Butterfly","desc":"Global chatte 50 mesaj gönder","descEn":"Send 50 messages in global chat","icon":"💬","requirement":{"type":"chatMessages","value":50},"reward":{"xp":300,"credits":150}}
+]

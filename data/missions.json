@@ -1,0 +1,11 @@
+[
+  {"id":"win_3","name":"Zafer Yolu","nameEn":"Path of Victory","desc":"3 maç kazan","descEn":"Win 3 matches","icon":"⚔️","requirement":{"type":"wins","value":3},"reward":{"xp":500,"credits":300,"cases":1}},
+  {"id":"win_5","name":"Fatih","nameEn":"Conqueror","desc":"5 maç kazan","descEn":"Win 5 matches","icon":"👑","requirement":{"type":"wins","value":5},"reward":{"xp":1000,"credits":600,"cases":2}},
+  {"id":"play_10","name":"Savaş Çağrısı","nameEn":"Call of Battle","desc":"10 maç oyna","descEn":"Play 10 matches","icon":"🎮","requirement":{"type":"games","value":10},"reward":{"xp":800,"credits":400,"cases":1}},
+  {"id":"score_25","name":"Gol Makinesi","nameEn":"Goal Machine","desc":"Toplam 25 gol at","descEn":"Score 25 total goals","icon":"🥅","requirement":{"type":"goals","value":25},"reward":{"xp":600,"credits":350,"cases":1}},
+  {"id":"hits_100","name":"Vuruş Ustası","nameEn":"Hit Master","desc":"100 vuruş yap","descEn":"Make 100 hits","icon":"🎯","requirement":{"type":"hits","value":100},"reward":{"xp":700,"credits":400,"cases":1}},
+  {"id":"streak_3_weekly","name":"Seri Avcısı","nameEn":"Streak Hunter","desc":"3 maçlık galibiyet serisi yap","descEn":"Get a 3-game winning streak","icon":"🔥","requirement":{"type":"winStreak","value":3},"reward":{"xp":900,"credits":500,"cases":2}},
+  {"id":"play_sp_5","name":"Bot Avcısı","nameEn":"Bot Hunter","desc":"5 tek oyunculu maç oyna","descEn":"Play 5 singleplayer matches","icon":"🤖","requirement":{"type":"spGames","value":5},"reward":{"xp":400,"credits":200,"cases":1}},
+  {"id":"open_cases_3","name":"Kasa Şöleni","nameEn":"Case Fest","desc":"3 kasa aç","descEn":"Open 3 cases","icon":"📦","requirement":{"type":"casesOpened","value":3},"reward":{"xp":300,"credits":200,"cases":0}},
+  {"id":"chat_10","name":"Sohbet Savaşçısı","nameEn":"Chat Warrior","desc":"Chatte 10 mesaj gönder","descEn":"Send 10 chat messages","icon":"💬","requirement":{"type":"chatMessages","value":10},"reward":{"xp":200,"credits":100,"cases":0}}
+]

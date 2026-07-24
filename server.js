@@ -1,10 +1,9 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// CYBER PONG — server.js  (Discord Webhook Entegreli Tam Sürüm)
+// CYBER PONG v4.0 — server.js  (Mega Update: Telegram + NVIDIA NIM AI + Achievements)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const express = require('express');
 const http = require('http');
-// ... gerisi aynı
 const fs      = require('fs');
 const path    = require('path');
 const { Server } = require('socket.io');
@@ -18,50 +17,38 @@ const io     = new Server(server, {
 });
 
 app.use(express.static(__dirname));
+app.use(express.json());
 
 const https = require('https');
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1517560647674499133/27Hu13fCJc9but-U11750f-WbqLq1MXArWBGp6jt9KFS2bMs5MRVT4gXN7hH06tXFAfN";
 
-async function sendDiscordLog(title, message, color = 0x00ff00) {
-    if (!DISCORD_WEBHOOK_URL) return;
+// ─── Environment Variables ────────────────────────────────────────────────────
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "https://discord.com/api/webhooks/1517560647674499133/27Hu13fCJc9but-U11750f-WbqLq1MXArWBGp6jt9KFS2bMs5MRVT4gXN7hH06tXFAfN";
+const NVIDIA_NIM_API_KEY  = process.env.NVIDIA_NIM_API_KEY  || "";
+const TELEGRAM_TOKEN      = process.env.TELEGRAM_TOKEN      || "";
+const TELEGRAM_CHAT_ID    = process.env.TELEGRAM_CHAT_ID    || "";
 
-    try {
-        const payload = JSON.stringify({
-            embeds: [{
-                title: title,
-                description: message,
-                color: color,
-                timestamp: new Date().toISOString()
-            }]
+// ─── Load .env manually (no dotenv dependency) ───────────────────────────────
+try {
+    const envPath = path.join(__dirname, '.env');
+    if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        envContent.split('\n').forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) return;
+            const eqIdx = trimmed.indexOf('=');
+            if (eqIdx === -1) return;
+            const key = trimmed.substring(0, eqIdx).trim();
+            const val = trimmed.substring(eqIdx + 1).trim();
+            if (!process.env[key]) process.env[key] = val;
         });
-
-        const url = new URL(DISCORD_WEBHOOK_URL);
-        const options = {
-            hostname: url.hostname,
-            path: url.pathname + url.search,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(payload)
-            }
-        };
-
-        const req = https.request(options, (res) => {
-            if (res.statusCode < 200 || res.statusCode >= 300) {
-                console.log("Discord webhook başarısız oldu:", res.statusCode);
-            }
-        });
-
-        req.on('error', (err) => {
-            console.log("Discord webhook ağ hatası:", err.message);
-        });
-
-        req.write(payload);
-        req.end();
-    } catch (err) {
-        console.log("Discord webhook hatası:", err.message);
     }
-}
+} catch(e) { console.log('Could not load .env:', e.message); }
+
+// Re-read after .env load
+const _NVIDIA_KEY   = process.env.NVIDIA_NIM_API_KEY  || NVIDIA_NIM_API_KEY;
+const _TG_TOKEN     = process.env.TELEGRAM_TOKEN       || TELEGRAM_TOKEN;
+const _TG_CHAT_ID   = process.env.TELEGRAM_CHAT_ID     || TELEGRAM_CHAT_ID;
+const _DISCORD_URL  = process.env.DISCORD_WEBHOOK_URL  || DISCORD_WEBHOOK_URL;
 
 // ─── Sabitler ────────────────────────────────────────────────────────────────
 const CANVAS_WIDTH    = 800;
@@ -85,6 +72,16 @@ const ABILITY_DEFS = {
 };
 const CREDIT_PER_HIT        = 10;
 const MIN_SPEED_FOR_CREDITS = BASE_SPEED * 0.6;
+
+// ─── Server Stats ─────────────────────────────────────────────────────────────
+let serverStats = {
+    totalGamesPlayed: 0,
+    totalGamesToday: 0,
+    uniquePlayersToday: new Set(),
+    topPlayerToday: { name: '', xp: 0 },
+    lastDailyReset: Date.now(),
+    onlinePlayers: 0
+};
 
 // ─── Sunucu Durumu ────────────────────────────────────────────────────────────
 let waitingPlayer = null;
@@ -127,6 +124,285 @@ function updateLeaderboard(name, xp, level) {
 
 function getTop10() { return leaderboard.slice(0, 10); }
 loadLeaderboard();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Discord Webhook
+// ═══════════════════════════════════════════════════════════════════════════
+async function sendDiscordLog(title, message, color = 0x00ff00) {
+    if (!_DISCORD_URL) return;
+
+    try {
+        const payload = JSON.stringify({
+            embeds: [{
+                title: title,
+                description: message,
+                color: color,
+                timestamp: new Date().toISOString()
+            }]
+        });
+
+        const url = new URL(_DISCORD_URL);
+        const options = {
+            hostname: url.hostname,
+            path: url.pathname + url.search,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                console.log("Discord webhook başarısız oldu:", res.statusCode);
+            }
+        });
+
+        req.on('error', (err) => {
+            console.log("Discord webhook ağ hatası:", err.message);
+        });
+
+        req.write(payload);
+        req.end();
+    } catch (err) {
+        console.log("Discord webhook hatası:", err.message);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Telegram Bot Integration
+// ═══════════════════════════════════════════════════════════════════════════
+function sendTelegramMessage(text, parseMode = 'HTML') {
+    if (!_TG_TOKEN || !_TG_CHAT_ID) return;
+
+    try {
+        const payload = JSON.stringify({
+            chat_id: _TG_CHAT_ID,
+            text: text,
+            parse_mode: parseMode
+        });
+
+        const options = {
+            hostname: 'api.telegram.org',
+            path: `/bot${_TG_TOKEN}/sendMessage`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                if (res.statusCode < 200 || res.statusCode >= 300) {
+                    console.log("Telegram mesaj hatası:", res.statusCode, data);
+                }
+            });
+        });
+
+        req.on('error', (err) => {
+            console.log("Telegram ağ hatası:", err.message);
+        });
+
+        req.write(payload);
+        req.end();
+    } catch (err) {
+        console.log("Telegram hatası:", err.message);
+    }
+}
+
+function telegramMatchStart(p1Name, p2Name) {
+    sendTelegramMessage(
+        `⚔️ <b>Maç Başladı!</b>\n` +
+        `🎮 <b>${p1Name}</b> vs <b>${p2Name}</b>\n` +
+        `🕐 ${new Date().toLocaleTimeString('tr-TR')}`
+    );
+}
+
+function telegramMatchEnd(winnerName, loserName, winScore, loseScore, stats) {
+    const maxSpd = stats.maxSpeed ? stats.maxSpeed.toFixed(1) : '?';
+    const totalHits = (stats.leftHits || 0) + (stats.rightHits || 0);
+    sendTelegramMessage(
+        `🏆 <b>Maç Bitti!</b>\n\n` +
+        `👑 Kazanan: <b>${winnerName}</b>\n` +
+        `💀 Kaybeden: <b>${loserName}</b>\n` +
+        `📊 Skor: <b>${winScore} - ${loseScore}</b>\n` +
+        `⚡ Max Hız: <b>${maxSpd}</b>\n` +
+        `🎯 Toplam Vuruş: <b>${totalHits}</b>\n` +
+        `👥 Aktif Oyuncu: <b>${serverStats.onlinePlayers}</b>`
+    );
+}
+
+function telegramMilestone(playerName, milestone, detail) {
+    sendTelegramMessage(
+        `🌟 <b>Kilometre Taşı!</b>\n\n` +
+        `🎮 <b>${playerName}</b> ${milestone}\n` +
+        `${detail}`
+    );
+}
+
+function telegramDailyStats() {
+    sendTelegramMessage(
+        `📊 <b>Günlük İstatistikler</b>\n\n` +
+        `🎮 Bugün Oynanan Maç: <b>${serverStats.totalGamesToday}</b>\n` +
+        `👥 Tekil Oyuncu: <b>${serverStats.uniquePlayersToday.size}</b>\n` +
+        `🏆 Günün Oyuncusu: <b>${serverStats.topPlayerToday.name || '—'}</b>\n` +
+        `📈 Toplam Maç (tüm zamanlar): <b>${serverStats.totalGamesPlayed}</b>\n` +
+        `👤 Şu An Online: <b>${serverStats.onlinePlayers}</b>`
+    );
+}
+
+// Daily stats reset (every 24h)
+setInterval(() => {
+    const now = Date.now();
+    if (now - serverStats.lastDailyReset > 86400000) {
+        telegramDailyStats();
+        serverStats.totalGamesToday = 0;
+        serverStats.uniquePlayersToday = new Set();
+        serverStats.topPlayerToday = { name: '', xp: 0 };
+        serverStats.lastDailyReset = now;
+    }
+}, 3600000); // Check every hour
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NVIDIA NIM AI Commentary
+// ═══════════════════════════════════════════════════════════════════════════
+let lastAICallTime = 0;
+const AI_RATE_LIMIT_MS = 5000; // Min 5s between calls
+
+async function generateAICommentary(matchData) {
+    if (!_NVIDIA_KEY) return null;
+    
+    const now = Date.now();
+    if (now - lastAICallTime < AI_RATE_LIMIT_MS) return null;
+    lastAICallTime = now;
+
+    return new Promise((resolve) => {
+        try {
+            const prompt = `You are a futuristic cyber sports commentator for "Cyber Pong", a neon-themed competitive pong game. Generate a SHORT (2-3 sentences max), exciting, witty match commentary in TURKISH. Use cyber/neon themed language. Be dramatic and fun.
+
+Match Data:
+- Winner: ${matchData.winnerName}
+- Loser: ${matchData.loserName}  
+- Score: ${matchData.winScore}-${matchData.loseScore}
+- Max Ball Speed: ${matchData.maxSpeed}
+- Total Hits: ${matchData.totalHits}
+- Winner's Hits: ${matchData.winnerHits}
+
+Generate commentary:`;
+
+            const payload = JSON.stringify({
+                model: "meta/llama-3.1-8b-instruct",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.9,
+                max_tokens: 150
+            });
+
+            const options = {
+                hostname: 'integrate.api.nvidia.com',
+                path: '/v1/chat/completions',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${_NVIDIA_KEY}`,
+                    'Content-Length': Buffer.byteLength(payload)
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const json = JSON.parse(data);
+                        const commentary = json.choices?.[0]?.message?.content || null;
+                        resolve(commentary);
+                    } catch(e) {
+                        console.log("NIM parse hatası:", e.message);
+                        resolve(null);
+                    }
+                });
+            });
+
+            req.on('error', (err) => {
+                console.log("NIM ağ hatası:", err.message);
+                resolve(null);
+            });
+
+            // 10s timeout
+            req.setTimeout(10000, () => {
+                req.destroy();
+                resolve(null);
+            });
+
+            req.write(payload);
+            req.end();
+        } catch (err) {
+            console.log("NIM hatası:", err.message);
+            resolve(null);
+        }
+    });
+}
+
+// AI Chat Bot for global chat
+async function generateAIChatReply(playerName, message) {
+    if (!_NVIDIA_KEY) return null;
+
+    const now = Date.now();
+    if (now - lastAICallTime < AI_RATE_LIMIT_MS) return null;
+    lastAICallTime = now;
+
+    return new Promise((resolve) => {
+        try {
+            const prompt = `You are "NEON", a friendly AI bot in "Cyber Pong" game's global chat. You speak both Turkish and English, matching the language of the player. Keep responses SHORT (1-2 sentences), fun, and cyber/gaming themed. Be encouraging and witty.
+
+Player "${playerName}" says: "${message}"
+
+Your reply as NEON:`;
+
+            const payload = JSON.stringify({
+                model: "meta/llama-3.1-8b-instruct",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.8,
+                max_tokens: 80
+            });
+
+            const options = {
+                hostname: 'integrate.api.nvidia.com',
+                path: '/v1/chat/completions',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${_NVIDIA_KEY}`,
+                    'Content-Length': Buffer.byteLength(payload)
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const json = JSON.parse(data);
+                        const reply = json.choices?.[0]?.message?.content || null;
+                        resolve(reply ? reply.trim().substring(0, 150) : null);
+                    } catch(e) {
+                        resolve(null);
+                    }
+                });
+            });
+
+            req.on('error', () => resolve(null));
+            req.setTimeout(8000, () => { req.destroy(); resolve(null); });
+            req.write(payload);
+            req.end();
+        } catch (err) {
+            resolve(null);
+        }
+    });
+}
 
 // ─── Yardımcı Fonksiyonlar ────────────────────────────────────────────────────
 function generateRoomCode() {
@@ -178,7 +454,8 @@ function createRoomState() {
         // Yetenek & Ekonomi
         matchCredits: {},       // { socketId: number }
         abilities: {},          // { socketId: { shield, chrono, glitch } each: { activeUntil, cooldownUntil } }
-        chronoZone: null        // { side: 'left'|'right', until: timestamp }
+        chronoZone: null,       // { side: 'left'|'right', until: timestamp }
+        rallyCount: 0           // v4: hit counter for rally tracking
     };
 }
 
@@ -187,6 +464,7 @@ function resetBall(room) {
     room.ball.y = CANVAS_HEIGHT / 2;
     room.ball.currentSpeed = BASE_SPEED;
     room.ball.lastHit = null;
+    room.rallyCount = 0;
 
     const signX    = Math.random() < 0.5 ? 1 : -1;
     const signY    = Math.random() < 0.5 ? 1 : -1;
@@ -219,6 +497,7 @@ function initMatch(roomName, socket1, profile1, socket2, profile2) {
     room.rematchRequests = {};
     room.frameCount = 0;
     room.arenaEvent = null;
+    room.rallyCount = 0;
     // Reset match economy & abilities
     room.matchCredits = { [socket1.id]: 0, [socket2.id]: 0 };
     room.abilities    = { [socket1.id]: createAbilityState(), [socket2.id]: createAbilityState() };
@@ -237,6 +516,15 @@ function initMatch(roomName, socket1, profile1, socket2, profile2) {
 
     // Discord Log: Maç başladı
     sendDiscordLog("⚔️ Siber Arena Eşleşmesi!", `**${profile1.name}** ve **${profile2.name}** karşı karşıya geliyor. Maç başlıyor!`, 0x00ffff);
+
+    // Telegram: Maç başladı
+    telegramMatchStart(profile1.name, profile2.name);
+
+    // Track server stats
+    serverStats.totalGamesPlayed++;
+    serverStats.totalGamesToday++;
+    serverStats.uniquePlayersToday.add(profile1.name);
+    serverStats.uniquePlayersToday.add(profile2.name);
 
     startGameLoop(roomName);
 }
@@ -362,6 +650,7 @@ function startGameLoop(roomName) {
                 ball.currentSpeed = Math.min(ball.currentSpeed + SPEED_INCREMENT, MAX_SPEED);
                 ball.lastHit = 'left';
                 room.stats.leftHits++;
+                room.rallyCount++;
                 if (ball.currentSpeed > room.stats.maxSpeed) room.stats.maxSpeed = ball.currentSpeed;
                 // +10 Maç kredisi (anti-farming: minimum hız kontrolü)
                 if (ball.currentSpeed >= MIN_SPEED_FOR_CREDITS) {
@@ -369,6 +658,7 @@ function startGameLoop(roomName) {
                     io.to(playerIds[0]).emit('credits_update', { credits: room.matchCredits[playerIds[0]] });
                 }
                 io.to(roomName).emit('playSound', { type: 'paddleHit', shake: true });
+                io.to(roomName).emit('rallyUpdate', { count: room.rallyCount });
             }
         }
 
@@ -385,6 +675,7 @@ function startGameLoop(roomName) {
                 ball.currentSpeed = Math.min(ball.currentSpeed + SPEED_INCREMENT, MAX_SPEED);
                 ball.lastHit = 'right';
                 room.stats.rightHits++;
+                room.rallyCount++;
                 if (ball.currentSpeed > room.stats.maxSpeed) room.stats.maxSpeed = ball.currentSpeed;
                 // +10 Maç kredisi (anti-farming: minimum hız kontrolü)
                 if (ball.currentSpeed >= MIN_SPEED_FOR_CREDITS) {
@@ -392,10 +683,9 @@ function startGameLoop(roomName) {
                     io.to(playerIds[1]).emit('credits_update', { credits: room.matchCredits[playerIds[1]] });
                 }
                 io.to(roomName).emit('playSound', { type: 'paddleHit', shake: true });
+                io.to(roomName).emit('rallyUpdate', { count: room.rallyCount });
             }
         }
-
-        // [Power-up sistemi kaldırıldı — Yetenek Mağazası ile değiştirildi]
 
         // Skor
         let scored    = false;
@@ -412,19 +702,45 @@ function startGameLoop(roomName) {
                 room.status = 'gameOver';
                 const winnerSide = p1.score >= MAX_SCORE ? 'left' : 'right';
 
-                // Discord Log: Maç Bitişi
                 const p1Profile = room.players[playerIds[0]].profile || {name: "Sol Oyuncu"};
                 const p2Profile = room.players[playerIds[1]].profile || {name: "Sağ Oyuncu"};
                 const winnerName = winnerSide === 'left' ? p1Profile.name : p2Profile.name;
                 const loserName = winnerSide === 'left' ? p2Profile.name : p1Profile.name;
                 const winScore = winnerSide === 'left' ? p1.score : p2.score;
                 const loseScore = winnerSide === 'left' ? p2.score : p1.score;
+                const winnerHits = winnerSide === 'left' ? room.stats.leftHits : room.stats.rightHits;
 
+                // Discord Log: Maç Bitişi
                 sendDiscordLog(
                     "🏆 Maç Sona Erdi!", 
                     `**${winnerName}** (${winScore}) rakibi **${loserName}** (${loseScore}) oyuncusunu mağlup etti!`, 
                     0x00ff00
                 );
+
+                // Telegram: Maç bitişi
+                telegramMatchEnd(winnerName, loserName, winScore, loseScore, room.stats);
+
+                // AI Commentary (async, non-blocking)
+                generateAICommentary({
+                    winnerName, loserName, winScore, loseScore,
+                    maxSpeed: room.stats.maxSpeed,
+                    totalHits: room.stats.leftHits + room.stats.rightHits,
+                    winnerHits
+                }).then(commentary => {
+                    if (commentary) {
+                        playerIds.forEach(pid => {
+                            io.to(pid).emit('aiCommentary', { text: commentary });
+                        });
+                        // Also post to global chat
+                        const aiMsg = { id: Date.now(), name: '🤖 NEON AI', title: 'Yorumcu', message: commentary.substring(0, 200), time: Date.now() };
+                        chatHistory.push(aiMsg);
+                        if (chatHistory.length > 50) chatHistory.shift();
+                        io.emit('receiveGlobalMessage', aiMsg);
+                    }
+                }).catch(() => {});
+
+                // Perfect win check
+                const isPerfect = loseScore === 0;
 
                 playerIds.forEach(pid => {
                     const player = room.players[pid];
@@ -436,7 +752,8 @@ function startGameLoop(roomName) {
                             totalHits: room.stats.leftHits + room.stats.rightHits,
                             yourHits : player.side === 'left' ? room.stats.leftHits : room.stats.rightHits,
                             leftScore : p1.score,
-                            rightScore: p2.score
+                            rightScore: p2.score,
+                            isPerfect: isPerfect && player.side === winnerSide
                         }
                     });
                 });
@@ -494,6 +811,7 @@ function sendRoomState(roomName) {
             c : room.countdown,
             f : room.frameCount,
             t : now,
+            rc: room.rallyCount || 0,
             // Yetenek durumları (my side + opponent side)
             ab: {
                 my:  {
@@ -514,9 +832,16 @@ function sendRoomState(roomName) {
     });
 }
 
+// ─── Online Player Count ──────────────────────────────────────────────────────
+function broadcastOnlineCount() {
+    io.emit('onlineCount', { count: serverStats.onlinePlayers });
+}
+
 // ─── Socket.io Bağlantıları ───────────────────────────────────────────────────
 io.on('connection', (socket) => {
-    
+    serverStats.onlinePlayers++;
+    broadcastOnlineCount();
+
     socket.on('joinMatchmaking', (profile) => {
         if (!profile || !profile.name) return;
         if (findRoomBySocketId(socket.id)) return;
@@ -675,6 +1000,7 @@ io.on('connection', (socket) => {
             room.arenaEvent      = null;
             room.stats           = { maxSpeed: BASE_SPEED, leftHits: 0, rightHits: 0 };
             room.ball            = { x: CANVAS_WIDTH/2, y: CANVAS_HEIGHT/2, dx:0, dy:0, currentSpeed: BASE_SPEED, lastHit: null };
+            room.rallyCount      = 0;
             // Rövanşta yetenek & kredi resetle
             room.matchCredits = {};
             room.abilities    = {};
@@ -744,11 +1070,15 @@ io.on('connection', (socket) => {
     socket.on('reportStats', (data) => {
         if (!data || !data.name || typeof data.xp !== 'number') return;
         updateLeaderboard(data.name, data.xp, data.level || 1);
+        // Track top player of the day
+        if (data.xp > serverStats.topPlayerToday.xp) {
+            serverStats.topPlayerToday = { name: data.name, xp: data.xp };
+        }
     });
 
     socket.on('getLeaderboard', () => socket.emit('leaderboardData', getTop10()));
 
-    socket.on('sendGlobalMessage', (data) => {
+    socket.on('sendGlobalMessage', async (data) => {
         if (!data || !data.name || !data.message) return;
         const msgStr = data.message.trim().substring(0, 100);
         if (!msgStr) return;
@@ -759,13 +1089,38 @@ io.on('connection', (socket) => {
 
         // Discord Log: Global Chat mesajları
         sendDiscordLog("💬 Global Chat", `**[${data.title || 'Oyuncu'}] ${data.name}:** ${msgStr}`, 0x888888);
+
+        // AI Bot: respond if mentioned with @bot or @ai or @neon
+        const lowerMsg = msgStr.toLowerCase();
+        if (lowerMsg.includes('@bot') || lowerMsg.includes('@ai') || lowerMsg.includes('@neon')) {
+            const aiReply = await generateAIChatReply(data.name, msgStr);
+            if (aiReply) {
+                const aiMsg = { id: Date.now() + Math.random(), name: '🤖 NEON', title: 'AI Bot', message: aiReply, time: Date.now() };
+                chatHistory.push(aiMsg);
+                if (chatHistory.length > 50) chatHistory.shift();
+                io.emit('receiveGlobalMessage', aiMsg);
+            }
+        }
     });
 
     socket.on('getChatHistory', () => socket.emit('chatHistory', chatHistory));
 
+    // ─── Get Server Stats ─────────────────────────────────────────────────────
+    socket.on('getServerStats', () => {
+        socket.emit('serverStats', {
+            online: serverStats.onlinePlayers,
+            totalGames: serverStats.totalGamesPlayed,
+            gamesToday: serverStats.totalGamesToday,
+            topPlayer: serverStats.topPlayerToday.name || '—'
+        });
+    });
+
     socket.on('ping_check', (ts) => { socket.emit('pong_check', ts); });
 
     socket.on('disconnect', () => {
+        serverStats.onlinePlayers = Math.max(0, serverStats.onlinePlayers - 1);
+        broadcastOnlineCount();
+
         if (waitingPlayer && waitingPlayer.socket.id === socket.id) waitingPlayer = null;
         delete singleplayerSessions[socket.id];
 
@@ -793,7 +1148,14 @@ io.on('connection', (socket) => {
 // ─── Sunucu Başlat ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`⚡ Cyber Pong Sunucusu Aktif: http://localhost:${PORT}`);
+    console.log(`⚡ Cyber Pong v4.0 Sunucusu Aktif: http://localhost:${PORT}`);
     // Discord Log: Sunucu Başlatıldı
-    sendDiscordLog("🚀 Sunucu Başlatıldı", `Cyber Pong sunucusu port ${PORT} üzerinde aktif hale geldi. Sistem çevrimiçi!`, 0xffaa00);
+    sendDiscordLog("🚀 Sunucu Başlatıldı", `Cyber Pong v4.0 sunucusu port ${PORT} üzerinde aktif hale geldi. Mega Update yüklendi!`, 0xffaa00);
+    // Telegram: Sunucu Başlatıldı
+    sendTelegramMessage(
+        `🚀 <b>Cyber Pong v4.0 Aktif!</b>\n` +
+        `🌐 Port: <b>${PORT}</b>\n` +
+        `📡 Mega Update yüklendi!\n` +
+        `🕐 ${new Date().toLocaleString('tr-TR')}`
+    );
 });
