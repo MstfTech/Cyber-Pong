@@ -146,13 +146,13 @@
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); width: 0%; box-shadow: 0 0 8px var(--neon-green); transition: width 0.5s ease-out; }
         .xp-text { font-size: 0.75rem; color: #777; margin-top: 4px; text-align: right; }
 
-        /* Status Bar */
-        #topStatusBar {
-            position: absolute; top: 20px; right: 120px;
-            display: flex; gap: 15px; z-index: 5;
+        /* Clean Top Header Right (Online Badge + Language) */
+        #topHeaderRight {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; align-items: center; gap: 12px; z-index: 100;
         }
         .status-pill {
-            padding: 8px 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
+            padding: 6px 14px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;
             border-radius: 20px; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); color: #ccc;
         }
         .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
@@ -319,10 +319,11 @@
 <!-- Optimized Canvas Background -->
 <canvas id="bgCanvas"></canvas>
 
-<!-- Language Selector -->
-<div id="languageSelector" style="position:absolute; top:20px; right:20px; z-index:100; display:flex; gap:10px;">
-    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.85rem;" data-lang="tr">TR</button>
-    <button class="lang-selector neon-button" style="padding:5px 15px; font-size:0.85rem;" data-lang="en">EN</button>
+<!-- Top Right Header (Online Badge + Language Selector) -->
+<div id="topHeaderRight">
+    <div class="status-pill"><div class="dot-green"></div> Online: <span id="onlineCountText" style="color:#fff; font-weight:bold;">1</span></div>
+    <button class="lang-selector neon-button" style="padding:5px 12px; font-size:0.8rem;" data-lang="tr">TR</button>
+    <button class="lang-selector neon-button" style="padding:5px 12px; font-size:0.8rem;" data-lang="en">EN</button>
 </div>
 
 <!-- Login Screen -->
@@ -343,11 +344,8 @@
         <div id="xpText" class="xp-text"></div>
     </div>
 
-    <div id="topStatusBar">
-        <div class="status-pill"><div class="dot-green"></div> Online: <span id="onlineCountText" style="color:#fff; font-weight:bold;">1</span></div>
-    </div>
-
-    <h1 class="neon-title" style="font-size:4.5rem; margin-bottom:10px;">NEON PONG</h1>
+    <!-- Title Fix: CYBER PONG -->
+    <h1 class="neon-title" style="font-size:4.5rem; margin-bottom:10px;">CYBER PONG</h1>
     <p style="color:#666; font-size:0.7rem; margin-bottom:25px;">Küresel Siber Arena v4.0</p>
 
     <div class="menu-grid">
@@ -722,7 +720,6 @@ function hideAllScreens() { document.querySelectorAll('.screen').forEach(s => s.
 function showScreen(id) {
     hideAllScreens();
     document.getElementById(id).classList.remove('hidden');
-    // Pause bgAnim when in active match screen for performance
     if (id === 'gameScreen') bgAnimActive = false;
     else if (!bgAnimActive) { bgAnimActive = true; drawBgAnimation(); }
 }
@@ -775,6 +772,8 @@ function playSoundEffect(type) {
     else if (type === 'score') { playTone(400,'sawtooth',0.1,0.08); setTimeout(()=>playTone(600,'sawtooth',0.1,0.08),100); }
     else if (type === 'win') { playTone(440,'square',0.15,0.08); setTimeout(()=>playTone(659,'square',0.3,0.08),150); }
     else if (type === 'lose') { playTone(400,'sawtooth',0.2,0.08); setTimeout(()=>playTone(280,'sawtooth',0.3,0.08),200); }
+    else if (type === 'tick') playTone(800, 'square', 0.04, 0.04);
+    else if (type === 'caseOpen') { playTone(523,'sine',0.15,0.1); setTimeout(()=>playTone(659,'sine',0.15,0.1),100); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -824,10 +823,8 @@ let renderPlayers = { left: { y: 250 }, right: { y: 250 } };
 
 let matchCredits = 0;
 let myAbilities  = { cyber_shield: { active: false, cd: 0 }, chrono_pulse: { active: false, cd: 0 }, data_glitch: { active: false, cd: 0 } };
-let oppAbilities = { cyber_shield: { active: false }, chrono_pulse: { active: false } };
 
 let lastFrameTime = 0;
-let floatingEmotes = [];
 let gridCache = null;
 
 function getSkinStyle(skinId) { return SKINS[skinId] || SKINS['default']; }
@@ -838,12 +835,10 @@ function drawCachedGrid() {
         const off = document.createElement('canvas');
         off.width = 800; off.height = 600;
         const octx = off.getContext('2d');
-        octx.strokeStyle = 'rgba(0,255,255,0.04)';
-        octx.lineWidth = 1;
+        octx.strokeStyle = 'rgba(0,255,255,0.04)'; octx.lineWidth = 1;
         for (let x = 0; x <= 800; x += 40) { octx.beginPath(); octx.moveTo(x,0); octx.lineTo(x,600); octx.stroke(); }
         for (let y = 0; y <= 600; y += 40) { octx.beginPath(); octx.moveTo(0,y); octx.lineTo(800,y); octx.stroke(); }
-        octx.setLineDash([12,12]);
-        octx.strokeStyle = 'rgba(0,255,255,0.15)'; octx.lineWidth = 2;
+        octx.setLineDash([12,12]); octx.strokeStyle = 'rgba(0,255,255,0.15)'; octx.lineWidth = 2;
         octx.beginPath(); octx.moveTo(400,0); octx.lineTo(400,600); octx.stroke();
         gridCache = off;
     }
@@ -867,12 +862,10 @@ function renderLoop(timestamp) {
             singleplayerBot.update(dtSec, serverBall);
             serverPlayers.right.y = singleplayerBot.y;
             
-            // Fast SP Ball Step
             serverBall.x += serverBall.dx * 60 * dtSec;
             serverBall.y += serverBall.dy * 60 * dtSec;
             if (serverBall.y - 8 <= 0 || serverBall.y + 8 >= 600) { serverBall.dy *= -1; playSoundEffect('wallHit'); }
             
-            // Paddle collisions
             if (serverBall.x - 8 <= 32 && serverBall.y >= serverPlayers.left.y && serverBall.y <= serverPlayers.left.y + 100 && serverBall.dx < 0) {
                 serverBall.dx = Math.abs(serverBall.dx) + 0.3; playSoundEffect('paddleHit');
             }
@@ -905,7 +898,6 @@ function renderLoop(timestamp) {
     renderPlayers.left.y  = lerp(renderPlayers.left.y,  serverPlayers.left.y,  0.3 * dtFactor);
     renderPlayers.right.y = lerp(renderPlayers.right.y, serverPlayers.right.y, 0.3 * dtFactor);
 
-    // Draw frame
     ctx.clearRect(0, 0, 800, 600);
     drawCachedGrid();
 
@@ -914,27 +906,21 @@ function renderLoop(timestamp) {
     const leftSkinStyle  = getSkinStyle(mySide === 'left' ? mySkin : oppSkin);
     const rightSkinStyle = getSkinStyle(mySide === 'right' ? mySkin : oppSkin);
 
-    // Draw paddles
     const p1H = serverPlayers.left.grow === 1 ? 125 : 100;
     const p2H = serverPlayers.right.grow === 1 ? 125 : 100;
-    ctx.fillStyle = getSkinColor(leftSkinStyle);
-    ctx.fillRect(20, renderPlayers.left.y, 12, p1H);
-    ctx.fillStyle = getSkinColor(rightSkinStyle);
-    ctx.fillRect(770, renderPlayers.right.y, 12, p2H);
+    ctx.fillStyle = getSkinColor(leftSkinStyle); ctx.fillRect(20, renderPlayers.left.y, 12, p1H);
+    ctx.fillStyle = getSkinColor(rightSkinStyle); ctx.fillRect(770, renderPlayers.right.y, 12, p2H);
 
-    // Draw ball
     if (gamePhase === 'playing') {
         ctx.fillStyle = getSkinColor(serverBall.lastHit === 'right' ? rightSkinStyle : leftSkinStyle);
         ctx.beginPath(); ctx.arc(renderBall.x, renderBall.y, 8, 0, Math.PI*2); ctx.fill();
         document.getElementById('ballSpeedVal').innerText = (serverBall.speed || 5.0).toFixed(1);
     }
 
-    // Scores
     ctx.font = '55px Orbitron'; ctx.textAlign = 'center';
     ctx.fillStyle = getSkinColor(leftSkinStyle); ctx.fillText(serverPlayers.left.score, 200, 75);
     ctx.fillStyle = getSkinColor(rightSkinStyle); ctx.fillText(serverPlayers.right.score, 600, 75);
 
-    // Countdown Text
     if (gamePhase === 'countdown') {
         ctx.font = '900 160px Orbitron'; ctx.fillStyle = '#0ff'; ctx.textAlign = 'center';
         ctx.fillText(currentCountdown > 0 ? currentCountdown : 'GO!', 400, 320);
@@ -958,7 +944,7 @@ function resetGameState() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Socket Listeners
+// Socket Listeners & Handlers
 // ═══════════════════════════════════════════════════════════════════════════
 socket.on('waiting', (msg) => { document.getElementById('message').innerText = msg; });
 socket.on('onlineCount', data => { document.getElementById('onlineCountText').innerText = data.count; });
@@ -1013,6 +999,10 @@ socket.on('gameOver', (data) => {
     document.getElementById('endGameXpText').innerText = `+${xpGained} XP KAZANDIN`;
     document.getElementById('endGameCreditText').innerText = `💰 +${creditsGained} Siber Jeton`;
     document.getElementById('matchStatsBox').innerHTML = `📊 Max Hız: ${data.stats?.maxSpeed || 0} | Toplam Vuruş: ${data.stats?.totalHits || 0}`;
+    document.getElementById('rematchSection').classList.remove('hidden');
+    document.getElementById('btnRematch').disabled = false;
+    document.getElementById('btnRematch').innerText = '🔄 RÖVANŞ İSTE';
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
     overlay.classList.remove('hidden');
 });
 
@@ -1023,7 +1013,52 @@ socket.on('aiCommentary', data => {
     }
 });
 
-// Controls
+// Private Rooms & Rematch Socket Listeners
+socket.on('privateRoomCreated', (data) => {
+    document.getElementById('roomCodeDisplay').innerText = data.code;
+    document.getElementById('createRoomWaiting').innerText = '⏳ Rakibin katılmasını bekliyorsun...';
+});
+
+socket.on('privateRoomError', (msg) => {
+    document.getElementById('joinRoomError').innerText = msg;
+});
+
+socket.on('opponentRequestedRematch', () => {
+    document.getElementById('rematchStatus').innerText = '⚡ Rakip rövanş istiyor!';
+    const btn = document.getElementById('btnRematch');
+    btn.innerText = '✅ KABUL ET'; btn.disabled = false;
+    document.getElementById('btnDeclineRematch').classList.remove('hidden');
+});
+
+socket.on('rematchStarted', () => {
+    document.getElementById('endGameOverlay').classList.add('hidden');
+    currentCountdown = 3; gamePhase = 'countdown'; gameAlreadyOver = false; resetGameState();
+    canvas.style.display = 'block'; startRenderLoop();
+});
+
+socket.on('rematchDeclined', () => {
+    document.getElementById('rematchStatus').innerText = '❌ Rakip rövanşı reddetti.';
+    document.getElementById('btnRematch').disabled = true;
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
+});
+
+socket.on('rematchUnavailable', () => {
+    if (gameAlreadyOver) {
+        document.getElementById('rematchStatus').innerText = '❌ Rakip ayrıldı.';
+        document.getElementById('btnRematch').disabled = true;
+        document.getElementById('btnDeclineRematch').classList.add('hidden');
+    }
+});
+
+socket.on('opponentLeft', () => {
+    if (gameAlreadyOver) return;
+    gamePhase = 'gameover'; isRenderRunning = false;
+    document.getElementById('endGameText').innerText = 'RAKİP KAÇTI!';
+    document.getElementById('endGameText').className = 'neon-title win-text';
+    document.getElementById('endGameOverlay').classList.remove('hidden');
+});
+
+// Controls & Mouse Movement
 canvas.addEventListener('mousemove', (e) => {
     if (gamePhase !== 'playing' && gamePhase !== 'countdown') return;
     const rect = canvas.getBoundingClientRect();
@@ -1032,7 +1067,7 @@ canvas.addEventListener('mousemove', (e) => {
     else socket.emit('move', { y });
 });
 
-// Navigation Handlers
+// Main Menu Button Handlers
 document.getElementById('btnFindMatch').addEventListener('click', () => {
     initAudio(); resetGameState(); gamePhase = 'countdown';
     showScreen('gameScreen'); document.getElementById('ui').classList.remove('hidden');
@@ -1056,12 +1091,54 @@ document.getElementById('singleplayerScreen').addEventListener('click', (e) => {
     }
 });
 
+// Private Room Button Handlers
+document.getElementById('btnCreateRoom').addEventListener('click', () => {
+    initAudio(); showScreen('createRoomScreen');
+    document.getElementById('roomCodeDisplay').innerText = '----';
+    document.getElementById('createRoomWaiting').innerText = '⏳ Oda oluşturuluyor...';
+    socket.emit('createPrivateRoom', { name: user.name, level: user.level, title: getTitle(user.level), equippedSkin: user.equippedSkin });
+});
+
+document.getElementById('btnCancelCreate').addEventListener('click', () => {
+    initAudio(); socket.emit('cancelPrivateRoom'); showScreen('mainMenu');
+});
+
+document.getElementById('btnJoinRoom').addEventListener('click', () => {
+    initAudio(); showScreen('joinRoomScreen');
+    document.getElementById('roomCodeInput').value = '';
+    document.getElementById('joinRoomError').innerText = '';
+});
+
+document.getElementById('btnJoinRoomGo').addEventListener('click', () => {
+    initAudio();
+    const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+    if (code.length !== 4) { document.getElementById('joinRoomError').innerText = 'Lütfen 4 haneli kod gir!'; return; }
+    socket.emit('joinPrivateRoom', { code, profile: { name: user.name, level: user.level, title: getTitle(user.level), equippedSkin: user.equippedSkin } });
+});
+
+document.getElementById('btnCancelJoin').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
+
+// Rematch Button Handlers
+document.getElementById('btnRematch').addEventListener('click', () => {
+    initAudio();
+    document.getElementById('btnRematch').innerText = '⏳ Bekleniyor...';
+    document.getElementById('btnRematch').disabled = true;
+    socket.emit('requestRematch');
+});
+
+document.getElementById('btnDeclineRematch').addEventListener('click', () => {
+    initAudio(); socket.emit('declineRematch');
+    document.getElementById('btnRematch').disabled = true;
+    document.getElementById('btnDeclineRematch').classList.add('hidden');
+});
+
 document.getElementById('btnReturnMenu').addEventListener('click', () => {
+    if (!isSingleplayer && gamePhase === 'gameover') socket.emit('declineRematch');
     isRenderRunning = false; gamePhase = 'idle'; isSingleplayer = false;
     canvas.style.display = 'none'; showScreen('mainMenu'); resetGameState();
 });
 
-// Inventory, Shop, Achievements & Missions
+// Inventory, Shop, Achievements & Missions Navigation
 document.getElementById('btnInventory').addEventListener('click', () => { initAudio(); showScreen('inventoryScreen'); updateInventoryUI(); });
 document.getElementById('btnBackToMenu').addEventListener('click', () => { initAudio(); showScreen('mainMenu'); });
 document.getElementById('btnLeaderboard').addEventListener('click', () => { initAudio(); showScreen('leaderboardScreen'); socket.emit('getLeaderboard'); });
@@ -1073,7 +1150,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
+        const tabId = btn.dataset.tab;
+        document.getElementById(tabId).classList.add('active');
+        if (tabId === 'tabAchievements') renderAchievements();
+        if (tabId === 'tabMissions') renderMissions();
     });
 });
 
@@ -1107,16 +1187,161 @@ document.querySelectorAll('.btnBuyCaseTier').forEach(btn => {
     });
 });
 
-// Chat
-document.getElementById('btnSendChat').addEventListener('click', () => {
-    const msg = document.getElementById('chatInput').value.trim();
-    if (msg && user.name) { socket.emit('sendGlobalMessage', { name: user.name, title: getTitle(user.level), message: msg }); document.getElementById('chatInput').value = ''; }
+// Case Opening Roulette Engine
+let isSpinning = false;
+function getRandomSkinId() {
+    const keys = Object.keys(SKINS);
+    return keys[Math.floor(Math.random() * keys.length)];
+}
+
+document.getElementById('btnOpenCase').addEventListener('click', () => {
+    if (isSpinning) return;
+    if ((user.cases || 0) <= 0) return alert('Açılacak kasan yok! Mağaza sekmesinden satın alabilirsin.');
+    initAudio(); user.cases--; saveUser(); updateInventoryUI();
+    playSoundEffect('caseOpen'); isSpinning = true;
+
+    const container = document.getElementById('rouletteContainer');
+    const track = document.getElementById('rouletteTrack');
+    const banner = document.getElementById('wonSkinBanner');
+    banner.classList.add('hidden'); container.classList.remove('hidden');
+    track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0px)';
+
+    const itemWidth = 150, totalItems = 50, winIndex = 38;
+    const wonSkinId = getRandomSkinId();
+
+    for (let i = 0; i < totalItems; i++) {
+        const sid = i === winIndex ? wonSkinId : getRandomSkinId();
+        const skin = SKINS[sid];
+        const el = document.createElement('div'); el.className = 'roulette-item';
+        el.innerHTML = `
+            <div class="skin-preview" style="background:${skin.color === 'rgb' ? 'linear-gradient(#f00,#0f0,#00f)' : skin.color}"></div>
+            <div style="font-size:12px; color:${skin.rarityColor}">${skin.name}</div>
+        `;
+        track.appendChild(el);
+    }
+
+    const containerCtr = container.offsetWidth / 2;
+    const targetX = containerCtr - ((winIndex * itemWidth) + (itemWidth / 2));
+    void track.offsetWidth;
+    track.style.transition = 'transform 5s cubic-bezier(0.12, 0.88, 0.18, 1)';
+    track.style.transform = `translateX(${targetX}px)`;
+
+    let tickCount = 0;
+    function doTick() {
+        if (!isSpinning || tickCount >= 40) return;
+        playSoundEffect('tick'); tickCount++;
+        setTimeout(doTick, 50 + tickCount * 8);
+    }
+    doTick();
+
+    setTimeout(() => {
+        isSpinning = false;
+        if (!user.skins.includes(wonSkinId)) user.skins.push(wonSkinId);
+        saveUser(); updateInventoryUI();
+        const skin = SKINS[wonSkinId];
+        banner.innerHTML = `<h3 style="color:${skin.rarityColor}">🎉 [${skin.name}] SKİNİ KAZANDINIZ!</h3>`;
+        banner.classList.remove('hidden');
+        setTimeout(() => container.classList.add('hidden'), 2500);
+    }, 5500);
 });
+
+// Achievements & Missions Loaders
+let achievementsData = [];
+let missionsData = [];
+
+fetch('/data/achievements.json').then(r => r.json()).then(d => { achievementsData = d; }).catch(() => {});
+fetch('/data/missions.json').then(r => r.json()).then(d => { missionsData = d; }).catch(() => {});
+
+function renderAchievements() {
+    const grid = document.getElementById('achievementsGrid');
+    if (!grid) return; grid.innerHTML = '';
+    if (!achievementsData.length) return grid.innerHTML = '<div style="color:#888;">Yükleniyor...</div>';
+    achievementsData.forEach(ach => {
+        const isUnlocked = user.achievements?.includes(ach.id);
+        const card = document.createElement('div'); card.className = `ach-card ${isUnlocked ? 'unlocked' : ''}`;
+        card.innerHTML = `
+            <div class="ach-icon">${ach.icon}</div>
+            <div>
+                <div style="font-weight:bold; font-size:0.9rem;">${ach.name} ${isUnlocked ? '✓' : ''}</div>
+                <div style="font-size:0.75rem; color:#888;">${ach.desc}</div>
+                <div style="font-size:0.7rem; color:var(--neon-gold); margin-top:2px;">+${ach.reward.xp} XP | +${ach.reward.credits} 💰</div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function renderMissions() {
+    const list = document.getElementById('missionsList');
+    if (!list) return; list.innerHTML = '';
+    if (!missionsData.length) return list.innerHTML = '<div style="color:#888;">Yükleniyor...</div>';
+    missionsData.forEach(m => {
+        const card = document.createElement('div'); card.className = 'ach-card';
+        card.innerHTML = `
+            <div class="ach-icon">${m.icon}</div>
+            <div>
+                <div style="font-weight:bold; font-size:0.9rem;">${m.name}</div>
+                <div style="font-size:0.75rem; color:#888;">${m.desc}</div>
+                <div style="font-size:0.7rem; color:var(--neon-gold); margin-top:2px;">+${m.reward.xp} XP | +${m.reward.credits} 💰</div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+// Global Chat Event & Handlers
+document.getElementById('btnSendChat').addEventListener('click', () => {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (msg && user.name) {
+        socket.emit('sendGlobalMessage', { name: user.name, title: getTitle(user.level), message: msg });
+        input.value = '';
+    }
+});
+
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnSendChat').click();
+});
+
+socket.on('chatHistory', (history) => {
+    const chat = document.getElementById('chatMessages');
+    chat.innerHTML = '';
+    history.forEach(d => {
+        const div = document.createElement('div'); div.className = 'chat-msg';
+        div.innerHTML = `<span class="chat-name">${d.name}:</span><span>${d.message}</span>`;
+        chat.appendChild(div);
+    });
+    chat.scrollTop = chat.scrollHeight;
+});
+
 socket.on('receiveGlobalMessage', (d) => {
+    const chat = document.getElementById('chatMessages');
     const div = document.createElement('div'); div.className = 'chat-msg';
     div.innerHTML = `<span class="chat-name">${d.name}:</span><span>${d.message}</span>`;
-    document.getElementById('chatMessages').appendChild(div);
-    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+});
+
+socket.on('leaderboardData', (data) => {
+    const tbody = document.getElementById('leaderboardBody');
+    if (!tbody) return; tbody.innerHTML = '';
+    if (!data || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#555; padding:15px;">Henüz veri yok.</td></tr>';
+        return;
+    }
+    const icons = ['👑','🥈','🥉'];
+    data.forEach((entry, i) => {
+        const tr = document.createElement('tr');
+        const isMe = user && entry.name === user.name;
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        tr.innerHTML = `
+            <td style="padding:8px;">${i<3?icons[i]:i+1}</td>
+            <td style="${isMe?'color:var(--neon-blue);font-weight:bold;':''}">${entry.name}${isMe?' (Sen)':''}</td>
+            <td>Lv.${entry.level||1}</td>
+            <td style="text-align:right;">${entry.xp.toLocaleString()} XP</td>
+        `;
+        tbody.appendChild(tr);
+    });
 });
 </script>
 </body>
